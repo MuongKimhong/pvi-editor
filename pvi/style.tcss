@@ -1,0 +1,19 @@
+Screen {
+    layout: grid;
+    grid-size: 1;
+}
+
+Sidebar {
+    dock: left;
+    width: 30;
+    height: 100%;
+    color: white;
+    background: #242424;
+    border: round grey;
+    padding-top: 0;
+    margin: 0;
+}
+
+#editor {
+    height: 100%;
+}

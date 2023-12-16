@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "pvi"
+version = "0.1.0"
+description = ""
+authors = ["MuongKimhong <muongkimhong086@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+textual = {extras = ["syntax"], version = "^0.45.1"}
+textual-dev = "^1.2.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
