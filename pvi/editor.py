@@ -21,7 +21,13 @@ class Editor(Screen):
         width = self.query_one(Sidebar).styles.width.value
 
         self.query_one(Sidebar).styles.width = 0 if width == 30 else 30
-        self.query_one(Sidebar).styles.border = ("hidden", "grey") if width == 30 else ("round", "grey")
+
+        if width == 30:
+            self.query_one(Sidebar).styles.border = ("hidden", "grey")
+        else:
+            self.query_one(Sidebar).styles.border = ("round", "#242424")
+            self.query_one(Sidebar).styles.border_right = ("round", "grey")
+            self.query_one(Sidebar).styles.border_top = ("round", "grey")
 
     def on_key(self, event: events.Key) -> None:
         if event.key == "ctrl+b":
