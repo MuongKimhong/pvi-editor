@@ -21,17 +21,20 @@ class Main(App):
             section_data["directory_path"] = os.getcwd()
             section_data["editing_type"] = "dir"
 
-        elif self.cli_argument["directory"] and os.path.exists(self.cli_argument["directory"]) and os.path.isdir(self.cli_argument["directory"]):
-            section_data["directory_path"] = f"{os.getcwd()}/{self.cli_argument['directory']}"
-            section_data["editing_type"] = "dir"
+        elif self.cli_argument["directory"]: 
+            if os.path.exists(self.cli_argument["directory"]) and os.path.isdir(self.cli_argument["directory"]):
+                section_data["directory_path"] = f"{os.getcwd()}/{self.cli_argument['directory']}"
+                section_data["editing_type"] = "dir"
 
-        elif self.cli_argument["file"] and os.path.exists(self.cli_argument["file"]) and os.path.isfile(self.cli_argument["file"]):
-            section_data["directory_path"] = f"{os.getcwd()}/{self.cli_argument['file']}"
-            section_data["editing_type"] = "file"
+        elif self.cli_argument["file"]: 
+            if os.path.exists(self.cli_argument["file"]) and os.path.isfile(self.cli_argument["file"]):
+                section_data["directory_path"] = f"{os.getcwd()}/{self.cli_argument['file']}"
+                section_data["editing_type"] = "file"
 
-        elif self.cli_argument["fullpath"] and os.path.exists(self.cli_argument["fullpath"]):
-            section_data["directory_path"] = self.cli_argument["fullpath"]
-            section_data["editing_type"] = "file" if os.path.isfile(self.cli_argument["fullpath"]) else "dir"
+        elif self.cli_argument["fullpath"]: 
+            if os.path.exists(self.cli_argument["fullpath"]):
+                section_data["directory_path"] = self.cli_argument["fullpath"]
+                section_data["editing_type"] = "file" if os.path.isfile(self.cli_argument["fullpath"]) else "dir"
         
         else:
             raise Exception('''
