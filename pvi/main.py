@@ -2,6 +2,7 @@ from textual.widgets import TextArea, Static
 from textual.app import App, ComposeResult
 from textual import events, log
 
+from utils import update_ini_file
 from editor import Editor
 
 import argparse
@@ -14,21 +15,30 @@ class Main(App):
         super().__init__()
 
     def on_mount(self):
-        log("Hello world")
-        if self.cli_argument["path"] == ".":
-            working_directory = os.getcwd()
-            log(working_directory)
-        elif os.path.exists(self.cli_argument["path"]) is False:
-            raise Exception( f'''
-            Provided path ({self.cli_argument['path']}) is not exists!
-            Please provide a valid path
-            ''')
-        elif os.path.isfile(self.cli_argument["path"]):
-            editing_type = "file"
-        elif os.path.isdir(self.cli_argument["path"]):
-            editing_type = "dir"
+        section_data = {"directory_path": None, "editing_type": None}
 
-        working_directory = self.cli_argument["path"]
+        if self.cli_argument["currentworkingdirectory"] == ".":
+            section_data["directory_path"] = os.getcwd()
+            section_data["editing_type"] = "dir"
+
+        elif self.cli_argument["directory"] and os.path.exists(self.cli_argument["directory"]) and os.path.isdir(self.cli_argument["directory"]):
+            section_data["directory_path"] = f"{os.getcwd()}/{self.cli_argument['directory']}"
+            section_data["editing_type"] = "dir"
+
+        elif self.cli_argument["file"] and os.path.exists(self.cli_argument["file"]) and os.path.isfile(self.cli_argument["file"]):
+            section_data["directory_path"] = f"{os.getcwd()}/{self.cli_argument['file']}"
+            section_data["editing_type"] = "file"
+
+        elif self.cli_argument["fullpath"] and os.path.exists(self.cli_argument["fullpath"]):
+            section_data["directory_path"] = self.cli_argument["fullpath"]
+            section_data["editing_type"] = "file" if os.path.isfile(self.cli_argument["fullpath"]) else "dir"
+        
+        else:
+            raise Exception('''
+            \n[Error] The provided argument is not supported! Please check the documentation for more detail.\n
+            ''')
+
+        update_ini_file(section_name="WorkingDirectory", section_data=section_data)
 
         self.install_screen(Editor, "editor")
         self.push_screen("editor")
@@ -36,7 +46,10 @@ class Main(App):
 
 if __name__ == "__main__":
     arg = argparse.ArgumentParser()
-    arg.add_argument("-p", "--path", help="Path to working directory", required=True)
+    arg.add_argument("-p", "--fullpath", help="Open a file or directory with provided full path", required=False)
+    arg.add_argument("-w", "--currentworkingdirectory", help="Open current working directory", required=False)
+    arg.add_argument("-d", "--directory", help="Open a directory", required=False)
+    arg.add_argument("-f", "--file", help="Open a file", required=False)
     arguments = vars(arg.parse_args())
 
     app = Main(cli_argument=arguments)
