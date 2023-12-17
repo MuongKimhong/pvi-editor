@@ -27,12 +27,23 @@ class Sidebar(Static):
 
     def compose(self) -> ComposeResult:
         directory_path = read_store_ini_file("WorkingDirectory")["directory_path"]
+        directories = []
+        files = []
 
         for content in self.dir_tree:
             if os.path.isfile(f"{directory_path}/{content}"):
-                self.dir_tree_listview.append(ListItem(Static(content), classes="filelistitem"))
-            elif os.path.isdir(f"{directory_path}/{content}"):
-                self.dir_tree_listview.append(ListItem(Static(f"{content}/"), classes="dirlistitem"))
+                files.append(content)
+            elif os.path.isdir(f"{directory_path}/{content}") and content != ".git":
+                directories.append(content)
+
+        files.sort()
+        directories.sort()
+
+        for directory in directories:
+            self.dir_tree_listview.append(ListItem(Static(f"{directory}/"), classes="dirlistitem"))
+
+        for file in files:
+            self.dir_tree_listview.append(ListItem(Static(file), classes="filelistitem"))
 
         yield Container(self.dir_tree_listview, id="sidebar-container")
         yield Static("", id="sidebar")
