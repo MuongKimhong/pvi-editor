@@ -10,7 +10,7 @@ import os
 
 
 class Editor(Screen):
-    CSS_PATH = "style.tcss"
+    CSS_PATH = "styles/style.tcss"
     dir_tree_listview = ListView(*[], id="dir_tree_listview")
 
     def compose(self) -> ComposeResult:
