@@ -1,0 +1,16 @@
+
+#sidebar-container {
+    background: #242424;
+}
+
+#listview {
+    background: #242424;
+}
+
+.filelistitem {
+    background: #242424; 
+}
+
+.dirlistitem {
+    background: #242424;
+}

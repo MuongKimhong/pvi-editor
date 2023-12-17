@@ -8,13 +8,13 @@ def get_pvi_root() -> Path:
     return Path(__file__).parent.parent
 
 
-def read_ini_file(section_name: str) -> dict:
+def read_store_ini_file(section_name: str) -> dict:
     config = configparser.ConfigParser()
     config.read(f"{get_pvi_root()}/pvi/store/stores.ini")
     return config[section_name] 
 
 
-def update_ini_file(section_name: str, section_data: dict) -> None:
+def update_store_ini_file(section_name: str, section_data: dict) -> None:
     config = configparser.ConfigParser()
     config.read(f"{get_pvi_root()}/pvi/store/stores.ini")
     config[section_name].update(section_data)

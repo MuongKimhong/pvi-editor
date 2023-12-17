@@ -2,7 +2,7 @@ from textual.widgets import TextArea, Static
 from textual.app import App, ComposeResult
 from textual import events, log
 
-from utils import update_ini_file
+from utils import update_store_ini_file
 from editor import Editor
 
 import argparse
@@ -41,7 +41,7 @@ class Main(App):
             \n[Error] The provided argument is not supported! Please check the documentation for more detail.\n
             ''')
 
-        update_ini_file(section_name="WorkingDirectory", section_data=section_data)
+        update_store_ini_file(section_name="WorkingDirectory", section_data=section_data)
 
         self.install_screen(Editor, "editor")
         self.push_screen("editor")
