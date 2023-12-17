@@ -36,7 +36,7 @@ class Editor(Screen):
         else: self.show_sidebar()
 
     def on_key(self, event: events.Key) -> None:
-        if event.key == "ctrl+b":
+        if event.key == "ctrl+b": # toggle sidebar
             self.toggle_sidebar()    
 
     def on_screen_resume(self, event: events.ScreenResume) -> None:

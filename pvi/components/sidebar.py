@@ -47,5 +47,3 @@ class Sidebar(Static):
 
         yield Container(self.dir_tree_listview, id="sidebar-container")
         yield Static("", id="sidebar")
-
-     
