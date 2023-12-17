@@ -1,6 +1,7 @@
 from textual.widgets import Static, ListView, ListItem
 from textual.containers import Container
 from textual.app import ComposeResult
+from textual.widget import Widget
 from textual import log, events
 
 from utils import read_store_ini_file, update_store_ini_file
@@ -9,7 +10,7 @@ from utils import read_setting_ini_file
 import os
 
 
-class Sidebar(Static):
+class Sidebar(Widget):
     def __init__(self, dir_tree: list):
         self.dir_tree = dir_tree
         self.dir_tree_listview = ListView(*[], id="listview")
