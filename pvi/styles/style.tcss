@@ -5,10 +5,7 @@ Screen {
 
 Sidebar {
     dock: left;
-    width: 25;
     height: 100%;
-    color: white;
-    background: #242424;
     border: round #242424;
     border-right: round grey;
     border-top: round grey;

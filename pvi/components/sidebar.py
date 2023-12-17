@@ -1,9 +1,10 @@
 from textual.widgets import Static, ListView, ListItem
 from textual.containers import Container
 from textual.app import ComposeResult
-from textual import log
+from textual import log, events
 
 from utils import read_store_ini_file, update_store_ini_file
+from utils import read_setting_ini_file
 
 import os
 
@@ -13,6 +14,16 @@ class Sidebar(Static):
         self.dir_tree = dir_tree
         self.dir_tree_listview = ListView(*[], id="listview")
         super().__init__()
+
+    def set_style(self) -> None:
+        style = read_setting_ini_file(section_name="Sidebar")
+        self.styles.border = (style["border_style"], f"#{style['border_color']}")
+        self.styles.border_top = (style["border_top_style"], f"#{style['border_top_color']}")
+        self.styles.border_right = (style["border_right_style"], f"#{style['border_right_color']}")
+        self.styles.width = int(style["max_width"])
+
+    def on_mount(self, event: events.Mount) -> None:
+        self.set_style() 
 
     def compose(self) -> ComposeResult:
         directory_path = read_store_ini_file("WorkingDirectory")["directory_path"]

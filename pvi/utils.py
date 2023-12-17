@@ -21,3 +21,18 @@ def update_store_ini_file(section_name: str, section_data: dict) -> None:
 
     with open(f"{get_pvi_root()}/pvi/store/stores.ini", "w") as configfile:
         config.write(configfile)
+
+
+def read_setting_ini_file(section_name: str) -> dict:
+    config = configparser.ConfigParser()
+    config.read(f"{get_pvi_root()}/pvi/store/settings.ini")
+    return config[section_name]
+
+
+def update_setting_ini_file(section_name: str, section_data: dict) -> None:
+    config = configparser.ConfigParser()
+    config.read(f"{get_pvi_root()}/pvi/store/settings.ini")
+    config[section_name].update(section_data)
+
+    with open(f"{get_pvi_root()}/pvi/store/settings.ini", "w") as configfile:
+        config.write(configfile)
