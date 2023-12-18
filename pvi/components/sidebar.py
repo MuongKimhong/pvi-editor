@@ -10,7 +10,7 @@ from utils import read_setting_ini_file
 import os
 
 
-class Sidebar(Widget):
+class Sidebar(Widget, can_focus=True):
     def __init__(self, dir_tree: list):
         self.dir_tree = dir_tree
         self.dir_tree_listview = ListView(*[], id="listview")
@@ -47,4 +47,6 @@ class Sidebar(Widget):
             self.dir_tree_listview.append(ListItem(Static(file), classes="filelistitem"))
 
         yield Container(self.dir_tree_listview, id="sidebar-container")
-        yield Static("", id="sidebar")
+
+    def on_focus(self, event: events.Focus) -> None:
+        log("sidebar is focus")

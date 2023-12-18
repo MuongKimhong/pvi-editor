@@ -16,11 +16,15 @@ class Editor(Screen):
 
     def __init__(self):
         self.sidebar_style = read_setting_ini_file(section_name="Sidebar")
+        self.focused_editor = True
+        self.focused_sidebar = False
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        yield Sidebar(dir_tree=os.listdir(read_store_ini_file("WorkingDirectory")["directory_path"]))
-        yield Static("Two", id="editor")
+        yield Sidebar(
+            dir_tree=os.listdir(read_store_ini_file("WorkingDirectory")["directory_path"])
+        )
+        yield Container(Static("Editor"), id="editor")
         
     def hide_sidebar(self) -> None:
         self.query_one(Sidebar).styles.width = 0
@@ -35,9 +39,20 @@ class Editor(Screen):
         if int(width) == int(self.sidebar_style["max_width"]): self.hide_sidebar()
         else: self.show_sidebar()
 
-    def on_key(self, event: events.Key) -> None:
+    async def on_key(self, event: events.Key) -> None:
         if event.key == "ctrl+b": # toggle sidebar
             self.toggle_sidebar()    
+        if event.key == "ctrl+q":
+            self.set_focus(self.query_one(Sidebar))
+            # sidebar_id = self.query_one(Sidebar).id
+            # if self.focused_editor:
+            #     await self.app.action_focus(widget_id=sidebar_id)
+            #     self.focused_sidebar = True
+            #     self.focused_editor = False
+            # else:
+            #     await self.app.action_focus(widget_id="editor")
+            #     self.focused_sidebar = False
+            #     self.focused_editor = True 
 
     def on_screen_resume(self, event: events.ScreenResume) -> None:
         store = read_store_ini_file(section_name="WorkingDirectory")
