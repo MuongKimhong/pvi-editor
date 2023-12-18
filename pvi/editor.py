@@ -1,5 +1,6 @@
 from textual.widgets import Static, ListView, ListItem
 from textual.containers import Container
+from textual.css.query import NoMatches
 from textual.app import ComposeResult
 from textual.screen import Screen
 from textual import events, log
@@ -17,14 +18,13 @@ class Editor(Screen):
 
     def __init__(self):
         self.sidebar_style = read_setting_ini_file(section_name="Sidebar")
-        self.focused_main_editor = False
-        self.focused_sidebar = True
+        self.store = read_store_ini_file(section_name="WorkingDirectory")
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        yield Sidebar(
-            dir_tree=os.listdir(read_store_ini_file("WorkingDirectory")["directory_path"])
-        )
+        # yield Sidebar(
+        #     dir_tree=os.listdir(read_store_ini_file("WorkingDirectory")["directory_path"])
+        # )
         yield MainEditor()
         
     def hide_sidebar(self) -> None:
@@ -40,17 +40,27 @@ class Editor(Screen):
         if int(width) == int(self.sidebar_style["max_width"]): self.hide_sidebar()
         else: self.show_sidebar()
 
-    async def on_key(self, event: events.Key) -> None:
+    def mount_sidebar_to_screen(self) -> None:
+        sidebar = Sidebar(dir_tree=os.listdir(self.store["directory_path"]))
+        self.mount(sidebar)
+        sidebar.scroll_visible()
+
+    def sidebar_exists(self) -> bool:
+        try:
+            sidebar = self.query_one(Sidebar)
+        except NoMatches:
+            return False
+        return True
+
+    def on_key(self, event: events.Key) -> None:
         if event.key == "ctrl+b": # toggle sidebar
-            self.toggle_sidebar()    
+            if self.store["editing_type"] == "dir":
+                if not self.sidebar_exists(): self.mount_sidebar_to_screen()
+
+                self.toggle_sidebar()    
 
     def on_screen_resume(self, event: events.ScreenResume) -> None:
-        store = read_store_ini_file(section_name="WorkingDirectory")
-        
-        if store["editing_type"] == "file": 
-            self.hide_sidebar()
-        else: 
-            self.show_sidebar()
+        pass
 
     def on_screen_suspend(self, event: events.ScreenSuspend) -> None:
         pass
