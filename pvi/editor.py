@@ -22,9 +22,6 @@ class Editor(Screen):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        # yield Sidebar(
-        #     dir_tree=os.listdir(read_store_ini_file("WorkingDirectory")["directory_path"])
-        # )
         yield MainEditor()
         
     def hide_sidebar(self) -> None:
