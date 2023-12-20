@@ -15,7 +15,7 @@ class Main(App):
         super().__init__()
 
     def on_mount(self):
-        section_data = {"directory_path": None, "editing_type": None}
+        section_data = {"editing_path": None, "editing_type": None}
 
         if self.cli_argument["currentworkingdirectory"] == ".":
             section_data["editing_path"] = os.getcwd()

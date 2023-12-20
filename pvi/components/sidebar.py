@@ -27,7 +27,7 @@ class Sidebar(Container, can_focus=True):
         self.set_style() 
 
     def compose(self) -> ComposeResult:
-        directory_path = read_store_ini_file("WorkingDirectory")["directory_path"]
+        directory_path = read_store_ini_file("WorkingDirectory")["editing_path"]
         directories = []
         files = []
 

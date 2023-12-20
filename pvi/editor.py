@@ -20,7 +20,7 @@ class Editor(Screen):
     def __init__(self):
         self.sidebar_style = read_setting_ini_file(section_name="Sidebar")
         self.store = read_store_ini_file(section_name="WorkingDirectory")
-        self.show_welcome_text = True
+        self.focused_main_editor = True
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -57,12 +57,31 @@ class Editor(Screen):
         self.query_one(MainEditor).mount(welcome_text)
         welcome_text.scroll_visible()
 
+    # Handle switch focus between Sidebar and Main Editor
+    def handle_switching_focus(self) -> None:
+        if self.sidebar_exists():
+            if self.focused_main_editor:
+                self.query_one(Sidebar).focus()
+                self.focused_main_editor = False
+            else:
+                self.query_one(MainEditor).focus()
+                self.focused_main_editor = True
+
     def on_key(self, event: events.Key) -> None:
         if event.key == "ctrl+b": # toggle sidebar
             if self.store["editing_type"] == "dir":
                 if not self.sidebar_exists(): self.mount_sidebar_to_screen()
 
                 self.toggle_sidebar()    
+
+        elif event.key == "ctrl+q":
+            self.handle_switching_focus()
+
+        elif event.key == "j":
+            if self.focused_main_editor: # key binding move down in Main editor
+                pass
+            else: # key binding move down in Sidebar
+                pass
 
     def on_mount(self, event: events.Mount) -> None:
         if self.store["editing_type"] == "dir":
