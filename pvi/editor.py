@@ -65,7 +65,8 @@ class Editor(Screen):
                 self.toggle_sidebar()    
 
     def on_mount(self, event: events.Mount) -> None:
-        self.mount_welcome_text()
+        if self.store["editing_type"] == "dir":
+            self.mount_welcome_text()
 
     def on_screen_resume(self, event: events.ScreenResume) -> None:
         pass
