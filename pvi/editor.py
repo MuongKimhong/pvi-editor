@@ -9,6 +9,7 @@ from utils import read_store_ini_file, update_store_ini_file
 from utils import read_setting_ini_file
 from components.sidebar import Sidebar
 from components.main_editor import MainEditor
+from components.welcome_text import WelcomeText
 
 import os
 
@@ -19,6 +20,7 @@ class Editor(Screen):
     def __init__(self):
         self.sidebar_style = read_setting_ini_file(section_name="Sidebar")
         self.store = read_store_ini_file(section_name="WorkingDirectory")
+        self.show_welcome_text = True
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -49,12 +51,21 @@ class Editor(Screen):
             return False
         return True
 
+    def mount_welcome_text(self) -> None:
+        # Mount welcome text to Main Editor
+        welcome_text = WelcomeText()
+        self.query_one(MainEditor).mount(welcome_text)
+        welcome_text.scroll_visible()
+
     def on_key(self, event: events.Key) -> None:
         if event.key == "ctrl+b": # toggle sidebar
             if self.store["editing_type"] == "dir":
                 if not self.sidebar_exists(): self.mount_sidebar_to_screen()
 
                 self.toggle_sidebar()    
+
+    def on_mount(self, event: events.Mount) -> None:
+        self.mount_welcome_text()
 
     def on_screen_resume(self, event: events.ScreenResume) -> None:
         pass

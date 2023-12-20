@@ -31,3 +31,13 @@ Sidebar .dirlistitem {
     color: cyan;
     text-style: bold; 
 }
+
+WelcomeText {
+    align: center middle; 
+}
+WelcomeText #welcome {
+    text-align: center;
+}
+WelcomeText #happy-coding {
+    text-align: center;
+}
