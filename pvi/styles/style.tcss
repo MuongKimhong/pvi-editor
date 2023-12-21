@@ -41,3 +41,7 @@ WelcomeText #welcome {
 WelcomeText #happy-coding {
     text-align: center;
 }
+
+DirectoryContentText {
+    background: #242424;
+}

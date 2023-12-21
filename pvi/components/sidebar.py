@@ -10,10 +10,29 @@ from utils import read_setting_ini_file
 import os
 
 
+class DirectoryContentText(Container):
+    def __init__(self, content_name, content_type) -> None:
+        self.content_name = content_name
+        self.content_type = content_type
+        super().__init__()
+
+    def compose(self) -> None:
+        yield Static(self.content_name)
+
+
 class Sidebar(Container, can_focus=True):
     def __init__(self, dir_tree: list):
         self.dir_tree = dir_tree
         self.dir_tree_listview = ListView(*[], id="listview")
+
+        # represent viewing directory, file and indexing in directory tree
+        self.viewing = {
+            "directory_name": "", 
+            "file_name": "",
+            "index": 0, # viewing index inside directory tree
+            "next_index": None, 
+            "previous_index": None,
+        }
         super().__init__()
 
     def set_style(self) -> None:
@@ -41,12 +60,21 @@ class Sidebar(Container, can_focus=True):
         directories.sort()
 
         for directory in directories:
-            self.dir_tree_listview.append(ListItem(Static(f"{directory}/"), classes="dirlistitem"))
-
+            self.dir_tree_listview.append(
+                ListItem(
+                    DirectoryContentText(content_name=f"{directory}/", content_type="dir"),
+                    classes="dirlistitem"
+                )
+            )
         for file in files:
-            self.dir_tree_listview.append(ListItem(Static(file), classes="filelistitem"))
+            self.dir_tree_listview.append(
+                ListItem(
+                    DirectoryContentText(content_name=file, content_type="file"),
+                    classes="filelistitem"
+                )
+            )
 
-        yield Container(self.dir_tree_listview, id="sidebar-container")
+        yield Container(self.dir_tree_listview, id="sidebar-container") 
 
     def on_focus(self, event: events.Focus) -> None:
         log("Sidebar is focused")

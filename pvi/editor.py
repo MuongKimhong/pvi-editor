@@ -11,6 +11,7 @@ from components.sidebar import Sidebar
 from components.main_editor import MainEditor
 from components.welcome_text import WelcomeText
 
+import time
 import os
 
 
@@ -71,7 +72,7 @@ class Editor(Screen):
         if event.key == "ctrl+b": # toggle sidebar
             if self.store["editing_type"] == "dir":
                 if not self.sidebar_exists(): self.mount_sidebar_to_screen()
-
+                
                 self.toggle_sidebar()    
 
         elif event.key == "ctrl+q":
@@ -81,7 +82,8 @@ class Editor(Screen):
             if self.focused_main_editor: # key binding move down in Main editor
                 pass
             else: # key binding move down in Sidebar
-                pass
+                if self.sidebar_exists():
+                    pass
 
     def on_mount(self, event: events.Mount) -> None:
         if self.store["editing_type"] == "dir":
