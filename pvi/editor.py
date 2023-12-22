@@ -1,4 +1,4 @@
-from textual.widgets import Static, ListView, ListItem
+from textual.widgets import Static, ListView, ListItem, TextArea
 from textual.containers import Container
 from textual.css.query import NoMatches
 from textual.app import ComposeResult
@@ -52,12 +52,6 @@ class Editor(Screen):
             return False
         return True
 
-    def mount_welcome_text(self) -> None:
-        # Mount welcome text to Main Editor
-        welcome_text = WelcomeText()
-        self.query_one(MainEditor).mount(welcome_text)
-        welcome_text.scroll_visible()
-
     # Handle switch focus between Sidebar and Main Editor
     def handle_switching_focus(self) -> None:
         if self.sidebar_exists():
@@ -110,9 +104,24 @@ class Editor(Screen):
             else:
                 self.move_up_in_sidebar()
 
+        elif event.key == "enter":
+            if self.focused_main_editor:
+                pass
+            else:
+                selected_content_index = self.query_one(Sidebar).viewing["id"] - 1
+                selected_content = self.query("DirectoryContentText")[selected_content_index]
+
+                if selected_content.content_type == "file":
+                    with open(f"{self.store['editing_path']}/{selected_content.content_name}", "r") as file:
+                        self.handle_switching_focus()
+                        self.query_one("#welcome-text").remove()
+                        text_area = TextArea(file.read())
+                        self.query_one(MainEditor).mount(text_area)
+                        text_area.scroll_visible()
+                        text_area.focus()
+
     def on_mount(self, event: events.Mount) -> None:
-        if self.store["editing_type"] == "dir":
-            self.mount_welcome_text()
+        pass
 
     def on_screen_resume(self, event: events.ScreenResume) -> None:
         pass

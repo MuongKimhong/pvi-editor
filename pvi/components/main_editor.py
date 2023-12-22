@@ -4,16 +4,14 @@ from textual.widgets import Static, TextArea
 from textual.messages import Message
 from textual import log, events
 
-from utils import Read
+from components.welcome_text import WelcomeText
+from utils import read_store_ini_file
 
 
 class MainEditor(Container, can_focus=True):
     def compose(self) -> ComposeResult:
-        yield Static("Main editor here")
+        if read_store_ini_file(section_name="WorkingDirectory")["editing_type"] == "dir":
+            yield WelcomeText(id="welcome-text")
 
     def on_focus(self, event: events.Focus) -> None:
         log("Main editor is focused")
-
-    # called when user read file content from sidebar
-    def on_read(self, event: Read) -> None:
-        pass 

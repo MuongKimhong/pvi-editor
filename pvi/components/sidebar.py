@@ -103,21 +103,6 @@ class Sidebar(Container, can_focus=True):
                     )
                 )
 
-        # for directory in directories:
-        #     self.dir_tree_listview.append(
-        #         ListItem(
-        #             DirectoryContentText(content_name=f"{directory}/", content_type="dir"),
-        #             classes="dirlistitem"
-        #         )
-        #     )
-        # for file in files:
-        #     self.dir_tree_listview.append(
-        #         ListItem(
-        #             DirectoryContentText(content_name=file, content_type="file"),
-        #             classes="filelistitem"
-        #         )
-        #     )
-
         yield Container(self.dir_tree_listview, id="sidebar-container") 
 
     def on_focus(self, event: events.Focus) -> None:
