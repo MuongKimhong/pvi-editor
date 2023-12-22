@@ -20,21 +20,24 @@ class DirectoryContentText(Container):
     def compose(self) -> None:
         yield Static(self.content_name)
 
+    def set_to_highlighted(self) -> None:
+        self.styles.background = "grey"
+        self.styles.text_style = "bold"
+        self.styles.color = "cyan" if self.content_type == "dir" else "white"
+
+    def set_to_normal(self) -> None:
+        self.styles.background = "#242424"
+        if self.content_type == "dir":
+            self.styles.color = "cyan"
+            self.styles.text_style = "bold"
+        else:
+            self.styles.color = "white"
+
     def on_mount(self, event: events.Mount) -> None:
         # set default style when first mounted
-        if self.content_id == 1:
-            self.styles.background = "grey"
-            self.styles.text_style = "bold"
-            self.styles.color = "cyan" if self.content_type == "dir" else "white"
-        else:
-            self.styles.background = "#242424"
-
-            if self.content_type == "dir":
-                self.styles.color = "cyan"
-                self.styles.text_style = "bold"
-            else:
-                self.styles.color = "white"
-
+        if self.content_id == 1: self.set_to_highlighted()
+        else: self.set_to_normal()
+            
 
 class Sidebar(Container, can_focus=True):
     DEFAULT_CSS = """
@@ -50,7 +53,7 @@ class Sidebar(Container, can_focus=True):
         self.viewing = {
             "directory_name": "", 
             "file_name": "",
-            "index": 0, # viewing index inside directory tree
+            "id": 1, # viewing index inside directory tree
             "next_index": None, 
             "previous_index": None,
         }
