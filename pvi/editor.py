@@ -82,7 +82,7 @@ class Editor(Screen):
             if self.focused_main_editor: # key binding move down in Main editor
                 pass
             else: # key binding move down in Sidebar
-                pass
+                dir_content_text = self.query("DirectoryContentText")
 
     def on_mount(self, event: events.Mount) -> None:
         if self.store["editing_type"] == "dir":

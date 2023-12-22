@@ -34,9 +34,7 @@ class DirectoryContentText(Container):
             self.styles.color = "white"
 
     def on_mount(self, event: events.Mount) -> None:
-        # set default style when first mounted
-        if self.content_id == 1: self.set_to_highlighted()
-        else: self.set_to_normal()
+        self.set_to_normal()
             
 
 class Sidebar(Container, can_focus=True):
@@ -97,7 +95,6 @@ class Sidebar(Container, can_focus=True):
                         classes="dirlistitem", id=f"dir-item-{index+1}"
                     )
                 ) 
-                log(f"{content['content']} {index+1}")
             else:
                 self.dir_tree_listview.append(
                     ListItem(
@@ -124,4 +121,12 @@ class Sidebar(Container, can_focus=True):
         yield Container(self.dir_tree_listview, id="sidebar-container") 
 
     def on_focus(self, event: events.Focus) -> None:
-        log("Sidebar is focused")
+        for content in self.query("DirectoryContentText"):
+            if content.content_id == self.viewing["id"]:
+                content.set_to_highlighted()
+            else:
+                content.set_to_normal()
+        
+    def on_blur(self, event: events.Blur) -> None:
+        for content in self.query("DirectoryContentText"):
+            content.set_to_normal() 
