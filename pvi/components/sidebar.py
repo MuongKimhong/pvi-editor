@@ -11,23 +11,29 @@ import os
 
 
 class DirectoryContentText(Container):
-    def __init__(self, content_name: str, content_type: str, id: int) -> None:
-        self.id: int = id
+    def __init__(self, content_name: str, content_type: str, content_id: int) -> None:
         self.content_name: str = content_name
         self.content_type: str = content_type
+        self.content_id: int = content_id
         super().__init__()
 
     def compose(self) -> None:
         yield Static(self.content_name)
 
     def on_mount(self, event: events.Mount) -> None:
-        self.styles.background = "#242424"
-
-        if self.content_type == "dir":
-            self.styles.color = "cyan"
+        # set default style when first mounted
+        if self.content_id == 1:
+            self.styles.background = "grey"
             self.styles.text_style = "bold"
+            self.styles.color = "cyan" if self.content_type == "dir" else "white"
         else:
-            self.styles.color = "white"
+            self.styles.background = "#242424"
+
+            if self.content_type == "dir":
+                self.styles.color = "cyan"
+                self.styles.text_style = "bold"
+            else:
+                self.styles.color = "white"
 
 
 class Sidebar(Container, can_focus=True):
@@ -84,14 +90,15 @@ class Sidebar(Container, can_focus=True):
             if content["type"] == "dir":
                 self.dir_tree_listview.append(
                     ListItem(
-                        DirectoryContentText(content_name=content["content"], content_type="dir", id=index+1),
+                        DirectoryContentText(content_name=content["content"], content_type="dir", content_id=index+1),
                         classes="dirlistitem", id=f"dir-item-{index+1}"
                     )
                 ) 
+                log(f"{content['content']} {index+1}")
             else:
                 self.dir_tree_listview.append(
                     ListItem(
-                        DirectoryContentText(content_name=content["content"], content_type="file", id=index+1),
+                        DirectoryContentText(content_name=content["content"], content_type="file", content_id=index+1),
                         classes="filelistitem", id=f"file-item-{index+1}"
                     )
                 )
