@@ -37,10 +37,3 @@ def update_setting_ini_file(section_name: str, section_data: dict) -> None:
 
     with open(f"{get_pvi_root()}/pvi/store/settings.ini", "w") as configfile:
         config.write(configfile)
-
-
-# event Read File. Called when user open a file in sidebar
-class Read(Message):
-    def __init__(self, file_content: str) -> None:
-        self.file_content = file_content
-        super().__init__()

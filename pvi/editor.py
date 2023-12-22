@@ -10,6 +10,7 @@ from utils import read_setting_ini_file
 from components.sidebar import Sidebar
 from components.main_editor import MainEditor
 from components.welcome_text import WelcomeText
+from components.text_area import PviTextArea
 
 import time
 import os
@@ -115,10 +116,9 @@ class Editor(Screen):
                     with open(f"{self.store['editing_path']}/{selected_content.content_name}", "r") as file:
                         self.handle_switching_focus()
                         self.query_one("#welcome-text").remove()
-                        text_area = TextArea(file.read())
+                        text_area = PviTextArea(file.read(), id="pvi-text-area")
                         self.query_one(MainEditor).mount(text_area)
                         text_area.scroll_visible()
-                        text_area.focus()
 
     def on_mount(self, event: events.Mount) -> None:
         pass
