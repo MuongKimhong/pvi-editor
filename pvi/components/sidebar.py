@@ -66,27 +66,49 @@ class Sidebar(Container, can_focus=True):
 
         for content in self.dir_tree:
             if os.path.isfile(f"{directory_path}/{content}"):
-                files.append(content)
+                # files.append(content)
+                files.append({"type": "file", "content": content, "nested": []})
             elif os.path.isdir(f"{directory_path}/{content}") and content != ".git":
-                directories.append(content)
+                # directories.append(content)
+                directories.append({"type": "dir", "content": f"{content}/", "nested": []})
 
-        files.sort()
-        directories.sort()
+        sorted_files = sorted(files, key=lambda x: x["content"])
+        sorted_directories = sorted(directories, key=lambda x: x["content"])
 
-        for directory in directories:
-            self.dir_tree_listview.append(
-                ListItem(
-                    DirectoryContentText(content_name=f"{directory}/", content_type="dir"),
-                    classes="dirlistitem"
+        self.dir_tree = sorted_directories + sorted_files
+
+        for (index, content) in enumerate(self.dir_tree):
+            content["id"] = index + 1
+
+            if content["type"] == "dir":
+                self.dir_tree_listview.append(
+                    ListItem(
+                        DirectoryContentText(content_name=content["content"], content_type="dir"),
+                        classes="dirlistitem", id=f"dir-item-{index+1}"
+                    )
+                ) 
+            else:
+                self.dir_tree_listview.append(
+                    ListItem(
+                        DirectoryContentText(content_name=content["content"], content_type="file"),
+                        classes="filelistitem", id=f"file-item-{index+1}"
+                    )
                 )
-            )
-        for file in files:
-            self.dir_tree_listview.append(
-                ListItem(
-                    DirectoryContentText(content_name=file, content_type="file"),
-                    classes="filelistitem"
-                )
-            )
+
+        # for directory in directories:
+        #     self.dir_tree_listview.append(
+        #         ListItem(
+        #             DirectoryContentText(content_name=f"{directory}/", content_type="dir"),
+        #             classes="dirlistitem"
+        #         )
+        #     )
+        # for file in files:
+        #     self.dir_tree_listview.append(
+        #         ListItem(
+        #             DirectoryContentText(content_name=file, content_type="file"),
+        #             classes="filelistitem"
+        #         )
+        #     )
 
         yield Container(self.dir_tree_listview, id="sidebar-container") 
 
