@@ -4,4 +4,5 @@ from textual import events
 
 class PviTextArea(TextArea):
     def on_key(self, event: events.Key) -> None:
-        pass
+        if event.key == "escape":
+            pass
