@@ -19,8 +19,22 @@ class DirectoryContentText(Container):
     def compose(self) -> None:
         yield Static(self.content_name)
 
+    def on_mount(self, event: events.Mount) -> None:
+        self.styles.background = "#242424"
+
+        if self.content_type == "dir":
+            self.styles.color = "cyan"
+            self.styles.text_style = "bold"
+        else:
+            self.styles.color = "white"
+
 
 class Sidebar(Container, can_focus=True):
+    DEFAULT_CSS = """
+    Sidebar #listview {
+        background: #242424;
+    }
+    """
     def __init__(self, dir_tree: list):
         self.dir_tree = dir_tree
         self.dir_tree_listview = ListView(*[], id="listview")

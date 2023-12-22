@@ -17,21 +17,6 @@ Sidebar {
     height: 100%;
 }
 
-Sidebar #listview {
-    background: #242424;
-}
-
-Sidebar .filelistitem {
-    background: #242424;
-    color: white;
-}
-
-Sidebar .dirlistitem {
-    background: #242424;
-    color: cyan;
-    text-style: bold; 
-}
-
 WelcomeText {
     align: center middle; 
 }
@@ -40,8 +25,4 @@ WelcomeText #welcome {
 }
 WelcomeText #happy-coding {
     text-align: center;
-}
-
-DirectoryContentText {
-    background: #242424;
 }
