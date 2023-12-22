@@ -11,9 +11,10 @@ import os
 
 
 class DirectoryContentText(Container):
-    def __init__(self, content_name, content_type) -> None:
-        self.content_name = content_name
-        self.content_type = content_type
+    def __init__(self, content_name: str, content_type: str, id: int) -> None:
+        self.id: int = id
+        self.content_name: str = content_name
+        self.content_type: str = content_type
         super().__init__()
 
     def compose(self) -> None:
@@ -83,14 +84,14 @@ class Sidebar(Container, can_focus=True):
             if content["type"] == "dir":
                 self.dir_tree_listview.append(
                     ListItem(
-                        DirectoryContentText(content_name=content["content"], content_type="dir"),
+                        DirectoryContentText(content_name=content["content"], content_type="dir", id=index+1),
                         classes="dirlistitem", id=f"dir-item-{index+1}"
                     )
                 ) 
             else:
                 self.dir_tree_listview.append(
                     ListItem(
-                        DirectoryContentText(content_name=content["content"], content_type="file"),
+                        DirectoryContentText(content_name=content["content"], content_type="file", id=index+1),
                         classes="filelistitem", id=f"file-item-{index+1}"
                     )
                 )
