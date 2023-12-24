@@ -115,10 +115,18 @@ class Editor(Screen):
                 if selected_content.content_type == "file":
                     with open(f"{self.store['editing_path']}/{selected_content.content_name}", "r") as file:
                         self.handle_switching_focus()
-                        self.query_one("#welcome-text").remove()
-                        text_area = PviTextArea(file.read(), id="pvi-text-area")
-                        self.query_one(MainEditor).mount(text_area)
-                        text_area.scroll_visible()
+                        try:
+                            self.query_one("#welcome-text").remove()
+                        except NoMatches:
+                            pass
+
+                        try:
+                            text_area = self.query_one("#pvi-text-area")
+                            text_area.load_text(file.read())
+                        except NoMatches:
+                            text_area = PviTextArea(file.read(), id="pvi-text-area")
+                            self.query_one(MainEditor).mount(text_area)
+                            text_area.scroll_visible()
 
     def on_mount(self, event: events.Mount) -> None:
         pass
