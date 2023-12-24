@@ -5,4 +5,4 @@ from textual import events
 class PviTextArea(TextArea):
     def on_key(self, event: events.Key) -> None:
         if event.key == "escape":
-            pass
+            self.blur()

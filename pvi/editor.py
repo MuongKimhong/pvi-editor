@@ -91,7 +91,8 @@ class Editor(Screen):
                 self.toggle_sidebar()    
 
         elif event.key == "ctrl+q":
-            self.handle_switching_focus()
+            if self.query_one(MainEditor).editing_mode == "normal":
+                self.handle_switching_focus()
 
         elif event.key == "j":
             if self.focused_main_editor: # key binding move down in Main editor
