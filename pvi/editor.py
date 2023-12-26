@@ -25,19 +25,13 @@ class Editor(Screen):
 
     def compose(self) -> ComposeResult:
         yield MainEditor()
-        
-    def hide_sidebar(self) -> None:
-        self.query_one(Sidebar).styles.width = 0
-        self.query_one(Sidebar).styles.border = ("hidden", "grey")
-    
-    def show_sidebar(self) -> None:
-        self.query_one(Sidebar).set_style()
 
     def toggle_sidebar(self) -> None:
-        width = self.query_one(Sidebar).styles.width.value
+        sidebar = self.query_one(Sidebar)
+        width = sidebar.styles.width.value
 
-        if int(width) == int(self.sidebar_style["max_width"]): self.hide_sidebar()
-        else: self.show_sidebar()
+        if int(width) == int(self.sidebar_style["max_width"]): sidebar.hide_sidebar()
+        else: sidebar.show_sidebar()
 
     def mount_sidebar_to_screen(self) -> None:
         sidebar = Sidebar(dir_tree=os.listdir(self.store["editing_path"]))

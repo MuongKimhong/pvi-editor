@@ -105,6 +105,13 @@ class Sidebar(Container, can_focus=True):
 
         yield Container(self.dir_tree_listview, id="sidebar-container") 
 
+    def hide_sidebar(self) -> None:
+        self.styles.width = 0
+        self.styles.border = ("hidden", "grey")
+
+    def show_sidebar(self) -> None:
+        self.set_style()
+
     def on_focus(self, event: events.Focus) -> None:
         for content in self.query("DirectoryContentText"):
             if content.content_id == self.viewing["id"]:
