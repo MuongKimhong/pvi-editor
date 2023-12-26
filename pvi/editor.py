@@ -55,26 +55,6 @@ class Editor(Screen):
                 self.query_one(MainEditor).focus()
                 self.focused_main_editor = True
 
-    def move_down_in_sidebar(self) -> None:
-        if self.query_one(Sidebar).viewing.get("id") < len(self.query("DirectoryContentText")):
-            self.query_one(Sidebar).viewing["id"] = self.query_one(Sidebar).viewing.get("id") + 1
-
-            for content in self.query("DirectoryContentText"):
-                if content.content_id == self.query_one(Sidebar).viewing.get("id"):
-                    content.set_to_highlighted()
-                else:
-                    content.set_to_normal()
-    
-    def move_up_in_sidebar(self) -> None:
-        if self.query_one(Sidebar).viewing.get("id") > 1:
-            self.query_one(Sidebar).viewing["id"] = self.query_one(Sidebar).viewing.get("id") - 1
-
-            for content in self.query("DirectoryContentText"):
-                if content.content_id == self.query_one(Sidebar).viewing.get("id"):
-                    content.set_to_highlighted()
-                else:
-                    content.set_to_normal()
-
     def on_key(self, event: events.Key) -> None:
         if event.key == "ctrl+b": # toggle sidebar
             if self.store["editing_type"] == "dir":
@@ -89,14 +69,14 @@ class Editor(Screen):
         elif event.key == "j":
             if self.focused_main_editor: # key binding move down in Main editor
                 pass
-            else: # key binding move down in Sidebar
-                self.move_down_in_sidebar()
+            else:
+                self.query_one(Sidebar).move_down()
 
         elif event.key == "k":
             if self.focused_main_editor:
                 pass
             else:
-                self.move_up_in_sidebar()
+                self.query_one(Sidebar).move_up()
 
         elif event.key == "enter":
             if self.focused_main_editor:

@@ -112,6 +112,26 @@ class Sidebar(Container, can_focus=True):
     def show_sidebar(self) -> None:
         self.set_style()
 
+    def move_down(self) -> None:
+        if self.viewing.get("id") < len(self.query("DirectoryContentText")):
+            self.viewing["id"] = self.viewing.get("id") + 1
+
+            for content in self.query("DirectoryContentText"):
+                if content.content_id == self.viewing.get("id"):
+                    content.set_to_highlighted()
+                else:
+                    content.set_to_normal()
+
+    def move_up(self) -> None:
+        if self.viewing.get("id") > 1:
+            self.viewing["id"] = self.viewing.get("id") - 1
+
+            for content in self.query("DirectoryContentText"):
+                if content.content_id == self.viewing.get("id"):
+                    content.set_to_highlighted()
+                else:
+                    content.set_to_normal()
+
     def on_focus(self, event: events.Focus) -> None:
         for content in self.query("DirectoryContentText"):
             if content.content_id == self.viewing["id"]:
