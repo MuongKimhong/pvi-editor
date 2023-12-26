@@ -9,8 +9,6 @@ from utils import read_store_ini_file, update_store_ini_file
 from utils import read_setting_ini_file
 from components.sidebar import Sidebar
 from components.main_editor import MainEditor
-from components.welcome_text import WelcomeText
-from components.text_area import PviTextArea
 
 import time
 import os
@@ -49,9 +47,9 @@ class Editor(Screen):
     def sidebar_exists(self) -> bool:
         try:
             sidebar = self.query_one(Sidebar)
+            return True
         except NoMatches:
             return False
-        return True
 
     # Handle switch focus between Sidebar and Main Editor
     def handle_switching_focus(self) -> None:
@@ -116,19 +114,10 @@ class Editor(Screen):
                 if selected_content.content_type == "file":
                     with open(f"{self.store['editing_path']}/{selected_content.content_name}", "r") as file:
                         self.handle_switching_focus()
-                        try:
-                            self.query_one("#welcome-text").remove()
-                        except NoMatches:
-                            pass
-
-                        try:
-                            text_area = self.query_one("#pvi-text-area")
-                            text_area.load_text(file.read())
-                        except NoMatches:
-                            text_area = PviTextArea(file.read(), id="pvi-text-area")
-                            self.query_one(MainEditor).mount(text_area)
-                            text_area.scroll_visible()
-
+                        self.query_one(MainEditor).content_loaded = True
+                        self.query_one(MainEditor).remove_welcome_text()
+                        self.query_one(MainEditor).load_file_content_to_textarea(file_content=file.read())
+                        
     def on_mount(self, event: events.Mount) -> None:
         pass
 
