@@ -4,7 +4,7 @@ from textual.widgets import Static, Input
 from textual.containers import Container
 from textual import events, log
 
-from utils import read_setting_ini_file
+from utils import read_setting_ini_file, read_store_ini_file
 
 
 class Footer(Input, can_focus=True):
@@ -27,13 +27,24 @@ class Footer(Input, can_focus=True):
     def change_value(self, value: str) -> None:
         self.value = value
 
+    def focus_on_main_editor(self) -> None:
+        self.value = "--normall--"
+        self.blur()
+        self.app.query_one("MainEditor").focus()
+
     def on_key(self, event: events.Key) -> None:
         if event.key == "escape":
-            log("escape key is pressed")
-            self.value = "--normal--"
-            self.blur()
-            self.app.query_one("MainEditor").focus()
+            self.focus_on_main_editor()
         elif event.key == "enter": # execute command
-            if self.value == ":q":
+            if self.value == ":q" or self.value == ":exit":
                 self.app.exit()
 
+            elif self.value == ":w" or self.value == ":write":
+                store = read_store_ini_file(section_name="WorkingDirectory")
+                selected_content_index = self.app.query_one("Sidebar").viewing["id"] - 1
+                selected_content = self.app.query("DirectoryContentText")[selected_content_index]
+
+                if selected_content.content_type == "file":
+                    with open(f"{store['editing_path']}/{selected_content.content_name}", "w") as file:
+                        file.write(self.app.query_one("#pvi-text-area").text)
+                        self.focus_on_main_editor()
