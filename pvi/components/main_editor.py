@@ -64,6 +64,7 @@ class MainEditor(Container, can_focus=True):
                 elif event.key == "h":
                     text_area.action_cursor_left()
                 elif event.key == "i": # change to insert mode
+                    log("key i pressed")
                     self.editing_mode = "insert"
-                    self.app.query_one("#footer").value == "--insert--"
+                    self.app.query_one("#footer").change_value(value="--insert--")
                     text_area.focus()
