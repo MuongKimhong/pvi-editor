@@ -32,6 +32,15 @@ class Footer(Input, can_focus=True):
         self.blur()
         self.app.query_one("MainEditor").focus()
 
+    def save_file_content(self) -> None:
+        store = read_store_ini_file(section_name="WorkingDirectory")
+        selected_content_index = self.app.query_one("Sidebar").viewing["id"] - 1
+        selected_content = self.app.query("DirectoryContentText")[selected_content_index]
+
+        if selected_content.content_type == "file":
+            with open(f"{store['editing_path']}/{selected_content.content_name}", "w") as file:
+                file.write(self.app.query_one("#pvi-text-area").text)
+
     def on_key(self, event: events.Key) -> None:
         if event.key == "escape":
             self.focus_on_main_editor()
@@ -40,11 +49,5 @@ class Footer(Input, can_focus=True):
                 self.app.exit()
 
             elif self.value == ":w" or self.value == ":write":
-                store = read_store_ini_file(section_name="WorkingDirectory")
-                selected_content_index = self.app.query_one("Sidebar").viewing["id"] - 1
-                selected_content = self.app.query("DirectoryContentText")[selected_content_index]
-
-                if selected_content.content_type == "file":
-                    with open(f"{store['editing_path']}/{selected_content.content_name}", "w") as file:
-                        file.write(self.app.query_one("#pvi-text-area").text)
-                        self.focus_on_main_editor()
+                self.save_file_content() 
+                self.focus_on_main_editor()
