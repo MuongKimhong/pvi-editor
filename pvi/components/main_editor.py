@@ -8,6 +8,7 @@ from textual import log, events
 
 from components.welcome_text import WelcomeText
 from components.text_area import PviTextArea
+from components.footer import Footer
 from utils import read_store_ini_file
 
 
@@ -20,6 +21,8 @@ class MainEditor(Container, can_focus=True):
     def compose(self) -> ComposeResult:
         if read_store_ini_file(section_name="WorkingDirectory")["editing_type"] == "dir":
             yield WelcomeText(id="welcome-text")
+        
+        yield Footer(id="footer")
     
     def remove_welcome_text(self) -> None:
         try:
@@ -46,6 +49,9 @@ class MainEditor(Container, can_focus=True):
 
     def on_key(self, event: events.Key) -> None:
         if self.editing_mode == "normal":
+            if event.character == ":":
+                self.app.query_one("#footer").focus()
+            
             if self.content_loaded:
                 text_area = self.query_one("#pvi-text-area")
 
@@ -59,4 +65,5 @@ class MainEditor(Container, can_focus=True):
                     text_area.action_cursor_left()
                 elif event.key == "i": # change to insert mode
                     self.editing_mode = "insert"
+                    self.app.query_one("#footer").value == "--insert--"
                     text_area.focus()
