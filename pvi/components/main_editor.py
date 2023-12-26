@@ -16,6 +16,7 @@ class MainEditor(Container, can_focus=True):
     def __init__(self) -> None:
         self.editing_mode = "normal"
         self.content_loaded = False # True if user open a file to edit
+        self.typed_key = ""
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -64,7 +65,12 @@ class MainEditor(Container, can_focus=True):
                 elif event.key == "h":
                     text_area.action_cursor_left()
                 elif event.key == "i": # change to insert mode
-                    log("key i pressed")
                     self.editing_mode = "insert"
                     self.app.query_one("#footer").change_value(value="--insert--")
                     text_area.focus()
+
+                elif event.key == "d" and self.typed_key == "":
+                    self.typed_key = self.typed_key + event.key
+                elif event.key == "d" and self.typed_key == "d": # combination of dd, delete a line
+                    text_area.action_delete_line()
+                    self.typed_key = ""
