@@ -36,6 +36,11 @@ class MainEditor(Container, can_focus=True):
             self.mount(text_area)
             text_area.scroll_visible()
 
+    def handle_load_content_to_textarea(self, file_content: str) -> None:
+        self.content_loaded = True
+        self.remove_welcome_text()
+        self.load_file_content_to_textarea(file_content)
+
     def on_focus(self, event: events.Focus) -> None:
         self.editing_mode = "normal"
 

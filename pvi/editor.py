@@ -88,9 +88,7 @@ class Editor(Screen):
                 if selected_content.content_type == "file":
                     with open(f"{self.store['editing_path']}/{selected_content.content_name}", "r") as file:
                         self.handle_switching_focus()
-                        self.query_one(MainEditor).content_loaded = True
-                        self.query_one(MainEditor).remove_welcome_text()
-                        self.query_one(MainEditor).load_file_content_to_textarea(file_content=file.read())
+                        self.query_one(MainEditor).handle_load_content_to_textarea(file_content=file.read())
                         
     def on_mount(self, event: events.Mount) -> None:
         pass
