@@ -55,7 +55,7 @@ class MainEditor(Container, can_focus=True):
 
     def on_key(self, event: events.Key) -> None:
         if self.editing_mode == "normal":
-            if event.character == ":":
+            if event.character == ":": # give focus to footer and handle command execution
                 self.app.query_one("#footer").focus()
             
             if self.content_loaded:
