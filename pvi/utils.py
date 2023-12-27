@@ -88,7 +88,10 @@ class KeyBindingInSelectionMode:
             case "I": # upper i
                 text_area.action_cursor_line_start()
                 text_area.selection = Selection(start=self.main_editor.selection_start, end=text_area.cursor_location)
-            
+
+            case "y": # copy the selected text
+                self.main_editor.copied_text = text_area.selected_text
+           
             case "escape":
                 self.cancel_selection(text_area)
 
