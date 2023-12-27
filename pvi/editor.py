@@ -1,4 +1,4 @@
-from textual.widgets import Static, ListView, ListItem, TextArea
+from textual.widgets import Static, ListView, ListItem, TextArea, Input
 from textual.containers import Container
 from textual.css.query import NoMatches
 from textual.app import ComposeResult
@@ -20,6 +20,10 @@ class Editor(Screen):
         self.sidebar_style = read_setting_ini_file(section_name="Sidebar")
         self.store = read_store_ini_file(section_name="WorkingDirectory")
         self.focused_main_editor = True
+        self.typed_key = ""
+ 
+        # type "dir" or "file" highlighted in sidebar
+        self.sidebar_highlighting_type = "file"
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -69,13 +73,27 @@ class Editor(Screen):
             if self.focused_main_editor: # key binding move down in Main editor
                 pass
             else:
-                self.query_one(Sidebar).move_down()
+                self.query_one(Sidebar).move_down(editor=self)
 
         elif event.key == "k":
             if self.focused_main_editor:
                 pass
             else:
-                self.query_one(Sidebar).move_up()
+                self.query_one(Sidebar).move_up(editor=self)
+ 
+        elif event.key == "a" and self.typed_key == "": 
+            self.typed_key = self.typed_key + event.key
+
+        # <af> append new file in highlighted directory,
+        # or append in project root if no directory is highlighted 
+        elif self.typed_key == "a" and event.key == "f": 
+            new_input = Input(type="text", id='append-file-input')
+            new_input.styles.height = 1
+            new_input.styles.color = "white"
+            self.query_one(Sidebar).mount(new_input)
+            new_input.scroll_visible()
+            self.blur()
+            self.query_one("#append-file-input").focus()
 
         elif event.key == "enter":
             if self.focused_main_editor:
@@ -88,6 +106,8 @@ class Editor(Screen):
                     with open(f"{self.store['editing_path']}/{selected_content.content_name}", "r") as file:
                         self.handle_switching_focus()
                         self.query_one(MainEditor).handle_load_content_to_textarea(file_content=file.read())
+                elif selected_content.content_type == "dir":
+                    pass
                         
     def on_mount(self, event: events.Mount) -> None:
         pass

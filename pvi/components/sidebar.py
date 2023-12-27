@@ -111,22 +111,23 @@ class Sidebar(Container, can_focus=True):
     def show_sidebar(self) -> None:
         self.set_style()
 
-    def handle_set_to_highlighted_or_normal(self, move_direction: str) -> None:
+    def handle_set_to_highlighted_or_normal(self, move_direction: str, editor) -> None:
         self.viewing["id"] = self.viewing.get("id") - 1 if move_direction == "up" else self.viewing.get("id") + 1
 
         for content in self.query("DirectoryContentText"):
             if content.content_id == self.viewing.get("id"):
                 content.set_to_highlighted()
+                editor.sidebar_highlighting_type = content.content_type
             else:
                 content.set_to_normal()
 
-    def move_down(self) -> None:
+    def move_down(self, editor) -> None:
         if self.viewing.get("id") < len(self.query("DirectoryContentText")):
-            self.handle_set_to_highlighted_or_normal(move_direction="down")
+            self.handle_set_to_highlighted_or_normal(move_direction="down", editor=editor)
 
-    def move_up(self) -> None:
+    def move_up(self, editor) -> None:
         if self.viewing.get("id") > 1:
-            self.handle_set_to_highlighted_or_normal(move_direction="up")
+            self.handle_set_to_highlighted_or_normal(move_direction="up", editor=editor)
 
     def on_focus(self, event: events.Focus) -> None:
         for content in self.query("DirectoryContentText"):
