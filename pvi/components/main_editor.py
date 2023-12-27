@@ -1,16 +1,16 @@
-from textual.app import ComposeResult
-from textual.containers import Container
-from textual.widgets import Static, TextArea
 from textual.widgets.text_area import Selection
+from textual.widgets import Static, TextArea
+from textual.containers import Container
 from textual.css.query import NoMatches
+from textual.app import ComposeResult
 from textual.messages import Message
 from textual.widget import Widget
 from textual import log, events
 
+from utils import read_store_ini_file, KeyBindingInSelectionMode, KeyBindingInNormalMode
 from components.welcome_text import WelcomeText
 from components.text_area import PviTextArea
 from components.footer import Footer
-from utils import read_store_ini_file, KeyBindingInSelectionMode, KeyBindingInNormalMode
 
 
 class MainEditor(Container, can_focus=True):
@@ -19,7 +19,7 @@ class MainEditor(Container, can_focus=True):
         self.content_loaded = False # True if user open a file to edit
         self.typed_key = ""
         self.selection_start = None
-        
+
         self.selection_mode_keybinding = KeyBindingInSelectionMode(self)
         self.normal_mode_keybinding = KeyBindingInNormalMode(self)
         super().__init__()
