@@ -81,6 +81,17 @@ class KeyBindingInNormalMode:
     def __init__(self, main_editor):
         self.main_editor = main_editor
 
+    def enter_insert_mode(self, text_area) -> None:
+        self.main_editor.editing_mode = "insert"
+        self.main_editor.app.query_one("#footer").change_value(value="--insert--")
+        text_area.focus()
+
+    def enter_selection_mode(self, text_area) -> None:
+        self.main_editor.editing_mode = "selection"
+        self.main_editor.app.query_one("#footer").change_value(value="--selection--")
+        self.main_editor.selection_start = text_area.cursor_location
+        text_area.selection = Selection(start=text_area.cursor_location, end=text_area.cursor_location)
+
     def handle_key_binding(self, key_event) -> None:
         text_area = self.main_editor.query_one("#pvi-text-area")
 
@@ -94,21 +105,14 @@ class KeyBindingInNormalMode:
             case "h":
                 text_area.action_cursor_left()
             case "i":
-                self.main_editor.editing_mode = "insert"
-                self.main_editor.app.query_one("#footer").change_value(value="--insert--")
-                text_area.focus()
+                self.enter_insert_mode(text_area)
             case "v":
-                self.main_editor.editing_mode = "selection"
-                self.main_editor.app.query_one("#footer").change_value(value="--selection--")
-                self.main_editor.selection_start = text_area.cursor_location
-                text_area.selection = Selection(start=text_area.cursor_location, end=text_area.cursor_location)
-            case "o":
-                self.main_editor.editing_mode = "insert"
-                self.main_editor.app.query_one("#footer").change_value(value="--insert--")
+                self.enter_selection_mode(text_area)
+            case "o": 
                 text_area.action_cursor_line_end()
                 start, end = text_area.selection
                 text_area.replace("\n", start, end, maintain_selection_offset=False)
-                text_area.focus()
+                self.enter_insert_mode(text_area)
 
         if key_event.key == "d" and self.main_editor.typed_key == "":
             self.main_editor.typed_key = self.main_editor.typed_key + key_event.key
