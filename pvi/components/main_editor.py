@@ -10,7 +10,7 @@ from textual import log, events
 from components.welcome_text import WelcomeText
 from components.text_area import PviTextArea
 from components.footer import Footer
-from utils import read_store_ini_file
+from utils import read_store_ini_file, KeyBindingInSelectionMode
 
 
 class MainEditor(Container, can_focus=True):
@@ -18,8 +18,8 @@ class MainEditor(Container, can_focus=True):
         self.editing_mode = "normal"
         self.content_loaded = False # True if user open a file to edit
         self.typed_key = ""
-        self.highligting = False
         self.selection_start = None
+        self.selection_mode_keybinding = KeyBindingInSelectionMode(self)
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -48,10 +48,6 @@ class MainEditor(Container, can_focus=True):
         self.remove_welcome_text()
         self.load_file_content_to_textarea(file_content)
 
-    def handle_text_area_selection(self, text_area: TextArea) -> None:
-        if self.highligting:
-            text_area.selection = Selection(start=self.selection_start, end=text_area.cursor_location)
-
     def on_focus(self, event: events.Focus) -> None:
         self.editing_mode = "normal"
 
@@ -65,16 +61,12 @@ class MainEditor(Container, can_focus=True):
 
                 if event.key == "j":
                     text_area.action_cursor_down()
-                    self.handle_text_area_selection(text_area)
                 elif event.key == "k":
                     text_area.action_cursor_up()
-                    self.handle_text_area_selection(text_area)
                 elif event.key == "l":
                     text_area.action_cursor_right()
-                    self.handle_text_area_selection(text_area)
                 elif event.key == "h":
                     text_area.action_cursor_left()
-                    self.handle_text_area_selection(text_area)
                 elif event.key == "i": # change to insert mode
                     self.editing_mode = "insert"
                     self.app.query_one("#footer").change_value(value="--insert--")
@@ -87,11 +79,11 @@ class MainEditor(Container, can_focus=True):
                     self.typed_key = ""
 
                 elif event.key == "v": # start selection
-                    text_area.selection = Selection(start=text_area.cursor_location, end=text_area.cursor_location)
+                    self.editing_mode = "selection"
+                    self.app.query_one("#footer").change_value(value="--selection--")
                     self.selection_start = text_area.cursor_location
-                    self.highligting = True
-
-                elif (event.key == "escape") and (self.highligting is True): # cancel selection
-                    self.highligting = False
-                    self.start_location = None
                     text_area.selection = Selection(start=text_area.cursor_location, end=text_area.cursor_location)
+
+        elif self.editing_mode == "selection":
+            if self.content_loaded:
+                self.selection_mode_keybinding.handle_key_binding(key_event=event)
