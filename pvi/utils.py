@@ -81,6 +81,14 @@ class KeyBindingInSelectionMode:
                 text_area.action_cursor_word_left()
                 text_area.selection = Selection(start=self.main_editor.selection_start, end=text_area.cursor_location)
             
+            case "A": #upper a
+                text_area.action_cursor_line_end()
+                text_area.selection = Selection(start=self.main_editor.selection_start, end=text_area.cursor_location)
+
+            case "I": # upper i
+                text_area.action_cursor_line_start()
+                text_area.selection = Selection(start=self.main_editor.selection_start, end=text_area.cursor_location)
+            
             case "escape":
                 self.cancel_selection(text_area)
 
