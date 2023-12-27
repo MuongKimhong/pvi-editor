@@ -128,6 +128,12 @@ class KeyBindingInNormalMode:
                 text_area.action_cursor_word_left()
             case "w":
                 text_area.action_cursor_word_right()
+            case "A": # upper a
+                text_area.action_cursor_line_end()
+                self.enter_insert_mode(text_area)
+            case "I": # upper i
+                text_area.action_cursor_line_start()
+                self.enter_insert_mode(text_area)
             case "p": # paste
                 if self.main_editor.copied_text != "":
                     self.create_new_line(text_area)
