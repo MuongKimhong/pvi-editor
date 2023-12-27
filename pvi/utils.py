@@ -166,3 +166,10 @@ class KeyBindingInNormalMode:
             self.main_editor.typed_key = ""
             self.enter_selection_mode(text_area)
             text_area.action_select_all()
+
+        elif key_event.key == "y" and self.main_editor.typed_key == "":
+            self.main_editor.typed_key = self.main_editor.typed_key + key_event.key
+
+        elif key_event.key == "y" and self.main_editor.typed_key == "y": # yy, copy the entire line
+            text_area.action_select_line()
+            self.main_editor.copied_text = text_area.selected_text
