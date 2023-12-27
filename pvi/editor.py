@@ -5,10 +5,9 @@ from textual.app import ComposeResult
 from textual.screen import Screen
 from textual import events, log
 
-from utils import read_store_ini_file, update_store_ini_file
-from utils import read_setting_ini_file
-from components.sidebar import Sidebar
+from utils import read_store_ini_file, update_store_ini_file, read_setting_ini_file
 from components.main_editor import MainEditor
+from components.sidebar import Sidebar
 
 import time
 import os

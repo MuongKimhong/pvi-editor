@@ -1,10 +1,9 @@
-from pathlib import Path
-import configparser
-
 from textual.widgets.text_area import Selection
 from textual.messages import Message
 from textual import log
 
+from pathlib import Path
+import configparser
 
 def get_pvi_root() -> Path:
     return Path(__file__).parent.parent
@@ -103,7 +102,7 @@ class KeyBindingInNormalMode:
 
         elif key_event.key == "d" and self.main_editor.typed_key == "":
             self.main_editor.typed_key = self.main_editor.typed_key + key_event.key
-            
+
         elif key_event.key == "d" and self.main_editor.typed_key == "d": # combination of dd, delete a line
             text_area.action_delete_line()
             self.main_editor.typed_key = ""

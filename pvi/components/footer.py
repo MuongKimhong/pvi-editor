@@ -1,7 +1,5 @@
 from textual.app import ComposeResult
-from textual.widget import Widget
-from textual.widgets import Static, Input
-from textual.containers import Container
+from textual.widgets import Input
 from textual import events, log
 
 from utils import read_setting_ini_file, read_store_ini_file

@@ -4,8 +4,7 @@ from textual.app import ComposeResult
 from textual.widget import Widget
 from textual import log, events
 
-from utils import read_store_ini_file, update_store_ini_file
-from utils import read_setting_ini_file
+from utils import read_store_ini_file, update_store_ini_file, read_setting_ini_file
 
 import os
 
