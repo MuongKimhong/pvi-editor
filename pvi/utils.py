@@ -73,6 +73,14 @@ class KeyBindingInSelectionMode:
                 text_area.delete(start=self.main_editor.selection_start, end=text_area.cursor_location)
                 self.cancel_selection(text_area)
             
+            case "w":
+                text_area.action_cursor_word_right()
+                text_area.selection = Selection(start=self.main_editor.selection_start, end=text_area.cursor_location)
+            
+            case "b":
+                text_area.action_cursor_word_left()
+                text_area.selection = Selection(start=self.main_editor.selection_start, end=text_area.cursor_location)
+            
             case "escape":
                 self.cancel_selection(text_area)
 
