@@ -51,3 +51,7 @@ class Footer(Input, can_focus=True):
             elif self.value == ":w" or self.value == ":write":
                 self.save_file_content() 
                 self.focus_on_main_editor()
+
+            elif self.value == ":wq":
+                self.save_file_content()
+                self.app.exit()
