@@ -113,6 +113,10 @@ class KeyBindingInNormalMode:
                 start, end = text_area.selection
                 text_area.replace("\n", start, end, maintain_selection_offset=False)
                 self.enter_insert_mode(text_area)
+            case "b":
+                text_area.action_cursor_word_left()
+            case "w":
+                text_area.action_cursor_word_right()
 
         if key_event.key == "d" and self.main_editor.typed_key == "":
             self.main_editor.typed_key = self.main_editor.typed_key + key_event.key
