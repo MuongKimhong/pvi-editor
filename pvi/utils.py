@@ -132,3 +132,11 @@ class KeyBindingInNormalMode:
         elif key_event.key == "d" and self.main_editor.typed_key == "d": # combination of dd, delete a line
             text_area.action_delete_line()
             self.main_editor.typed_key = ""
+
+        elif key_event.key == "s" and self.main_editor.typed_key == "":
+            self.main_editor.typed_key = self.main_editor.typed_key + key_event.key
+        
+        elif key_event.key == "a" and self.main_editor.typed_key == "s":
+            self.main_editor.typed_key = ""
+            self.enter_selection_mode(text_area)
+            text_area.action_select_all()
