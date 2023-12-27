@@ -1,6 +1,7 @@
 from textual.app import ComposeResult
 from textual.containers import Container
 from textual.widgets import Static, TextArea
+from textual.widgets.text_area import Selection
 from textual.css.query import NoMatches
 from textual.messages import Message
 from textual.widget import Widget
@@ -17,6 +18,8 @@ class MainEditor(Container, can_focus=True):
         self.editing_mode = "normal"
         self.content_loaded = False # True if user open a file to edit
         self.typed_key = ""
+        self.highligting = False
+        self.selection_start = None
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -45,6 +48,10 @@ class MainEditor(Container, can_focus=True):
         self.remove_welcome_text()
         self.load_file_content_to_textarea(file_content)
 
+    def handle_text_area_selection(self, text_area: TextArea) -> None:
+        if self.highligting:
+            text_area.selection = Selection(start=self.selection_start, end=text_area.cursor_location)
+
     def on_focus(self, event: events.Focus) -> None:
         self.editing_mode = "normal"
 
@@ -58,12 +65,16 @@ class MainEditor(Container, can_focus=True):
 
                 if event.key == "j":
                     text_area.action_cursor_down()
+                    self.handle_text_area_selection(text_area)
                 elif event.key == "k":
                     text_area.action_cursor_up()
+                    self.handle_text_area_selection(text_area)
                 elif event.key == "l":
                     text_area.action_cursor_right()
+                    self.handle_text_area_selection(text_area)
                 elif event.key == "h":
                     text_area.action_cursor_left()
+                    self.handle_text_area_selection(text_area)
                 elif event.key == "i": # change to insert mode
                     self.editing_mode = "insert"
                     self.app.query_one("#footer").change_value(value="--insert--")
@@ -74,3 +85,13 @@ class MainEditor(Container, can_focus=True):
                 elif event.key == "d" and self.typed_key == "d": # combination of dd, delete a line
                     text_area.action_delete_line()
                     self.typed_key = ""
+
+                elif event.key == "v": # start selection
+                    text_area.selection = Selection(start=text_area.cursor_location, end=text_area.cursor_location)
+                    self.selection_start = text_area.cursor_location
+                    self.highligting = True
+
+                elif (event.key == "escape") and (self.highligting is True): # cancel selection
+                    self.highligting = False
+                    self.start_location = None
+                    text_area.selection = Selection(start=text_area.cursor_location, end=text_area.cursor_location)
