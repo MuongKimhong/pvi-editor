@@ -102,6 +102,13 @@ class KeyBindingInNormalMode:
                 self.main_editor.app.query_one("#footer").change_value(value="--selection--")
                 self.main_editor.selection_start = text_area.cursor_location
                 text_area.selection = Selection(start=text_area.cursor_location, end=text_area.cursor_location)
+            case "o":
+                self.main_editor.editing_mode = "insert"
+                self.main_editor.app.query_one("#footer").change_value(value="--insert--")
+                text_area.action_cursor_line_end()
+                start, end = text_area.selection
+                text_area.replace("\n", start, end, maintain_selection_offset=False)
+                text_area.focus()
 
         if key_event.key == "d" and self.main_editor.typed_key == "":
             self.main_editor.typed_key = self.main_editor.typed_key + key_event.key
