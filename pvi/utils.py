@@ -75,3 +75,41 @@ class KeyBindingInSelectionMode:
 
         elif key_event.key == "escape": # cancel selection
             self.cancel_selection(text_area)
+
+
+class KeyBindingInNormalMode:
+    def __init__(self, main_editor):
+        self.main_editor = main_editor
+
+    def handle_key_binding(self, key_event) -> None:
+        text_area = self.main_editor.query_one("#pvi-text-area")
+
+        if key_event.key == "j":
+            text_area.action_cursor_down()
+
+        elif key_event.key == "k":
+            text_area.action_cursor_up()
+
+        elif key_event.key == "l":
+            text_area.action_cursor_right()
+
+        elif key_event.key == "h":
+            text_area.action_cursor_left()
+
+        elif key_event.key == "i": # change to insert mode
+            self.main_editor.editing_mode = "insert"
+            self.main_editor.app.query_one("#footer").change_value(value="--insert--")
+            text_area.focus()
+
+        elif key_event.key == "d" and self.main_editor.typed_key == "":
+            self.main_editor.typed_key = self.main_editor.typed_key + key_event.key
+            
+        elif key_event.key == "d" and self.main_editor.typed_key == "d": # combination of dd, delete a line
+            text_area.action_delete_line()
+            self.main_editor.typed_key = ""
+
+        elif key_event.key == "v": # start selection
+            self.main_editor.editing_mode = "selection"
+            self.main_editor.app.query_one("#footer").change_value(value="--selection--")
+            self.main_editor.selection_start = text_area.cursor_location
+            text_area.selection = Selection(start=text_area.cursor_location, end=text_area.cursor_location)
