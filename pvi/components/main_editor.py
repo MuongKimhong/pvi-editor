@@ -19,6 +19,7 @@ class MainEditor(Container, can_focus=True):
         self.content_loaded = False # True if user open a file to edit
         self.typed_key = ""
         self.selection_start = None
+        self.copied_text = ""
 
         self.selection_mode_keybinding = KeyBindingInSelectionMode(self)
         self.normal_mode_keybinding = KeyBindingInNormalMode(self)
