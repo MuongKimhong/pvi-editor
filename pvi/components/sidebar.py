@@ -5,6 +5,7 @@ from textual.widget import Widget
 from textual import log, events
 
 from utils import read_store_ini_file, update_store_ini_file, read_setting_ini_file
+from components.sidebar_input import SidebarInput
 
 import os
 
@@ -128,6 +129,11 @@ class Sidebar(Container, can_focus=True):
     def move_up(self, editor) -> None:
         if self.viewing.get("id") > 1:
             self.handle_set_to_highlighted_or_normal(move_direction="up", editor=editor)
+
+    def mount_input(self, create_type: str) -> None:
+        sidebar_input = SidebarInput(create_type=create_type)
+        self.mount(sidebar_input)
+        sidebar_input.scroll_visible()
 
     def on_focus(self, event: events.Focus) -> None:
         for content in self.query("DirectoryContentText"):

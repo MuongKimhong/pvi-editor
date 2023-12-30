@@ -83,17 +83,14 @@ class Editor(Screen):
  
         elif event.key == "a" and self.typed_key == "": 
             self.typed_key = self.typed_key + event.key
-
-        # <af> append new file in highlighted directory,
-        # or append in project root if no directory is highlighted 
+ 
+        #keybinding <af> append new file in highlighted directory,
+        #or append in project root if no directory is highlighted 
         elif self.typed_key == "a" and event.key == "f": 
-            new_input = Input(type="text", id='append-file-input')
-            new_input.styles.height = 1
-            new_input.styles.color = "white"
-            self.query_one(Sidebar).mount(new_input)
-            new_input.scroll_visible()
-            self.blur()
-            self.query_one("#append-file-input").focus()
+            if self.focused_main_editor is False:
+                self.typed_key = ""
+                self.query_one(Sidebar).mount_input(create_type="file")
+                self.query_one(Sidebar).query_one("SidebarInput").focus()
 
         elif event.key == "enter":
             if self.focused_main_editor:
