@@ -44,6 +44,9 @@ class Sidebar(Container, can_focus=True):
     }
     """
     def __init__(self, dir_tree: list):
+        self.all_files = []
+        self.all_directories = []
+
         self.dir_tree = dir_tree
         self.dir_tree_listview = ListView(*[], id="listview")
 
@@ -66,19 +69,16 @@ class Sidebar(Container, can_focus=True):
 
     def init_dir_tree(self) -> None:
         directory_path = read_store_ini_file("WorkingDirectory")["editing_path"]
-        directories = []
-        files = []
 
         for content in self.dir_tree:
             if os.path.isfile(f"{directory_path}/{content}"):
-                files.append({"type": "file", "content": content, "nested": []})
+                self.all_files.append({"type": "file", "content": content, "nested": []})
             elif os.path.isdir(f"{directory_path}/{content}") and content != ".git":
-                directories.append({"type": "dir", "content": f"{content}/", "nested": []})
+                self.all_directories.append({"type": "dir", "content": f"{content}/", "nested": []})
 
-        sorted_files = sorted(files, key=lambda x: x["content"])
-        sorted_directories = sorted(directories, key=lambda x: x["content"])
-
-        self.dir_tree = sorted_directories + sorted_files
+        self.all_files = sorted(self.all_files, key=lambda x: x["content"])
+        self.all_directories = sorted(self.all_directories, key=lambda x: x["content"])
+        self.dir_tree = self.all_directories + self.all_files
 
         for (index, content) in enumerate(self.dir_tree):
             content["id"] = index + 1
@@ -96,7 +96,7 @@ class Sidebar(Container, can_focus=True):
                         DirectoryContentText(content_name=content["content"], content_type="file", content_id=index+1),
                         classes="filelistitem", id=f"file-item-{index+1}"
                     )
-                )
+                ) 
 
     def compose(self) -> ComposeResult:
         self.init_dir_tree()
