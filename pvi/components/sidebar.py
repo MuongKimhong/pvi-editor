@@ -64,20 +64,15 @@ class Sidebar(Container, can_focus=True):
         self.styles.border_right = (style["border_right_style"], f"#{style['border_right_color']}")
         self.styles.width = int(style["max_width"])
 
-    def on_mount(self, event: events.Mount) -> None:
-        self.set_style() 
-
-    def compose(self) -> ComposeResult:
+    def init_dir_tree(self) -> None:
         directory_path = read_store_ini_file("WorkingDirectory")["editing_path"]
         directories = []
         files = []
 
         for content in self.dir_tree:
             if os.path.isfile(f"{directory_path}/{content}"):
-                # files.append(content)
                 files.append({"type": "file", "content": content, "nested": []})
             elif os.path.isdir(f"{directory_path}/{content}") and content != ".git":
-                # directories.append(content)
                 directories.append({"type": "dir", "content": f"{content}/", "nested": []})
 
         sorted_files = sorted(files, key=lambda x: x["content"])
@@ -103,6 +98,8 @@ class Sidebar(Container, can_focus=True):
                     )
                 )
 
+    def compose(self) -> ComposeResult:
+        self.init_dir_tree()
         yield Container(self.dir_tree_listview, id="sidebar-container") 
 
     def hide_sidebar(self) -> None:
@@ -134,6 +131,9 @@ class Sidebar(Container, can_focus=True):
         sidebar_input = SidebarInput(create_type=create_type)
         self.mount(sidebar_input)
         sidebar_input.scroll_visible()
+
+    def on_mount(self, event: events.Mount) -> None:
+        self.set_style() 
 
     def on_focus(self, event: events.Focus) -> None:
         for content in self.query("DirectoryContentText"):
