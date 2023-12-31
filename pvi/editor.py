@@ -101,9 +101,8 @@ class Editor(Screen):
 
                 # enter on files
                 if selected_content.content_type == "file":
-                    with open(f"{self.store['editing_path']}/{selected_content.content_name}", "r") as file:
-                        self.handle_switching_focus()
-                        self.query_one(MainEditor).handle_load_content_to_textarea(file_content=file.read())
+                    self.handle_switching_focus()
+                    self.query_one(Sidebar).select_file(selected_content=selected_content)
                 
                 # enter on directories
                 else:

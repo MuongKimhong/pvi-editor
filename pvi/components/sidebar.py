@@ -51,6 +51,7 @@ class Sidebar(Container, can_focus=True):
 
         self.dir_tree = dir_tree
         self.dir_tree_listview = ListView(*[], id="listview")
+        self.store = read_store_ini_file(section_name="WorkingDirectory")
         self.viewing_id = 1 # viewing index inside directory tree (sidebar)
         super().__init__()
 
@@ -62,12 +63,10 @@ class Sidebar(Container, can_focus=True):
         self.styles.width = int(style["max_width"])
 
     def init_dir_tree(self) -> None:
-        directory_path = read_store_ini_file("WorkingDirectory")["editing_path"]
-
         for content in self.dir_tree:
-            if os.path.isfile(f"{directory_path}/{content}"):
+            if os.path.isfile(f"{self.store['editing_path']}/{content}"):
                 self.all_files.append({"type": "file", "content": content})
-            elif os.path.isdir(f"{directory_path}/{content}") and content != ".git":
+            elif os.path.isdir(f"{self.store['editing_path']}/{content}") and content != ".git":
                 self.all_directories.append({"type": "dir", "content": f"{content}/", "nested": []})
 
         self.all_files = sorted(self.all_files, key=lambda x: x["content"])
@@ -112,6 +111,10 @@ class Sidebar(Container, can_focus=True):
     # as it's already updated via update_store_ini_file function
     def select_directory(self) -> None:
         pass 
+
+    def select_file(self, selected_content: DirectoryContentText) -> None:
+        with open(f"{self.store['editing_path']}/{selected_content.content_name}", "r") as file:
+            self.app.query_one("MainEditor").handle_load_content_to_textarea(file_content=file.read())
 
     def hide_sidebar(self) -> None:
         self.styles.width = 0
