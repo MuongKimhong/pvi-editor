@@ -21,9 +21,6 @@ class Editor(Screen):
         self.store = read_store_ini_file(section_name="WorkingDirectory")
         self.focused_main_editor = True
         self.typed_key = ""
- 
-        # type "dir" or "file" highlighted in sidebar
-        self.sidebar_highlighting_type = "file"
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -106,13 +103,9 @@ class Editor(Screen):
                 
                 # enter on directories
                 else:
-                    #remove / from content_name
-                    content_name = selected_content.content_name[:len(selected_content.content_name) - 1]
-
-                    self.store["editing_path"] = f"{self.store['editing_path']}/{content_name}"
-                    update_store_ini_file(section_name="WorkingDirectory", section_data=self.store)
-
-
+                    self.query_one(Sidebar).select_directory(selected_dir=selected_content)
+                    self.query_one(Sidebar).focus()
+                    self.focused_main_editor = False
                         
     def on_mount(self, event: events.Mount) -> None:
         pass
