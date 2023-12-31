@@ -96,15 +96,24 @@ class Editor(Screen):
             if self.focused_main_editor:
                 pass
             else:
-                selected_content_index = self.query_one(Sidebar).viewing["id"] - 1
+                selected_content_index = self.query_one(Sidebar).viewing_id - 1
                 selected_content = self.query("DirectoryContentText")[selected_content_index]
 
+                # enter on files
                 if selected_content.content_type == "file":
                     with open(f"{self.store['editing_path']}/{selected_content.content_name}", "r") as file:
                         self.handle_switching_focus()
                         self.query_one(MainEditor).handle_load_content_to_textarea(file_content=file.read())
-                elif selected_content.content_type == "dir":
-                    pass
+                
+                # enter on directories
+                else:
+                    #remove / from content_name
+                    content_name = selected_content.content_name[:len(selected_content.content_name) - 1]
+
+                    self.store["editing_path"] = f"{self.store['editing_path']}/{content_name}"
+                    update_store_ini_file(section_name="WorkingDirectory", section_data=self.store)
+
+
                         
     def on_mount(self, event: events.Mount) -> None:
         pass
