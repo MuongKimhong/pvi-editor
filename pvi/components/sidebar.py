@@ -121,7 +121,6 @@ class Sidebar(Container, can_focus=True):
         self.set_style()
 
     def handle_set_to_highlighted_or_normal(self, move_direction: str, editor) -> None:
-        self.viewing["id"] = self.viewing.get("id") - 1 if move_direction == "up" else self.viewing.get("id") + 1
         self.viewing_id = self.viewing_id - 1 if move_direction == "up" else self.viewing_id + 1
 
         for content in self.query("DirectoryContentText"):
