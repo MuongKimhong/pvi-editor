@@ -7,37 +7,23 @@ from textual import log
 from pathlib import Path
 import configparser
 
+
 def get_pvi_root() -> Path:
     return Path(__file__).parent.parent
 
 
-def read_store_ini_file(section_name: str) -> dict:
+def read_ini_file(file_name: str, section_name: str) -> dict:
     config = configparser.ConfigParser()
-    config.read(f"{get_pvi_root()}/pvi/store/stores.ini")
-    return config[section_name] 
-
-
-def update_store_ini_file(section_name: str, section_data: dict) -> None:
-    config = configparser.ConfigParser()
-    config.read(f"{get_pvi_root()}/pvi/store/stores.ini")
-    config[section_name].update(section_data)
-
-    with open(f"{get_pvi_root()}/pvi/store/stores.ini", "w") as configfile:
-        config.write(configfile)
-
-
-def read_setting_ini_file(section_name: str) -> dict:
-    config = configparser.ConfigParser()
-    config.read(f"{get_pvi_root()}/pvi/store/settings.ini")
+    config.read(f"{get_pvi_root()}/pvi/store/{file_name}")
     return config[section_name]
 
 
-def update_setting_ini_file(section_name: str, section_data: dict) -> None:
+def update_ini_file(file_name: str, section_name: str, section_data: dict) -> None:
     config = configparser.ConfigParser()
-    config.read(f"{get_pvi_root()}/pvi/store/settings.ini")
+    config.read(f"{get_pvi_root()}/pvi/store/{file_name}")
     config[section_name].update(section_data)
 
-    with open(f"{get_pvi_root()}/pvi/store/settings.ini", "w") as configfile:
+    with open(f"{get_pvi_root()}/pvi/store/{file_name}", "w") as configfile:
         config.write(configfile)
 
 
@@ -180,47 +166,37 @@ class KeyBindingInNormalMode:
             self.main_editor.copied_text = text_area.selected_text
 
 
-'''
-- used to reduce lines of code in Sidebar class
-'''
-def set_sidebar_style(sidebar) -> None:
-    style = read_setting_ini_file(section_name="Sidebar")
-    sidebar.styles.border = (style["border_style"], f"#{style['border_color']}")
-    sidebar.styles.border_top = (style["border_top_style"], f"#{style['border_top_color']}")
-    sidebar.styles.border_right = (style["border_right_style"], f"#{style['border_right_color']}")
-    sidebar.styles.width = int(style["max_width"])
+class SidebarUtils:
+    def __init__(self, sidebar) -> None:
+        self.sidebar = sidebar
 
+    def set_sidebar_style(self) -> None:
+        style = read_ini_file(file_name="settings.ini", section_name="Sidebar")
+        self.sidebar.styles.border = (style["border_style"], f"#{style['border_color']}")
+        self.sidebar.styles.border_top = (style["border_top_style"], f"#{style['border_top_color']}")
+        self.sidebar.styles.border_right = (style["border_right_style"], f"#{style['border_right_color']}")
+        self.sidebar.styles.width = int(style["max_width"])
 
-'''
-- used to represent each file and directory in sidebar
-  before changed to DirectoryContentText widget
-- used to reduce lines of code in Sidebar Class
-'''
-def content_as_dict(c_type: str, content: str, layer_level: int) -> dict:
-    return {
-        "type": c_type,
-        "content": content,
-        "layer_level": layer_level
-    }
+    # used to represent each file and directory in sidebar
+    # before changed to DirectoryContentText widget
+    def content_as_dict(self, c_type: str, content: str, layer_level: int) -> dict:
+        return {
+            "type": c_type,
+            "content": content,
+            "layer_level": layer_level
+        }
 
+    # set the DirectoryContentText to highligh or normal
+    def set_to_highlighted_or_normal(self) -> None:
+        for content in self.sidebar.query("DirectoryContentText"):
+            if content.content_id == self.sidebar.viewing_id:
+                content.set_to_highlighted()
+            else:
+                content.set_to_normal()
 
-'''
-- set the DirectoryContentText to highligh or normal
-- used to reduce lines of code in Sidebar class
-'''
-def set_to_highlighted_or_normal(sidebar) -> None:
-    for content in sidebar.query("DirectoryContentText"):
-        if content.content_id == sidebar.viewing_id:
-            content.set_to_highlighted()
-        else:
-            content.set_to_normal()
-
-'''
-- re_mount the listview in sidebar whenever user open a directory
-- used to reduce lines of code in Sidebar class
-'''
-def handle_re_mount_listview(sidebar):
-    dir_tree_listview = sidebar.init_dir_tree_listview() 
-    sidebar.query_one(ListView).remove()
-    sidebar.query_one(Container).mount(dir_tree_listview)
-    dir_tree_listview.scroll_visible()
+    # re_mount the listview in sidebar whenever user open a directory
+    def handle_re_mount_listview(self):
+        dir_tree_listview = self.sidebar.init_dir_tree_listview() 
+        self.sidebar.query_one(ListView).remove()
+        self.sidebar.query_one(Container).mount(dir_tree_listview)
+        dir_tree_listview.scroll_visible()

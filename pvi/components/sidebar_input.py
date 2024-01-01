@@ -9,7 +9,7 @@ from textual.app import ComposeResult
 from textual.widgets import Input
 from textual import events, log
 
-from utils import read_store_ini_file
+from utils import read_ini_file
 
 import os
 
@@ -18,7 +18,7 @@ class SidebarInput(Input):
     def __init__(self, create_type, selected_directory=None) -> None:
         self.create_type = create_type # "file" or "dir"
         self.selected_directory = selected_directory
-        self.store = read_store_ini_file(section_name="WorkingDirectory")
+        self.store = read_ini_file(file_name="stores.ini", section_name="WorkingDirectory")
         super().__init__()
 
     def set_style(self) -> None:

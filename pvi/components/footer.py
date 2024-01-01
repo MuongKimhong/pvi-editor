@@ -2,12 +2,12 @@ from textual.app import ComposeResult
 from textual.widgets import Input
 from textual import events, log
 
-from utils import read_setting_ini_file, read_store_ini_file
+from utils import read_ini_file
 
 
 class Footer(Input, can_focus=True):
     def set_style(self) -> None:
-        style = read_setting_ini_file(section_name="Footer")
+        style = read_ini_file(file_name="settings.ini", section_name="Footer")
         self.styles.dock = "bottom" #  can't be changed
         self.styles.width = "100%" # can't be changed
         self.styles.height = int(style["height"])
@@ -31,7 +31,7 @@ class Footer(Input, can_focus=True):
         self.app.query_one("MainEditor").focus()
 
     def save_file_content(self) -> None:
-        store = read_store_ini_file(section_name="WorkingDirectory")
+        store = read_ini_file(file_name="stores.ini", section_name="WorkingDirectory")
         selected_content_index = self.app.query_one("Sidebar").viewing["id"] - 1
         selected_content = self.app.query("DirectoryContentText")[selected_content_index]
 

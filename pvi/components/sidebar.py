@@ -4,8 +4,8 @@ from textual.app import ComposeResult
 from textual.widget import Widget
 from textual import log, events
 
-from utils import read_store_ini_file, update_store_ini_file
-from utils import set_sidebar_style, content_as_dict, set_to_highlighted_or_normal, handle_re_mount_listview
+from utils import read_ini_file, update_ini_file
+from utils import SidebarUtils
 
 from components.directory_content_text import DirectoryContentText
 from components.sidebar_input import SidebarInput
@@ -25,10 +25,11 @@ class Sidebar(Container, can_focus=True):
         self.all_directories = []
 
         self.dir_tree = dir_tree
-        self.store = read_store_ini_file(section_name="WorkingDirectory")
+        self.store = read_ini_file(file_name="stores.ini", section_name="WorkingDirectory")
         self.viewing_id = 1 # viewing index inside directory tree (sidebar)
 
         self.content_states = {}
+        self.utils = SidebarUtils(self)
         super().__init__()
 
     def list_item(self, content, c_id, c_type) -> ListItem:
@@ -40,11 +41,11 @@ class Sidebar(Container, can_focus=True):
         for content in self.dir_tree:
             if os.path.isfile(f"{self.store['editing_path']}/{content}"):
                 self.all_files.append(
-                    content_as_dict("file", content, 0)
+                    self.utils.content_as_dict("file", content, 0)
                 )
             elif os.path.isdir(f"{self.store['editing_path']}/{content}") and content != ".git":
                 self.all_directories.append(
-                    content_as_dict("dir", f"{content}/", 0)
+                    self.utils.content_as_dict("dir", f"{content}/", 0)
                 )
 
         self.all_files = sorted(self.all_files, key=lambda x: x["content"])
@@ -72,7 +73,7 @@ class Sidebar(Container, can_focus=True):
         # remove / from content_name
         content_name = selected_dir.content_name[:len(selected_dir.content_name) - 1]
         self.store["editing_path"] = f"{self.store['editing_path']}/{content_name}"
-        update_store_ini_file(section_name="WorkingDirectory", section_data=self.store)
+        update_ini_file(file_name="stores.ini", section_name="WorkingDirectory", section_data=self.store)
 
         for (index, content) in enumerate(self.dir_tree):
             if content["id"] == selected_dir.content_id:
@@ -88,11 +89,11 @@ class Sidebar(Container, can_focus=True):
 
             if os.path.isfile(f"{self.store['editing_path']}/{content}"):
                 files_in_selected_dir_contents.append(
-                    content_as_dict("file", content, layer)
+                    self.utils.content_as_dict("file", content, layer)
                 )
             elif os.path.isdir(f"{self.store['editing_path']}/{content}") and content != ".git":
                 directories_in_selected_dir_contents.append(
-                    content_as_dict("dir", f"{content}/", layer)
+                    self.utils.content_as_dict("dir", f"{content}/", layer)
                 )
 
         selected_dir_contents = [
@@ -104,7 +105,7 @@ class Sidebar(Container, can_focus=True):
             *selected_dir_contents, 
             *contents_below_selected_dir
         ]
-        handle_re_mount_listview(self)
+        self.utils.handle_re_mount_listview()
         self.content_states[f"content_{selected_dir.content_id}"] = "open"
 
     def close_directory(self, selected_dir: DirectoryContentText) -> None:
@@ -113,7 +114,7 @@ class Sidebar(Container, can_focus=True):
         # update editing_path by removing the last directory
         splited = self.store["editing_path"].split("/")
         self.store["editing_path"] = "/".join(splited[:-1])
-        update_store_ini_file(section_name="WorkingDirectory", section_data=self.store)
+        update_ini_file(file_name="stores.ini", section_name="WorkingDirectory", section_data=self.store)
         
         for (index, content) in enumerate(self.dir_tree):
             if content["id"] == selected_dir.content_id:
@@ -121,7 +122,7 @@ class Sidebar(Container, can_focus=True):
                 contents_below_selected_dir = self.dir_tree[index + 1 + len(selected_dir_contents):]
 
         self.dir_tree = [*contents_above_selected_dir, *contents_below_selected_dir]
-        handle_re_mount_listview(self)
+        self.utils.handle_re_mount_listview()
         self.content_states[f"content_{selected_dir.content_id}"] = "close"
 
     # get selected directory from store.ini
@@ -133,7 +134,7 @@ class Sidebar(Container, can_focus=True):
         elif self.content_states[f"content_{selected_dir.content_id}"] == "open":
             self.close_directory(selected_dir=selected_dir)
 
-        set_to_highlighted_or_normal(self)
+        self.utils.set_to_highlighted_or_normal()
 
     def select_file(self, selected_content: DirectoryContentText) -> None:
         with open(f"{self.store['editing_path']}/{selected_content.content_name}", "r") as file:
@@ -144,11 +145,11 @@ class Sidebar(Container, can_focus=True):
         self.styles.border = ("hidden", "grey")
 
     def show_sidebar(self) -> None:
-        set_sidebar_style(self)
+        self.utils.set_sidebar_style()
 
     def handle_set_to_highlighted_or_normal(self, move_direction: str, editor) -> None:
         self.viewing_id = self.viewing_id - 1 if move_direction == "up" else self.viewing_id + 1
-        set_to_highlighted_or_normal(self)
+        self.utils.set_to_highlighted_or_normal()
 
     def move_down(self, editor) -> None:
         if self.viewing_id < len(self.query("DirectoryContentText")):
@@ -164,10 +165,10 @@ class Sidebar(Container, can_focus=True):
         sidebar_input.scroll_visible()
 
     def on_mount(self, event: events.Mount) -> None:
-        set_sidebar_style(self)
+        self.utils.set_sidebar_style()
 
     def on_focus(self, event: events.Focus) -> None:
-        set_to_highlighted_or_normal(self)
+        self.utils.set_to_highlighted_or_normal()
         
     def on_blur(self, event: events.Blur) -> None:
         for content in self.query("DirectoryContentText"):

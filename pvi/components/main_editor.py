@@ -7,7 +7,7 @@ from textual.messages import Message
 from textual.widget import Widget
 from textual import log, events
 
-from utils import read_store_ini_file, KeyBindingInSelectionMode, KeyBindingInNormalMode
+from utils import read_ini_file, KeyBindingInSelectionMode, KeyBindingInNormalMode
 from components.welcome_text import WelcomeText
 from components.text_area import PviTextArea
 from components.footer import Footer
@@ -26,7 +26,7 @@ class MainEditor(Container, can_focus=True):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        if read_store_ini_file(section_name="WorkingDirectory")["editing_type"] == "dir":
+        if read_ini_file(file_name="stores.ini", section_name="WorkingDirectory")["editing_type"] == "dir":
             yield WelcomeText(id="welcome-text")
         
         yield Footer(id="footer")

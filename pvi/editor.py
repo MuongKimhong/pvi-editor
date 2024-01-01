@@ -5,9 +5,9 @@ from textual.app import ComposeResult
 from textual.screen import Screen
 from textual import events, log
 
-from utils import read_store_ini_file, update_store_ini_file, read_setting_ini_file
 from components.main_editor import MainEditor
 from components.sidebar import Sidebar
+from utils import read_ini_file
 
 import time
 import os
@@ -17,8 +17,8 @@ class Editor(Screen):
     CSS_PATH = "styles/style.tcss"
 
     def __init__(self):
-        self.sidebar_style = read_setting_ini_file(section_name="Sidebar")
-        self.store = read_store_ini_file(section_name="WorkingDirectory")
+        self.sidebar_style = read_ini_file(file_name="settings.ini", section_name="Sidebar")
+        self.store = read_ini_file(file_name="stores.ini", section_name="WorkingDirectory")
         self.focused_main_editor = True
         self.typed_key = ""
         super().__init__()
