@@ -17,7 +17,6 @@ class DirectoryContentText(Container):
         self.content_type: str = content_type
         self.content_id: int = content_id
         self.layer_level: int = layer_level + 1 if layer_level > 0 else 0
-        self.state = "close"
         super().__init__()
 
     def compose(self) -> None:
@@ -54,6 +53,8 @@ class Sidebar(Container, can_focus=True):
         self.dir_tree = dir_tree
         self.store = read_store_ini_file(section_name="WorkingDirectory")
         self.viewing_id = 1 # viewing index inside directory tree (sidebar)
+
+        self.content_states = {}
         super().__init__()
 
     def set_style(self) -> None:
@@ -79,6 +80,7 @@ class Sidebar(Container, can_focus=True):
 
         for (index, content) in enumerate(self.dir_tree):
             content["id"] = index + 1
+            self.content_states[f"content_{index + 1}"] = "close"
 
             if content["type"] == "dir":
                 dir_tree_listview.append(
@@ -87,9 +89,9 @@ class Sidebar(Container, can_focus=True):
                             content_name=content["content"], 
                             content_type="dir", 
                             content_id=index+1, 
-                            layer_level=content["layer_level"]
+                            layer_level=content["layer_level"],
                         ),
-                        classes="dirlistitem"
+                        classes="dirlistitem", id=f"listitem-{index+1}"
                     )
                 ) 
             else:
@@ -99,9 +101,9 @@ class Sidebar(Container, can_focus=True):
                             content_name=content["content"], 
                             content_type="file", 
                             content_id=index+1,
-                            layer_level=content["layer_level"]
+                            layer_level=content["layer_level"],
                         ),
-                        classes="filelistitem"
+                        classes="filelistitem", id=f"listitem-{index+1}"
                     )
                 )
         return dir_tree_listview
@@ -110,72 +112,86 @@ class Sidebar(Container, can_focus=True):
         self.init_dir_tree()
         yield Container(self.init_dir_tree_listview(), id="sidebar-container") 
 
+    def handle_re_mount_listview(self):
+        dir_tree_listview = self.init_dir_tree_listview() 
+        self.query_one(ListView).remove()
+        self.query_one(Container).mount(dir_tree_listview)
+        dir_tree_listview.scroll_visible()
+
+    def open_directory(self, selected_dir: DirectoryContentText) -> None:
+        #remove / from content_name
+        content_name = selected_dir.content_name[:len(selected_dir.content_name) - 1]
+
+        self.store["editing_path"] = f"{self.store['editing_path']}/{content_name}"
+        update_store_ini_file(section_name="WorkingDirectory", section_data=self.store)
+
+        for (index, content) in enumerate(self.dir_tree):
+            if content["id"] == selected_dir.content_id:
+                contents_above_selected_dir = self.dir_tree[:index + 1]
+                contents_below_selected_dir = self.dir_tree[index + 1:]
+
+        selected_dir_contents = os.listdir(self.store["editing_path"])
+        files_in_selected_dir_contents = []
+        directories_in_selected_dir_contents = []
+
+        for content in selected_dir_contents:
+            if os.path.isfile(f"{self.store['editing_path']}/{content}"):
+                files_in_selected_dir_contents.append(
+                    {
+                        "type": "file", 
+                        "content": content, 
+                        "layer_level": selected_dir.layer_level + 1
+                    }
+                )
+            elif os.path.isdir(f"{self.store['editing_path']}/{content}") and content != ".git":
+                directories_in_selected_dir_contents.append(
+                    {
+                        "type": "dir", 
+                        "content": f"{content}/", 
+                        "layer_level": selected_dir.layer_level + 1
+                    }
+                )
+
+        sorted_files = sorted(
+            files_in_selected_dir_contents, key=lambda x: x["content"]
+        )
+        sorted_dirs = sorted(
+            directories_in_selected_dir_contents, key=lambda x: x["content"]
+        )
+        selected_dir_contents = sorted_files + sorted_dirs
+
+        self.dir_tree = contents_above_selected_dir + selected_dir_contents + contents_below_selected_dir
+        self.handle_re_mount_listview()
+        self.content_states[f"content_{selected_dir.content_id}"] = "open"
+
+    def close_directory(self, selected_dir: DirectoryContentText) -> None:
+        selected_dir_contents = os.listdir(self.store["editing_path"])
+
+        # update editing_path by removing the last directory
+        splited = self.store["editing_path"].split("/")
+        self.store["editing_path"] = "/".join(splited[:-1])
+        update_store_ini_file(section_name="WorkingDirectory", section_data=self.store)
+        
+        for (index, content) in enumerate(self.dir_tree):
+            if content["id"] == selected_dir.content_id:
+                contents_above_selected_dir = self.dir_tree[:index + 1]
+                contents_below_selected_dir = self.dir_tree[index + 1 + len(selected_dir_contents):]
+
+        self.dir_tree = contents_above_selected_dir + contents_below_selected_dir
+        self.handle_re_mount_listview()
+        self.content_states[f"content_{selected_dir.content_id}"] = "close"
+
     # get selected directory from store.ini
     # as it's already updated via update_store_ini_file function
     def select_directory(self, selected_dir: DirectoryContentText) -> None:
-        log(f"State {selected_dir.state}")
         contents_above_selected_dir = []
         contents_below_selected_dir = []
+ 
+        if self.content_states[f"content_{selected_dir.content_id}"] == "close":
+            self.open_directory(selected_dir=selected_dir)
 
-        def handle_re_mount_listview(self):
-            dir_tree_listview = self.init_dir_tree_listview() 
-            self.query_one(ListView).remove()
-            self.query_one(Container).mount(dir_tree_listview)
-            dir_tree_listview.scroll_visible()
-
-        if selected_dir.state == "close":
-            selected_dir.state = "open"
-
-            #remove / from content_name
-            content_name = selected_dir.content_name[:len(selected_dir.content_name) - 1]
-
-            self.store["editing_path"] = f"{self.store['editing_path']}/{content_name}"
-            log(self.store)
-            log(self.store["editing_path"])
-            update_store_ini_file(section_name="WorkingDirectory", section_data=self.store)
-
-            for (index, content) in enumerate(self.dir_tree):
-                if content["id"] == selected_dir.content_id:
-                    contents_above_selected_dir = self.dir_tree[:index + 1]
-                    contents_below_selected_dir = self.dir_tree[index + 1:]
-
-            selected_dir_contents = os.listdir(self.store["editing_path"])
-            files_in_selected_dir_contents = []
-            directories_in_selected_dir_contents = []
-
-            for content in selected_dir_contents:
-                if os.path.isfile(f"{self.store['editing_path']}/{content}"):
-                    files_in_selected_dir_contents.append(
-                        {"type": "file", "content": content, "layer_level": selected_dir.layer_level + 1}
-                    )
-                elif os.path.isdir(f"{self.store['editing_path']}/{content}") and content != ".git":
-                    directories_in_selected_dir_contents.append(
-                        {"type": "dir", "content": f"{content}/", "layer_level": selected_dir.layer_level + 1}
-                    )
-
-            sorted_files = sorted(files_in_selected_dir_contents, key=lambda x: x["content"])
-            sorted_dirs = sorted(directories_in_selected_dir_contents, key=lambda x: x["content"])
-            selected_dir_contents = sorted_files + sorted_dirs
-
-            self.dir_tree = contents_above_selected_dir + selected_dir_contents + contents_below_selected_dir
-            handle_re_mount_listview(self)
-
-        elif selected_dir.state == "open":
-            selected_dir.state = "close"
-            selected_dir_contents = os.listdir(self.store["editing_path"])
-
-            # update editing_path by removing the last directory
-            splited = self.store["editing_path"].split("/")
-            self.store["editing_path"] = "/".join(splited[:-1])
-            update_store_ini_file(section_name="WorkingDirectory", section_data=self.store)
-            
-            for (index, content) in enumerate(self.dir_tree):
-                if content["id"] == selected_dir.content_id:
-                    contents_above_selected_dir = self.dir_tree[:index + 1]
-                    contents_below_selected_dir = self.dir_tree[index + 1 + len(selected_dir_contents):]
-
-            self.dir_tree = contents_above_selected_dir + contents_below_selected_dir
-            handle_re_mount_listview(self)
+        elif self.content_states[f"content_{selected_dir.content_id}"] == "open":
+            self.close_directory(selected_dir=selected_dir)
 
         for content in self.query("DirectoryContentText"):
             if content.content_id == self.viewing_id:
