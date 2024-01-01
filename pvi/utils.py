@@ -178,9 +178,47 @@ class KeyBindingInNormalMode:
             self.main_editor.copied_text = text_area.selected_text
 
 
+'''
+- used to reduce lines of code in Sidebar class
+'''
 def set_sidebar_style(sidebar) -> None:
     style = read_setting_ini_file(section_name="Sidebar")
     sidebar.styles.border = (style["border_style"], f"#{style['border_color']}")
     sidebar.styles.border_top = (style["border_top_style"], f"#{style['border_top_color']}")
     sidebar.styles.border_right = (style["border_right_style"], f"#{style['border_right_color']}")
     sidebar.styles.width = int(style["max_width"])
+
+
+'''
+- used to represent each file and directory in sidebar
+  before changed to DirectoryContentText widget
+- used to reduce lines of code in Sidebar Class
+'''
+def content_as_dict(c_type: str, content: str, layer_level: int) -> dict:
+    return {
+        "type": c_type,
+        "content": content,
+        "layer_level": layer_level
+    }
+
+
+'''
+- set the DirectoryContentText to highligh or normal
+- used to reduce lines of code in Sidebar class
+'''
+def set_to_highlighted_or_normal(sidebar) -> None:
+    for content in sidebar.query("DirectoryContentText"):
+        if content.content_id == sidebar.viewing_id:
+            content.set_to_highlighted()
+        else:
+            content.set_to_normal()
+
+'''
+- re_mount the listview in sidebar whenever user open a directory
+- used to reduce lines of code in Sidebar class
+'''
+def handle_re_mount_listview(sidebar):
+    dir_tree_listview = sidebar.init_dir_tree_listview() 
+    sidebar.query_one(ListView).remove()
+    sidebar.query_one(Container).mount(dir_tree_listview)
+    dir_tree_listview.scroll_visible()
