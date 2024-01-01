@@ -4,8 +4,9 @@ from textual.app import ComposeResult
 from textual.widget import Widget
 from textual import log, events
 
-from utils import read_store_ini_file, update_store_ini_file, read_setting_ini_file
+from utils import read_store_ini_file, update_store_ini_file
 from utils import set_sidebar_style
+
 from components.sidebar_input import SidebarInput
 
 import time
@@ -61,9 +62,21 @@ class Sidebar(Container, can_focus=True):
     def init_dir_tree(self) -> None:
         for content in self.dir_tree:
             if os.path.isfile(f"{self.store['editing_path']}/{content}"):
-                self.all_files.append({"type": "file", "content": content, "layer_level": 0})
+                self.all_files.append(
+                    {
+                        "type": "file", 
+                        "content": content, 
+                        "layer_level": 0
+                    }
+                )
             elif os.path.isdir(f"{self.store['editing_path']}/{content}") and content != ".git":
-                self.all_directories.append({"type": "dir", "content": f"{content}/", "layer_level": 0})
+                self.all_directories.append(
+                    {
+                        "type": "dir", 
+                        "content": f"{content}/", 
+                        "layer_level": 0
+                    }
+                )
 
         self.all_files = sorted(self.all_files, key=lambda x: x["content"])
         self.all_directories = sorted(self.all_directories, key=lambda x: x["content"])
@@ -113,9 +126,8 @@ class Sidebar(Container, can_focus=True):
         dir_tree_listview.scroll_visible()
 
     def open_directory(self, selected_dir: DirectoryContentText) -> None:
-        #remove / from content_name
+        # remove / from content_name
         content_name = selected_dir.content_name[:len(selected_dir.content_name) - 1]
-
         self.store["editing_path"] = f"{self.store['editing_path']}/{content_name}"
         update_store_ini_file(section_name="WorkingDirectory", section_data=self.store)
 
