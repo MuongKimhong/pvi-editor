@@ -5,6 +5,7 @@ from textual.widget import Widget
 from textual import log, events
 
 from utils import read_store_ini_file, update_store_ini_file, read_setting_ini_file
+from utils import set_sidebar_style
 from components.sidebar_input import SidebarInput
 
 import time
@@ -56,13 +57,6 @@ class Sidebar(Container, can_focus=True):
 
         self.content_states = {}
         super().__init__()
-
-    def set_style(self) -> None:
-        style = read_setting_ini_file(section_name="Sidebar")
-        self.styles.border = (style["border_style"], f"#{style['border_color']}")
-        self.styles.border_top = (style["border_top_style"], f"#{style['border_top_color']}")
-        self.styles.border_right = (style["border_right_style"], f"#{style['border_right_color']}")
-        self.styles.width = int(style["max_width"])
 
     def init_dir_tree(self) -> None:
         for content in self.dir_tree:
@@ -208,7 +202,7 @@ class Sidebar(Container, can_focus=True):
         self.styles.border = ("hidden", "grey")
 
     def show_sidebar(self) -> None:
-        self.set_style()
+        set_sidebar_style(self)
 
     def handle_set_to_highlighted_or_normal(self, move_direction: str, editor) -> None:
         self.viewing_id = self.viewing_id - 1 if move_direction == "up" else self.viewing_id + 1
@@ -233,7 +227,7 @@ class Sidebar(Container, can_focus=True):
         sidebar_input.scroll_visible()
 
     def on_mount(self, event: events.Mount) -> None:
-        self.set_style() 
+        set_sidebar_style(self)
 
     def on_focus(self, event: events.Focus) -> None:
         for content in self.query("DirectoryContentText"):

@@ -176,3 +176,11 @@ class KeyBindingInNormalMode:
         elif key_event.key == "y" and self.main_editor.typed_key == "y": # yy, copy the entire line
             text_area.action_select_line()
             self.main_editor.copied_text = text_area.selected_text
+
+
+def set_sidebar_style(sidebar) -> None:
+    style = read_setting_ini_file(section_name="Sidebar")
+    sidebar.styles.border = (style["border_style"], f"#{style['border_color']}")
+    sidebar.styles.border_top = (style["border_top_style"], f"#{style['border_top_color']}")
+    sidebar.styles.border_right = (style["border_right_style"], f"#{style['border_right_color']}")
+    sidebar.styles.width = int(style["max_width"])
