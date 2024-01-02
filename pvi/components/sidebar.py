@@ -56,13 +56,16 @@ class Sidebar(Container, can_focus=True):
         dir_tree_listview = ListView(*[], id="listview")
 
         for (index, content) in enumerate(self.dir_tree):
-            content["id"] = index + 1
-            self.content_states[f"content_{index + 1}"] = "close"
+            content["id"] = _id = index + 1
+            self.content_states[f"content_{_id}"] = "close"
+
+            if self.content_states.get(f"content_{_id}") is None:
+                self.content_states[f"content_{_id}"] = "close"
 
             if content["type"] == "dir":
-                dir_tree_listview.append(self.list_item(content, index+1, "dir")) 
+                dir_tree_listview.append(self.list_item(content, _id, "dir")) 
             else:
-                dir_tree_listview.append(self.list_item(content, index+1, "file"))
+                dir_tree_listview.append(self.list_item(content, _id, "file"))
         return dir_tree_listview
 
     def compose(self) -> ComposeResult:
