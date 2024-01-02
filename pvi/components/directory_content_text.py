@@ -21,7 +21,7 @@ class DirectoryContentText(Container):
         self.styles.color = "cyan" if self.content_type == "dir" else "white"
 
     def set_to_normal(self) -> None:
-        self.styles.background = "#242424"
+        self.styles.background = "#181717"
         if self.content_type == "dir":
             self.styles.color = "cyan"
             self.styles.text_style = "bold"

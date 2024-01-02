@@ -42,6 +42,7 @@ class MainEditor(Container, can_focus=True):
         syntax = Syntax()
         tree_sitter_language = syntax.file_type_to_tree_sitter_language(file_name=file_name)
         language = syntax.file_type_to_language(file_name=file_name)
+        theme = syntax.my_theme()
 
         try:
             text_area = self.app.query_one("#pvi-text-area")
@@ -56,7 +57,9 @@ class MainEditor(Container, can_focus=True):
                 hl_query = syntax.get_highlight_query(language=language)
                 text_area.register_language(tree_sitter_language, hl_query)
 
+            text_area.register_theme(theme)
             text_area.language = language
+            text_area.theme = "my_theme"
 
     def handle_load_content_to_textarea(self, file_content: str, file_name: str) -> None:
         self.content_loaded = True

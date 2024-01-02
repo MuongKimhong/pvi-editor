@@ -17,7 +17,7 @@ import os
 class Sidebar(Container, can_focus=True):
     DEFAULT_CSS = """
     Sidebar #listview {
-        background: #242424;
+        background: #181717;
     }
     """
     def __init__(self, dir_tree: list):
