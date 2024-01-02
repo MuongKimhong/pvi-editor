@@ -51,15 +51,18 @@ class MainEditor(Container, can_focus=True):
             text_area = PviTextArea(file_content, id="pvi-text-area")
             self.mount(text_area)
             text_area.scroll_visible()
+            text_area.register_theme(theme) 
+            text_area.theme = "my_theme" 
+            
+        text_area.language = "python" # set language to python no matter what's file type
 
+        # if file type supp by pvi
         if tree_sitter_language is not None:
             if syntax.textual_spp(file_name) is False:
                 hl_query = syntax.get_highlight_query(language=language)
                 text_area.register_language(tree_sitter_language, hl_query)
 
-            text_area.register_theme(theme)
             text_area.language = language
-            text_area.theme = "my_theme"
 
     def handle_load_content_to_textarea(self, file_content: str, file_name: str) -> None:
         self.content_loaded = True
