@@ -11,6 +11,7 @@ from utils import read_ini_file, KeyBindingInSelectionMode, KeyBindingInNormalMo
 from components.welcome_text import WelcomeText
 from components.text_area import PviTextArea
 from components.footer import Footer
+from syntax_highlighting import Syntax
 
 
 class MainEditor(Container, can_focus=True):
@@ -37,7 +38,10 @@ class MainEditor(Container, can_focus=True):
         except NoMatches:
             pass
 
-    def load_file_content_to_textarea(self, file_content: str) -> None:
+    def load_file_content_to_textarea(self, file_content: str, file_name: str) -> None:
+        syntax = Syntax()
+        tree_sitter_language = syntax.file_type_to_tree_sitter_language(file_name=file_name)
+        
         try:
             text_area = self.app.query_one("#pvi-text-area")
             text_area.load_text(file_content)
@@ -46,10 +50,17 @@ class MainEditor(Container, can_focus=True):
             self.mount(text_area)
             text_area.scroll_visible()
 
-    def handle_load_content_to_textarea(self, file_content: str) -> None:
+        if tree_sitter_language is not None:
+            if syntax.textual_spp(file_name) is False:
+                hl_query = syntax.get_highlight_query(file_name=file_name)
+                text_area.register_language(tree_sitter_language, hl_query)
+
+            text_area.language = syntax.file_type_to_language(file_name=file_name)
+
+    def handle_load_content_to_textarea(self, file_content: str, file_name: str) -> None:
         self.content_loaded = True
         self.remove_welcome_text()
-        self.load_file_content_to_textarea(file_content)
+        self.load_file_content_to_textarea(file_content, file_name)
 
     def on_focus(self, event: events.Focus) -> None:
         self.editing_mode = "normal"

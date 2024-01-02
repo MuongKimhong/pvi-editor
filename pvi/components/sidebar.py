@@ -141,7 +141,10 @@ class Sidebar(Container, can_focus=True):
 
     def select_file(self, selected_content: DirectoryContentText) -> None:
         with open(f"{self.store['editing_path']}/{selected_content.content_name}", "r") as file:
-            self.app.query_one("MainEditor").handle_load_content_to_textarea(file_content=file.read())
+            self.app.query_one("MainEditor").handle_load_content_to_textarea(
+                file_content=file.read(),
+                file_name=selected_content.content_name
+            )
 
     def hide_sidebar(self) -> None:
         self.styles.width = 0

@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.11"
 textual = {extras = ["syntax"], version = "^0.45.1"}
 textual-dev = "^1.2.1"
+tree-sitter-languages = "^1.8.0"
 
 
 [build-system]
