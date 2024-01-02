@@ -141,8 +141,6 @@ class Sidebar(Container, can_focus=True):
 
     def select_file(self, selected_content: DirectoryContentText) -> None:
         with open(f"{self.store['editing_path']}/{selected_content.content_name}", "r") as file:
-            selected_content.set_to_highlighted()
-
             self.app.query_one("MainEditor").handle_load_content_to_textarea(
                 file_content=file.read(),
                 file_name=selected_content.content_name
@@ -181,5 +179,5 @@ class Sidebar(Container, can_focus=True):
     def on_blur(self, event: events.Blur) -> None:
         for content in self.query("DirectoryContentText"):
             if content.content_id == self.viewing_id:
-                content.set_to_normal()
+                content.set_to_highlighted()
                 break
