@@ -98,8 +98,8 @@ class Editor(Screen):
 
                 # enter on files
                 if selected_content.content_type == "file":
-                    self.handle_switching_focus()
                     self.query_one(Sidebar).select_file(selected_content=selected_content)
+                    self.handle_switching_focus()
                 
                 # enter on directories
                 else:

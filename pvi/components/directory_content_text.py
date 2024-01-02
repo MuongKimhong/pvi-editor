@@ -2,6 +2,7 @@ from textual.containers import Container
 from textual.app import ComposeResult
 from textual.widgets import Static
 from textual import events
+from rich.style import Style
 
 
 class DirectoryContentText(Container):
@@ -17,16 +18,17 @@ class DirectoryContentText(Container):
 
     def set_to_highlighted(self) -> None:
         self.styles.background = "grey"
-        self.styles.text_style = "bold"
+        self.styles.text_style = Style(bold=True)
         self.styles.color = "cyan" if self.content_type == "dir" else "white"
 
     def set_to_normal(self) -> None:
         self.styles.background = "#181717"
         if self.content_type == "dir":
             self.styles.color = "cyan"
-            self.styles.text_style = "bold"
+            self.styles.text_style = Style(bold=True)
         else:
             self.styles.color = "white"
+            self.styles.text_style = Style(bold=False)
 
     def on_mount(self, event: events.Mount) -> None:
         self.set_to_normal()

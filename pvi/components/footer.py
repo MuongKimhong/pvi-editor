@@ -26,7 +26,7 @@ class Footer(Input, can_focus=True):
         self.value = value
 
     def focus_on_main_editor(self) -> None:
-        self.value = "--normall--"
+        self.value = "--normal--"
         self.blur()
         self.app.query_one("MainEditor").focus()
 
