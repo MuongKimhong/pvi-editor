@@ -11,6 +11,7 @@ class DirectoryContentText(Container):
         self.content_type: str = content_type
         self.content_id: int = content_id
         self.layer_level: int = layer_level + 1 if layer_level > 0 else 0
+        self.file_opened = False
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -20,6 +21,11 @@ class DirectoryContentText(Container):
         self.styles.background = "grey"
         self.styles.text_style = Style(bold=True)
         self.styles.color = "cyan" if self.content_type == "dir" else "white"
+
+    def set_to_highlighted_after_selected_file(self) -> None:
+        self.styles.background = "#424141"
+        self.styles.text_style = Style(bold=True)
+        self.styles.color = "white"
 
     def set_to_normal(self) -> None:
         self.styles.background = "#181717"
