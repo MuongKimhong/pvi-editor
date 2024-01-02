@@ -41,7 +41,8 @@ class MainEditor(Container, can_focus=True):
     def load_file_content_to_textarea(self, file_content: str, file_name: str) -> None:
         syntax = Syntax()
         tree_sitter_language = syntax.file_type_to_tree_sitter_language(file_name=file_name)
-        
+        language = syntax.file_type_to_language(file_name=file_name)
+
         try:
             text_area = self.app.query_one("#pvi-text-area")
             text_area.load_text(file_content)
@@ -52,10 +53,10 @@ class MainEditor(Container, can_focus=True):
 
         if tree_sitter_language is not None:
             if syntax.textual_spp(file_name) is False:
-                hl_query = syntax.get_highlight_query(file_name=file_name)
+                hl_query = syntax.get_highlight_query(language=language)
                 text_area.register_language(tree_sitter_language, hl_query)
 
-            text_area.language = syntax.file_type_to_language(file_name=file_name)
+            text_area.language = language
 
     def handle_load_content_to_textarea(self, file_content: str, file_name: str) -> None:
         self.content_loaded = True

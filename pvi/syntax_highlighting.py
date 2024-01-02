@@ -55,4 +55,4 @@ class Syntax:
         return None
 
     def get_highlight_query(self, language: str):
-        return (get_pvi_root() / f"pvi/highligh_query/{language}_highlights.scm").read_text()
+        return (get_pvi_root() / f"pvi/highlight_query/{language}_highlights.scm").read_text()
