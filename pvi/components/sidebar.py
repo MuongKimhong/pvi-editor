@@ -121,19 +121,13 @@ class Sidebar(Container, can_focus=True):
         self.content_states[f"content_{selected_dir.content_id}"] = "open"
 
     def close_directory(self, selected_dir: DirectoryContentText) -> None:
-        selected_dir_contents = os.listdir(self.store["editing_path"])
+        after_del_dir_tree = []
 
-        # update editing_path by removing the last directory
-        splited = self.store["editing_path"].split("/")
-        self.store["editing_path"] = "/".join(splited[:-1])
-        update_ini_file(file_name="stores.ini", section_name="WorkingDirectory", section_data=self.store)
-        
         for (index, content) in enumerate(self.dir_tree):
-            if content["id"] == selected_dir.content_id:
-                contents_above_selected_dir = self.dir_tree[:index + 1]
-                contents_below_selected_dir = self.dir_tree[index + 1 + len(selected_dir_contents):]
+            if content["layer_level"] <= selected_dir.layer_level:
+                after_del_dir_tree.append(content)
 
-        self.dir_tree = [*contents_above_selected_dir, *contents_below_selected_dir]
+        self.dir_tree = after_del_dir_tree 
         self.utils.handle_re_mount_listview()
         self.content_states[f"content_{selected_dir.content_id}"] = "close"
 
