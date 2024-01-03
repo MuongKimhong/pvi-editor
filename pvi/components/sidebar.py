@@ -76,9 +76,6 @@ class Sidebar(Container, can_focus=True):
         yield Container(self.init_dir_tree_listview(), id="sidebar-container") 
 
     def open_directory(self, selected_dir: DirectoryContentText) -> None:
-        # remove / from content_name
-        # content_name = selected_dir.content_name[:len(selected_dir.content_name) - 1]
-        # self.store["editing_path"] = f"{self.store['editing_path']}/{content_name}"
         self.store["editing_path"] = selected_dir.content_path
 
         update_ini_file(
