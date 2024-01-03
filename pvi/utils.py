@@ -218,3 +218,9 @@ class SidebarUtils:
         self.sidebar.query_one(ListView).remove()
         self.sidebar.query_one(Container).mount(dir_tree_listview)
         dir_tree_listview.scroll_visible()
+
+    # get the instance of DirectoryContentText from provided content id from dir_tree
+    def get_directory_content_text(self, content_id: int):
+        for content in self.sidebar.query("DirectoryContentText"):
+            if content.content_id == content_id:
+                return content

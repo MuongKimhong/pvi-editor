@@ -39,7 +39,7 @@ class Sidebar(Container, can_focus=True):
         return ListItem(dc, classes=class_name, id=f"listitem-{c_id}")
 
     def init_dir_tree(self) -> None:
-        for content in self.dir_tree:
+        for index, content in enumerate(self.dir_tree):
             path = f"{self.store['editing_path']}/{content}"
 
             if os.path.isfile(path):
@@ -60,7 +60,6 @@ class Sidebar(Container, can_focus=True):
 
         for (index, content) in enumerate(self.dir_tree):
             content["id"] = _id = index + 1
-            self.content_states[f"content_{_id}"] = "close"
 
             if self.content_states.get(f"content_{_id}") is None:
                 self.content_states[f"content_{_id}"] = "close"
@@ -121,13 +120,16 @@ class Sidebar(Container, can_focus=True):
         self.content_states[f"content_{selected_dir.content_id}"] = "open"
 
     def close_directory(self, selected_dir: DirectoryContentText) -> None:
-        after_del_dir_tree = []
+        content_to_remove = []
 
         for (index, content) in enumerate(self.dir_tree):
-            if content["layer_level"] <= selected_dir.layer_level:
-                after_del_dir_tree.append(content)
+            dct = self.utils.get_directory_content_text(index + 1)
+            if ((dct.layer_level > selected_dir.layer_level) and
+                (selected_dir.content_path in content["path"])):
+                content_to_remove.append(content)
 
-        self.dir_tree = after_del_dir_tree 
+        self.dir_tree = [content for content in self.dir_tree if content not in content_to_remove]
+
         self.utils.handle_re_mount_listview()
         self.content_states[f"content_{selected_dir.content_id}"] = "close"
 
