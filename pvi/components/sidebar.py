@@ -29,23 +29,26 @@ class Sidebar(Container, can_focus=True):
         self.viewing_id = 1 # viewing index inside directory tree (sidebar)
 
         self.content_states = {}
+        self.all_opening_dirs = [] # list of path
         self.utils = SidebarUtils(self)
         super().__init__()
 
     def list_item(self, content, c_id, c_type) -> ListItem:
         class_name = "filelistitem" if c_type == "file" else "dirlistitem"
-        dc = DirectoryContentText(content["content"], c_type, c_id, content["layer_level"])
+        dc = DirectoryContentText(content["content"], c_type, c_id, content["layer_level"], content["path"])
         return ListItem(dc, classes=class_name, id=f"listitem-{c_id}")
 
     def init_dir_tree(self) -> None:
         for content in self.dir_tree:
-            if os.path.isfile(f"{self.store['editing_path']}/{content}"):
+            path = f"{self.store['editing_path']}/{content}"
+
+            if os.path.isfile(path):
                 self.all_files.append(
-                    self.utils.content_as_dict("file", content, 0)
+                    self.utils.content_as_dict("file", content, 0, path)
                 )
-            elif os.path.isdir(f"{self.store['editing_path']}/{content}") and content != ".git":
+            elif os.path.isdir(path) and content != ".git":
                 self.all_directories.append(
-                    self.utils.content_as_dict("dir", f"{content}/", 0)
+                    self.utils.content_as_dict("dir", f"{content}/", 0, path)
                 )
 
         self.all_files = sorted(self.all_files, key=lambda x: x["content"])
@@ -74,9 +77,17 @@ class Sidebar(Container, can_focus=True):
 
     def open_directory(self, selected_dir: DirectoryContentText) -> None:
         # remove / from content_name
-        content_name = selected_dir.content_name[:len(selected_dir.content_name) - 1]
-        self.store["editing_path"] = f"{self.store['editing_path']}/{content_name}"
-        update_ini_file(file_name="stores.ini", section_name="WorkingDirectory", section_data=self.store)
+        # content_name = selected_dir.content_name[:len(selected_dir.content_name) - 1]
+        # self.store["editing_path"] = f"{self.store['editing_path']}/{content_name}"
+        self.store["editing_path"] = selected_dir.content_path
+
+        update_ini_file(
+            file_name="stores.ini", 
+            section_name="WorkingDirectory", 
+            section_data=self.store
+        )
+        if self.store["editing_path"] not in self.all_opening_dirs:
+            self.all_opening_dirs.append(self.store["editing_path"])
 
         for (index, content) in enumerate(self.dir_tree):
             if content["id"] == selected_dir.content_id:
@@ -89,14 +100,15 @@ class Sidebar(Container, can_focus=True):
 
         for content in selected_dir_contents:
             layer = selected_dir.layer_level + 1
+            path = f"{self.store['editing_path']}/{content}"
 
-            if os.path.isfile(f"{self.store['editing_path']}/{content}"):
+            if os.path.isfile(path):
                 files_in_selected_dir_contents.append(
-                    self.utils.content_as_dict("file", content, layer)
+                    self.utils.content_as_dict("file", content, layer, path)
                 )
-            elif os.path.isdir(f"{self.store['editing_path']}/{content}") and content != ".git":
+            elif os.path.isdir(path) and content != ".git":
                 directories_in_selected_dir_contents.append(
-                    self.utils.content_as_dict("dir", f"{content}/", layer)
+                    self.utils.content_as_dict("dir", f"{content}/", layer, path)
                 )
 
         selected_dir_contents = [

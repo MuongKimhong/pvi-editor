@@ -6,10 +6,17 @@ from rich.style import Style
 
 
 class DirectoryContentText(Container):
-    def __init__(self, content_name: str, content_type: str, content_id: int, layer_level: int) -> None:
+    def __init__(self, 
+                content_name: str, 
+                content_type: str, 
+                content_id: int, 
+                layer_level: int,
+                content_path: str) -> None:
+
         self.content_name: str = content_name
         self.content_type: str = content_type
         self.content_id: int = content_id
+        self.content_path: str = content_path
         self.layer_level: int = layer_level + 1 if layer_level > 0 else 0
         self.file_opened = False
         super().__init__()

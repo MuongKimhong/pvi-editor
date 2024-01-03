@@ -196,11 +196,12 @@ class SidebarUtils:
 
     # used to represent each file and directory in sidebar
     # before changed to DirectoryContentText widget
-    def content_as_dict(self, c_type: str, content: str, layer_level: int) -> dict:
+    def content_as_dict(self, c_type: str, content: str, layer_level: int, c_path: str) -> dict:
         return {
             "type": c_type,
             "content": content,
-            "layer_level": layer_level
+            "layer_level": layer_level,
+            "path": c_path
         }
 
     # set the DirectoryContentText to highligh or normal
