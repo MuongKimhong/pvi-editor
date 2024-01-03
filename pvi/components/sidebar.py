@@ -29,7 +29,6 @@ class Sidebar(Container, can_focus=True):
         self.viewing_id = 1 # viewing index inside directory tree (sidebar)
 
         self.content_states = {}
-        self.all_opening_dirs = [] # list of path
         self.utils = SidebarUtils(self)
         super().__init__()
 
@@ -82,8 +81,6 @@ class Sidebar(Container, can_focus=True):
             section_name="WorkingDirectory", 
             section_data=self.store
         )
-        if self.store["editing_path"] not in self.all_opening_dirs:
-            self.all_opening_dirs.append(self.store["editing_path"])
 
         for (index, content) in enumerate(self.dir_tree):
             if content["id"] == selected_dir.content_id:
