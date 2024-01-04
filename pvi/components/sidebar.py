@@ -166,7 +166,7 @@ class Sidebar(Container, can_focus=True):
             else:
                 content_file_opened = False
 
-        with open(f"{self.store['editing_path']}/{selected_content.content_name}", "r") as file:
+        with open(selected_content.content_path, "r") as file:
             self.app.query_one("MainEditor").handle_load_content_to_textarea(
                 file_content=file.read(),
                 file_name=selected_content.content_name
