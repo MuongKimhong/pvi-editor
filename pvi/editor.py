@@ -94,25 +94,27 @@ class Editor(Screen):
         elif self.typed_key == "a" and event.key == "f": 
             if self.focused_main_editor is False:
                 self.typed_key = ""
-                self.query_one(Sidebar).mount_input(create_type="file")
-                self.query_one(Sidebar).query_one("SidebarInput").focus()
+                sidebar = self.query_one(Sidebar)
+                sidebar.mount_input(create_type="file")
+                sidebar.query_one("SidebarInput").focus()
 
         elif event.key == "enter":
             if self.focused_main_editor:
                 pass
             else:
-                selected_content_index = self.query_one(Sidebar).viewing_id - 1
+                sidebar = self.query_one(Sidebar)
+                selected_content_index = sidebar.viewing_id - 1
                 selected_content = self.query("DirectoryContentText")[selected_content_index]
 
                 # enter on files
                 if selected_content.content_type == "file":
-                    self.query_one(Sidebar).select_file(selected_content=selected_content)
+                    sidebar.select_file(selected_content=selected_content)
                     self.handle_switching_focus()
                 
                 # enter on directories
                 else:
-                    self.query_one(Sidebar).select_directory(selected_dir=selected_content)
-                    self.query_one(Sidebar).focus()
+                    sidebar.select_directory(selected_dir=selected_content)
+                    sidebar.focus()
                     self.focused_main_editor = False
                         
     def on_mount(self, event: events.Mount) -> None:
