@@ -70,13 +70,21 @@ class Editor(Screen):
             if self.focused_main_editor: # key binding move down in Main editor
                 pass
             else:
-                self.query_one(Sidebar).move_down(editor=self)
+                sidebar = self.query_one(Sidebar)
+                sidebar_listview = sidebar.query_one("#sidebar-container").query_one("#listview")
+
+                sidebar.move_down(editor=self)
+                sidebar_listview.scroll_down()
 
         elif event.key == "k":
             if self.focused_main_editor:
                 pass
             else:
-                self.query_one(Sidebar).move_up(editor=self)
+                sidebar = self.query_one(Sidebar)
+                sidebar_listview = sidebar.query_one("#sidebar-container").query_one("#listview")
+
+                sidebar.move_up(editor=self)
+                sidebar_listview.scroll_up()
  
         elif event.key == "a" and self.typed_key == "": 
             self.typed_key = self.typed_key + event.key
