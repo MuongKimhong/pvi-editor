@@ -91,6 +91,8 @@ class Sidebar(Container, can_focus=True):
         files_in_selected_dir_contents = []
         directories_in_selected_dir_contents = []
 
+        layer = None
+
         for content in selected_dir_contents:
             layer = selected_dir.layer_level + 1
             path = f"{self.store['editing_path']}/{content}"
@@ -103,6 +105,12 @@ class Sidebar(Container, can_focus=True):
                 directories_in_selected_dir_contents.append(
                     self.utils.content_as_dict("dir", f"{content}/", layer, path)
                 )
+
+        # increase sidebar width as number of layer increases
+        if layer > 3:
+            self.styles.width = self.styles.width.value + 1
+        elif layer > 5:
+            self.styles.width = self.styles.width.value + 2
 
         selected_dir_contents = [
             *sorted(files_in_selected_dir_contents, key=lambda x: x["content"]),
