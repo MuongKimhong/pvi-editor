@@ -1,7 +1,7 @@
 from textual.containers import Container
 from textual.app import ComposeResult
 from textual.widgets import Static
-from textual import events
+from textual import events, log
 from rich.style import Style
 
 
@@ -46,3 +46,6 @@ class DirectoryContentText(Container):
     def on_mount(self, event: events.Mount) -> None:
         self.set_to_normal()
         self.query_one(Static).styles.padding = (0, 0, 0, self.layer_level)
+
+    def __str__(self):
+        return f"{self.content_name} - {self.content_id}"

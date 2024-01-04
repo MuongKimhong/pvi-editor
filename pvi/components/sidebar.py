@@ -158,8 +158,6 @@ class Sidebar(Container, can_focus=True):
         elif self.content_states[f"content_{selected_dir.content_id}"] == "open":
             self.close_directory(selected_dir=selected_dir)
 
-        self.utils.set_to_highlighted_or_normal()
-
     def select_file(self, selected_content: DirectoryContentText) -> None:
         for content in self.query("DirectoryContentText"):
             if content.content_id == selected_content.content_id:

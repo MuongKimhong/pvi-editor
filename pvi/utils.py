@@ -218,6 +218,7 @@ class SidebarUtils:
         self.sidebar.query_one(ListView).remove()
         self.sidebar.query_one(Container).mount(dir_tree_listview)
         dir_tree_listview.scroll_visible()
+        self.set_to_highlighted_or_normal()
 
     # get the instance of DirectoryContentText from provided content id from dir_tree
     def get_directory_content_text(self, content_id: int):
