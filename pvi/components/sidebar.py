@@ -34,7 +34,14 @@ class Sidebar(Container, can_focus=True):
 
     def list_item(self, content, c_id, c_type) -> ListItem:
         class_name = "filelistitem" if c_type == "file" else "dirlistitem"
-        dc = DirectoryContentText(content["content"], c_type, c_id, content["layer_level"], content["path"])
+
+        dc = DirectoryContentText(
+            content["content"], 
+            c_type, 
+            c_id, 
+            content["layer_level"], 
+            content["path"]
+        )
         return ListItem(dc, classes=class_name, id=f"listitem-{c_id}")
 
     def init_dir_tree(self) -> None:
@@ -64,9 +71,13 @@ class Sidebar(Container, can_focus=True):
                 self.content_states[f"content_{_id}"] = "close"
 
             if content["type"] == "dir":
-                dir_tree_listview.append(self.list_item(content, _id, "dir")) 
+                dir_tree_listview.append(
+                    self.list_item(content, _id, "dir")
+                ) 
             else:
-                dir_tree_listview.append(self.list_item(content, _id, "file"))
+                dir_tree_listview.append(
+                    self.list_item(content, _id, "file")
+                )
         return dir_tree_listview
 
     def compose(self) -> ComposeResult:
