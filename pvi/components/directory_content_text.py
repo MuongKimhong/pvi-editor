@@ -44,7 +44,6 @@ class DirectoryContentText(Container):
             self.styles.text_style = Style(bold=False)
 
     def on_mount(self, event: events.Mount) -> None:
-        self.set_to_normal()
         self.query_one(Static).styles.padding = (0, 0, 0, self.layer_level)
 
     def __str__(self):

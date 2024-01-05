@@ -198,6 +198,9 @@ class Sidebar(Container, can_focus=True):
 
     def on_mount(self, event: events.Mount) -> None:
         self.utils.set_sidebar_style()
+        
+        for content in self.query("DirectoryContentText"):
+            content.set_to_normal()
 
     def on_focus(self, event: events.Focus) -> None:
         self.utils.set_to_highlighted_or_normal()
