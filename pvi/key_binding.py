@@ -1,6 +1,7 @@
 from textual.widgets.text_area import Selection
 from textual import log
 import numpy
+import time
 
 
 class KeyBindingInSelectionMode:
@@ -152,61 +153,84 @@ class KeyBindingInNormalMode:
         
         ##### key <d> or <dd>
         if key_event.key == "d" and self.main_editor.typed_key == "":
-            self.main_editor.typed_key = "d" 
+            self.main_editor.typed_key = "d"
+            self.main_editor.typed_key_timer = time.time()
 
         elif key_event.key == "d" and self.main_editor.typed_key == "d": # combination of dd, copy and delete a line
-            log("d in normal pressed")
-            text_area.action_select_line()
-            self.main_editor.copied_text = text_area.selected_text
-            text_area.action_delete_line()
-            self.main_editor.typed_key = ""
+            # if time gaps between first key pressed and second key pressed 
+            # greater than 3 seconds, cancel action
+            if time.time() - self.main_editor.typed_key_timer > 3:
+                self.main_editor.reset_typed_key()
+            else:
+                text_area.action_select_line()
+                self.main_editor.copied_text = text_area.selected_text
+                text_area.action_delete_line()
+                self.main_editor.typed_key = ""
 
         #### key <sa> and <sl>
         elif key_event.key == "s" and self.main_editor.typed_key == "":
             self.main_editor.typed_key = "s"
+            self.main_editor.typed_key_timer = time.time()
         
         elif key_event.key == "a" and self.main_editor.typed_key == "s": # <sa> select all
-            self.main_editor.typed_key = ""
-            self.main_editor.editing_mode = "selection"
-            self.main_editor.app.query_one("#footer").change_value(value="--selection--")
-            self.main_editor.selection_start = (0, 0)
-            text_area.move_cursor((0, 0)) # move to first line 
-            text_area.action_select_all()
+            if time.time() - self.main_editor.typed_key_timer > 3:
+                self.main_editor.reset_typed_key()
+            else:
+                self.main_editor.typed_key = ""
+                self.main_editor.editing_mode = "selection"
+                self.main_editor.app.query_one("#footer").change_value(value="--selection--")
+                self.main_editor.selection_start = (0, 0)
+                text_area.move_cursor((0, 0)) # move to first line 
+                text_area.action_select_all()
 
         elif key_event.key == "l" and self.main_editor.typed_key == "s": # <sl> select entire line
-            self.main_editor.typed_key = ""
-            self.main_editor.editing_mode = "selection"
-            self.main_editor.app.query_one("#footer").change_value(value="--selection--")
+            if time.time() - self.main_editor.typed_key_timer > 3:
+                    self.main_editor.reset_typed_key()
+            else:
+                self.main_editor.typed_key = ""
+                self.main_editor.editing_mode = "selection"
+                self.main_editor.app.query_one("#footer").change_value(value="--selection--")
 
-            text_area.action_cursor_line_start()
-            self.main_editor.selection_start = text_area.cursor_location
-            text_area.action_cursor_line_end()
-            text_area.selection = Selection(
-                start=self.main_editor.selection_start, end=text_area.cursor_location
-            )
+                text_area.action_cursor_line_start()
+                self.main_editor.selection_start = text_area.cursor_location
+                text_area.action_cursor_line_end()
+                text_area.selection = Selection(
+                    start=self.main_editor.selection_start, end=text_area.cursor_location
+                )
 
         #### key <yy>
         elif key_event.key == "y" and self.main_editor.typed_key == "":
             self.main_editor.typed_key = "y"
+            self.main_editor.typed_key_timer = time.time()
 
         elif key_event.key == "y" and self.main_editor.typed_key == "y": # yy, copy the entire line
-            old_cursor_location = text_area.cursor_location
-            text_area.action_cursor_line_start()
-            text_area.action_select_line()
-            self.main_editor.copied_text = text_area.selected_text
-            text_area.selection = Selection(start=old_cursor_location, end=old_cursor_location)
+            if time.time() - self.main_editor.typed_key_timer > 3:
+                    self.main_editor.reset_typed_key()
+            else:
+                old_cursor_location = text_area.cursor_location
+                text_area.action_cursor_line_start()
+                text_area.action_select_line()
+                self.main_editor.copied_text = text_area.selected_text
+                text_area.selection = Selection(start=old_cursor_location, end=old_cursor_location)
 
 
         #### key <gt> or <gb> 
         elif key_event.key == "g" and self.main_editor.typed_key == "":
             self.main_editor.typed_key = "g"
+            self.main_editor.typed_key_timer = time.time()
 
         elif key_event.key == "t" and self.main_editor.typed_key == "g": # <gt> go top
-            self.main_editor.typed_key = ""
-            text_area.move_cursor((0, 0))
+            if time.time() - self.main_editor.typed_key_timer > 3:
+                self.main_editor.reset_typed_key()
+            else:
+                self.main_editor.typed_key = ""
+                text_area.move_cursor((0, 0))
 
         elif key_event.key == "b" and self.main_editor.typed_key == "g": # <gb> go bottom
-            self.main_editor.typed_key = ""
-            # starting index is 0 for Tuple[row, column]
-            last_line = text_area.document.line_count - 1
-            text_area.move_cursor((last_line, 0))
+            if time.time() - self.main_editor.typed_key_timer > 3:
+                self.main_editor.reset_typed_key()
+            else:
+                self.main_editor.typed_key = ""
+                # starting index is 0 for Tuple[row, column]
+                last_line = text_area.document.line_count - 1
+                text_area.move_cursor((last_line, 0))

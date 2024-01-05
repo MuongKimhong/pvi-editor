@@ -36,6 +36,7 @@ class MainEditor(Container, can_focus=True):
         - <gb> go to bottom of document
         '''
         self.typed_key = ""  
+        self.typed_key_timer: float | None = None # time when typed_key is assigned
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -80,6 +81,10 @@ class MainEditor(Container, can_focus=True):
         self.content_loaded = True
         self.remove_welcome_text()
         self.load_file_content_to_textarea(file_content, file_name)
+
+    def reset_typed_key(self) -> None:
+        self.typed_key = ""
+        self.typed_key_timer = None
 
     def on_focus(self, event: events.Focus) -> None:
         self.editing_mode = "normal"
