@@ -1,4 +1,5 @@
 from textual.widgets.text_area import Selection
+from textual import log
 import numpy
 
 
@@ -6,11 +7,21 @@ class KeyBindingInSelectionMode:
     def __init__(self, main_editor):
         self.main_editor = main_editor
 
-    def cancel_selection(self, text_area) -> None:
+    def cancel_selection(self, text_area, old_cursor_location=None) -> None:
         self.main_editor.selection_start = None
         self.main_editor.editing_mode = "normal"
         self.main_editor.app.query_one("#footer").change_value(value="--normal--")
-        text_area.selection = Selection(start=text_area.cursor_location, end=text_area.cursor_location)
+
+        if old_cursor_location is not None:
+            text_area.selection = Selection(
+                start=old_cursor_location, 
+                end=old_cursor_location
+            )
+        else:
+            text_area.selection = Selection(
+                start=text_area.cursor_location, 
+                end=text_area.cursor_location
+            )
 
     def handle_key_binding(self, key_event) -> None:
         text_area = self.main_editor.query_one("#pvi-text-area")  
@@ -61,10 +72,11 @@ class KeyBindingInSelectionMode:
 
             case "d": # delete selected text
                 if text_area.selected_text != "":
+                    old_cursor_location = text_area.cursor_location
                     text_area.delete(
                         start=self.main_editor.selection_start, end=text_area.cursor_location
                     )
-                    self.cancel_selection(text_area)
+                    self.cancel_selection(text_area, old_cursor_location)
            
             case "escape":
                 self.cancel_selection(text_area)
@@ -135,7 +147,8 @@ class KeyBindingInNormalMode:
             case "right_curly_bracket": # move down 5 cell
                 target = tuple(numpy.subtract(text_area.get_cursor_down_location(), (4, 4)))
                 text_area.move_cursor(target, record_width=False, select=False)
-
+        
+        ##### key <d> or <dd>
         if key_event.key == "d" and self.main_editor.typed_key == "":
             self.main_editor.typed_key = "d" 
 
@@ -145,6 +158,7 @@ class KeyBindingInNormalMode:
             text_area.action_delete_line()
             self.main_editor.typed_key = ""
 
+        ### key <sa>
         elif key_event.key == "s" and self.main_editor.typed_key == "":
             self.main_editor.typed_key = "s"
         
@@ -156,9 +170,13 @@ class KeyBindingInNormalMode:
             text_area.move_cursor((0, 0)) # move to first line 
             text_area.action_select_all()
 
+        ### key <yy>
         elif key_event.key == "y" and self.main_editor.typed_key == "":
-            self.main_editor.typed_key = self.main_editor.typed_key + key_event.key
+            self.main_editor.typed_key = "y"
 
         elif key_event.key == "y" and self.main_editor.typed_key == "y": # yy, copy the entire line
+            old_cursor_location = text_area.cursor_location
+            text_area.action_cursor_line_start()
             text_area.action_select_line()
             self.main_editor.copied_text = text_area.selected_text
+            text_area.selection = Selection(start=old_cursor_location, end=old_cursor_location)
