@@ -146,11 +146,14 @@ class KeyBindingInNormalMode:
             self.main_editor.typed_key = ""
 
         elif key_event.key == "s" and self.main_editor.typed_key == "":
-            self.main_editor.typed_key = self.main_editor.typed_key + key_event.key
+            self.main_editor.typed_key = "s"
         
-        elif key_event.key == "a" and self.main_editor.typed_key == "s":
+        elif key_event.key == "a" and self.main_editor.typed_key == "s": # <sa> select all
             self.main_editor.typed_key = ""
-            self.enter_selection_mode(text_area)
+            self.main_editor.editing_mode = "selection"
+            self.main_editor.app.query_one("#footer").change_value(value="--selection--")
+            self.main_editor.selection_start = (0, 0)
+            text_area.move_cursor((0, 0)) # move to first line 
             text_area.action_select_all()
 
         elif key_event.key == "y" and self.main_editor.typed_key == "":
