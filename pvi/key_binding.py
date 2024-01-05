@@ -69,9 +69,11 @@ class KeyBindingInSelectionMode:
                 )
             case "y": # copy the selected text
                 self.main_editor.copied_text = text_area.selected_text
+                self.cancel_selection(text_area)
 
             case "d": # delete selected text
                 if text_area.selected_text != "":
+                    log("d in selection pressed")
                     old_cursor_location = text_area.cursor_location
                     text_area.delete(
                         start=self.main_editor.selection_start, end=text_area.cursor_location
@@ -153,6 +155,7 @@ class KeyBindingInNormalMode:
             self.main_editor.typed_key = "d" 
 
         elif key_event.key == "d" and self.main_editor.typed_key == "d": # combination of dd, copy and delete a line
+            log("d in normal pressed")
             text_area.action_select_line()
             self.main_editor.copied_text = text_area.selected_text
             text_area.action_delete_line()
@@ -174,7 +177,7 @@ class KeyBindingInNormalMode:
             self.main_editor.typed_key = ""
             self.main_editor.editing_mode = "selection"
             self.main_editor.app.query_one("#footer").change_value(value="--selection--")
-                
+
             text_area.action_cursor_line_start()
             self.main_editor.selection_start = text_area.cursor_location
             text_area.action_cursor_line_end()

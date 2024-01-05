@@ -39,6 +39,13 @@ class Footer(Input, can_focus=True):
             with open(f"{store['editing_path']}/{selected_content.content_name}", "w") as file:
                 file.write(self.app.query_one("#pvi-text-area").text)
 
+    # reset all main editor attributes, typed_key, copied_text, ..
+    def reinit_main_editor_attribute(self) -> None:
+        main_editor = self.app.query_one("MainEditor")
+        main_editor.selection_start = None 
+        main_editor.copied_text = ""
+        main_editor.typed_key = ""
+
     def on_key(self, event: events.Key) -> None:
         if event.key == "escape":
             self.focus_on_main_editor()
@@ -48,6 +55,7 @@ class Footer(Input, can_focus=True):
 
             elif self.value == ":w" or self.value == ":write":
                 self.save_file_content() 
+                self.reinit_main_editor_attribute()
                 self.focus_on_main_editor()
 
             elif self.value == ":wq":
