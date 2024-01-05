@@ -7,11 +7,12 @@ from textual.messages import Message
 from textual.widget import Widget
 from textual import log, events
 
-from utils import read_ini_file, KeyBindingInSelectionMode, KeyBindingInNormalMode
+from key_binding import KeyBindingInNormalMode, KeyBindingInSelectionMode
 from components.welcome_text import WelcomeText
 from components.text_area import PviTextArea
 from components.footer import Footer
 from syntax_highlighting import Syntax
+from utils import read_ini_file
 
 
 class MainEditor(Container, can_focus=True):
