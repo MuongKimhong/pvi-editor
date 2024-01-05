@@ -158,7 +158,7 @@ class KeyBindingInNormalMode:
             text_area.action_delete_line()
             self.main_editor.typed_key = ""
 
-        ### key <sa>
+        #### key <sa> and <sl>
         elif key_event.key == "s" and self.main_editor.typed_key == "":
             self.main_editor.typed_key = "s"
         
@@ -170,7 +170,19 @@ class KeyBindingInNormalMode:
             text_area.move_cursor((0, 0)) # move to first line 
             text_area.action_select_all()
 
-        ### key <yy>
+        elif key_event.key == "l" and self.main_editor.typed_key == "s": # <sl> select entire line
+            self.main_editor.typed_key = ""
+            self.main_editor.editing_mode = "selection"
+            self.main_editor.app.query_one("#footer").change_value(value="--selection--")
+                
+            text_area.action_cursor_line_start()
+            self.main_editor.selection_start = text_area.cursor_location
+            text_area.action_cursor_line_end()
+            text_area.selection = Selection(
+                start=self.main_editor.selection_start, end=text_area.cursor_location
+            )
+
+        #### key <yy>
         elif key_event.key == "y" and self.main_editor.typed_key == "":
             self.main_editor.typed_key = "y"
 
@@ -182,14 +194,16 @@ class KeyBindingInNormalMode:
             text_area.selection = Selection(start=old_cursor_location, end=old_cursor_location)
 
 
-        ### key <gt> or <gb> 
+        #### key <gt> or <gb> 
         elif key_event.key == "g" and self.main_editor.typed_key == "":
             self.main_editor.typed_key = "g"
 
         elif key_event.key == "t" and self.main_editor.typed_key == "g": # <gt> go top
+            self.main_editor.typed_key = ""
             text_area.move_cursor((0, 0))
 
         elif key_event.key == "b" and self.main_editor.typed_key == "g": # <gb> go bottom
+            self.main_editor.typed_key = ""
             # starting index is 0 for Tuple[row, column]
             last_line = text_area.document.line_count - 1
             text_area.move_cursor((last_line, 0))

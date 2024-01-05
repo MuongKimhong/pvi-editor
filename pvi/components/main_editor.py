@@ -28,6 +28,7 @@ class MainEditor(Container, can_focus=True):
         typed_key variable is used for 2 keys binding operations. Including:
         - <dd> delete the entire line
         - <sa> select all
+        - <sl> select the entire line
         - <yy> copy the entire line
         - <af> append new file in sidebar
         - <ad> append new directory in sidebar
