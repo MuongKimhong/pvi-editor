@@ -36,12 +36,6 @@ class KeyBindingInSelectionMode:
                 text_area.selection = Selection(
                     start=self.main_editor.selection_start, end=text_area.cursor_location
                 ) 
-            case "d":
-                text_area.delete(
-                    start=self.main_editor.selection_start, end=text_area.cursor_location
-                )
-                self.cancel_selection(text_area)
-            
             case "w":
                 text_area.action_cursor_word_right()
                 text_area.selection = Selection(
@@ -64,6 +58,13 @@ class KeyBindingInSelectionMode:
                 )
             case "y": # copy the selected text
                 self.main_editor.copied_text = text_area.selected_text
+
+            case "d": # delete selected text
+                if text_area.selected_text != "":
+                    text_area.delete(
+                        start=self.main_editor.selection_start, end=text_area.cursor_location
+                    )
+                    self.cancel_selection(text_area)
            
             case "escape":
                 self.cancel_selection(text_area)
@@ -112,19 +113,22 @@ class KeyBindingInNormalMode:
                 text_area.action_cursor_word_left()
             case "w":
                 text_area.action_cursor_word_right()
+
             case "A": # upper a
                 text_area.action_cursor_line_end()
                 self.enter_insert_mode(text_area)
+
             case "I": # upper i
                 text_area.action_cursor_line_start()
                 self.enter_insert_mode(text_area)
+
             case "p": # paste
                 if self.main_editor.copied_text != "":
                     self.create_new_line(text_area)
                     text_area.action_cursor_line_end()
                     start, end = text_area.selection
                     text_area.replace(self.main_editor.copied_text, start, end, maintain_selection_offset=False)
-                    self.main_editor.copied_text = ""
+
             case "left_curly_bracket": # move up 5 cell
                 target = tuple(map(sum, zip(text_area.get_cursor_up_location(), (0, 4))))
                 text_area.move_cursor(target, record_width=False, select=False)
@@ -133,7 +137,7 @@ class KeyBindingInNormalMode:
                 text_area.move_cursor(target, record_width=False, select=False)
 
         if key_event.key == "d" and self.main_editor.typed_key == "":
-            self.main_editor.typed_key = self.main_editor.typed_key + key_event.key
+            self.main_editor.typed_key = "d" 
 
         elif key_event.key == "d" and self.main_editor.typed_key == "d": # combination of dd, copy and delete a line
             text_area.action_select_line()

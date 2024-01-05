@@ -19,12 +19,20 @@ class MainEditor(Container, can_focus=True):
     def __init__(self) -> None:
         self.editing_mode = "normal"
         self.content_loaded = False # True if user open a file to edit
-        self.typed_key = ""
         self.selection_start = None
         self.copied_text = ""
-
         self.selection_mode_keybinding = KeyBindingInSelectionMode(self)
         self.normal_mode_keybinding = KeyBindingInNormalMode(self)
+
+        '''
+        typed_key variable is used for 2 keys binding operations. Including:
+        - <dd> delete the entire line
+        - <sa> select all
+        - <yy> copy the entire line
+        - <af> append new file in sidebar
+        - <ad> append new directory in sidebar
+        '''
+        self.typed_key = ""  
         super().__init__()
 
     def compose(self) -> ComposeResult:
