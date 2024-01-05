@@ -180,3 +180,16 @@ class KeyBindingInNormalMode:
             text_area.action_select_line()
             self.main_editor.copied_text = text_area.selected_text
             text_area.selection = Selection(start=old_cursor_location, end=old_cursor_location)
+
+
+        ### key <gt> or <gb> 
+        elif key_event.key == "g" and self.main_editor.typed_key == "":
+            self.main_editor.typed_key = "g"
+
+        elif key_event.key == "t" and self.main_editor.typed_key == "g": # <gt> go top
+            text_area.move_cursor((0, 0))
+
+        elif key_event.key == "b" and self.main_editor.typed_key == "g": # <gb> go bottom
+            # starting index is 0 for Tuple[row, column]
+            last_line = text_area.document.line_count - 1
+            text_area.move_cursor((last_line, 0))

@@ -31,6 +31,8 @@ class MainEditor(Container, can_focus=True):
         - <yy> copy the entire line
         - <af> append new file in sidebar
         - <ad> append new directory in sidebar
+        - <gt> go to top of document
+        - <gb> go to bottom of document
         '''
         self.typed_key = ""  
         super().__init__()
