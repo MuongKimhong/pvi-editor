@@ -171,6 +171,7 @@ class Sidebar(Container, can_focus=True):
                 file_content=file.read(),
                 file_name=selected_content.content_name
             )
+            self.app.query_one("#header-text").update(selected_content.content_path)
 
     def hide_sidebar(self) -> None:
         self.styles.width = 0

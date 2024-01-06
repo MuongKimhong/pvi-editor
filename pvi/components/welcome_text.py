@@ -7,5 +7,5 @@ class WelcomeText(Container):
     CSS_PATH = "../styles/style.tcss"
 
     def compose(self) -> ComposeResult:
-        yield Label("Welcome to PVI - Python Vim Editor\n", id="welcome")
-        yield Label("Happy Coding!", id="happy-coding")
+        yield Static("Welcome to PVI - Python Vim Editor\n", id="welcome")
+        yield Static("Happy Coding!", id="happy-coding")

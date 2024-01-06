@@ -11,6 +11,7 @@ from key_binding import KeyBindingInNormalMode, KeyBindingInSelectionMode
 from components.welcome_text import WelcomeText
 from components.text_area import PviTextArea
 from components.footer import Footer
+from components.header import Header
 from syntax_highlighting import Syntax
 from utils import read_ini_file
 
@@ -43,6 +44,7 @@ class MainEditor(Container, can_focus=True):
         if read_ini_file(file_name="stores.ini", section_name="WorkingDirectory")["editing_type"] == "dir":
             yield WelcomeText(id="welcome-text")
         
+        yield Header(id="header")
         yield Footer(id="footer")
     
     def remove_welcome_text(self) -> None:
