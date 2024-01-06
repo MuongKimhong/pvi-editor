@@ -207,6 +207,7 @@ class KeyBindingInNormalMode:
             if time.time() - self.main_editor.typed_key_timer > 3:
                     self.main_editor.reset_typed_key()
             else:
+                self.main_editor.typed_key = ""
                 old_cursor_location = text_area.cursor_location
                 text_area.action_cursor_line_start()
                 text_area.action_select_line()
