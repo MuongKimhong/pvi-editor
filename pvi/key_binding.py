@@ -222,7 +222,6 @@ class KeyBindingInNormalMode:
                 self.main_editor.copied_text = text_area.selected_text
                 text_area.selection = Selection(start=old_cursor_location, end=old_cursor_location)
 
-
         #### key <gt> or <gb> 
         elif key_event.key == "g" and self.main_editor.typed_key == "":
             self.main_editor.typed_key = "g"
