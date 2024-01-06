@@ -20,7 +20,10 @@ class Editor(Screen):
         self.sidebar_style = read_ini_file(file_name="settings.ini", section_name="Sidebar")
         self.store = read_ini_file(file_name="stores.ini", section_name="WorkingDirectory")
         self.focused_main_editor = True
+
         self.typed_key = ""
+        self.typed_key_timer: float | None = None
+        self.selected_dir = None
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -38,6 +41,7 @@ class Editor(Screen):
         self.mount(sidebar)
         sidebar.scroll_visible()
 
+    @property
     def sidebar_exists(self) -> bool:
         try:
             sidebar = self.query_one(Sidebar)
@@ -47,7 +51,7 @@ class Editor(Screen):
 
     # Handle switch focus between Sidebar and Main Editor
     def handle_switching_focus(self) -> None:
-        if self.sidebar_exists():
+        if self.sidebar_exists:
             if self.focused_main_editor:
                 self.query_one(Sidebar).focus()
                 self.focused_main_editor = False
@@ -55,10 +59,14 @@ class Editor(Screen):
                 self.query_one(MainEditor).focus()
                 self.focused_main_editor = True
 
+    def reset_typed_key(self) -> None:
+        self.typed_key = ""
+        self.typed_key_timer = None
+
     def on_key(self, event: events.Key) -> None:
         if event.key == "ctrl+b": # toggle sidebar
             if self.store["editing_type"] == "dir":
-                if not self.sidebar_exists(): self.mount_sidebar_to_screen()
+                if not self.sidebar_exists: self.mount_sidebar_to_screen()
 
                 self.toggle_sidebar()    
 
@@ -85,18 +93,19 @@ class Editor(Screen):
 
                 sidebar.move_up(editor=self)
                 sidebar_listview.scroll_up()
- 
-        elif event.key == "a" and self.typed_key == "": 
-            self.typed_key = self.typed_key + event.key
- 
-        #keybinding <af> append new file in highlighted directory,
-        #or append in project root if no directory is highlighted 
-        elif self.typed_key == "a" and event.key == "f": 
+
+        elif event.key == "a" and self.typed_key == "":
             if self.focused_main_editor is False:
-                self.typed_key = ""
+                self.typed_key = "a"
+                self.typed_key_timer = time.time()
+
+        elif event.key == "a" and self.typed_key == "a": # <aa> append file 
+            if time.time() - self.typed_key_timer > 3:
+                self.reset_typed_key()
+            else:
                 sidebar = self.query_one(Sidebar)
-                sidebar.mount_input(create_type="file")
-                sidebar.query_one("SidebarInput").focus()
+                highlighted_content = self.query("DirectoryContentText")[sidebar.viewing_id - 1]
+                sidebar.mount_input(highlighted_content=highlighted_content) 
 
         elif event.key == "enter":
             if self.focused_main_editor:

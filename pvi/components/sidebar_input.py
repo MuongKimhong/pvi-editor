@@ -15,25 +15,31 @@ import os
 
 
 class SidebarInput(Input):
-    def __init__(self, create_type, selected_directory=None) -> None:
-        self.create_type = create_type # "file" or "dir"
-        self.selected_directory = selected_directory
-        self.store = read_ini_file(file_name="stores.ini", section_name="WorkingDirectory")
+    def __init__(self, highlighted_content) -> None:
+        self.highlighted_content = highlighted_content
         super().__init__()
 
     def set_style(self) -> None:
         self.styles.border = ("solid", "white")
 
+    # highlighted_content in sidebar when create_new_file is called
     def create_new_file(self) -> None:
-        file_name = self.value  
+        data_to_create: str = self.value
+        type_to_create = "file" if "." in data_to_create else "dir"
 
-        if self.selected_directory is None:
-            new_file = open(f"{self.store['editing_path']}/{file_name}", "w")
+        if self.highlighted_content.content_type == "file":
+            new_data_path = os.path.dirname(self.highlighted_content.content_path) + "/" + data_to_create
         else:
-            new_file = open(f"{self.store['editing_path']}/{self.selected_directory}/{file_name}", "w")
+            new_data_path = self.highlighted_content.content_path + "/" + data_to_create
 
-        new_file.close()
-        self.app.query_one("Sidebar").focus
+        if type_to_create == "file":
+            new_file = open(new_data_path, "w")
+            new_file.close()
+        else:
+            os.makedirs(new_data_path, exist_ok=True)
+
+        self.app.query_one("Sidebar").highlighted_content = None
+        self.app.query_one("Sidebar").focus()
         self.remove()
 
     def on_mount(self, event: events.Mount) -> None:

@@ -30,6 +30,10 @@ class Sidebar(Container, can_focus=True):
 
         self.content_states = {}
         self.utils = SidebarUtils(self)
+
+        # use this to make content stay highlighting when append new data 
+        # with <aa> key binding
+        self.highlighted_content: DirectoryContentText | None = None
         super().__init__()
 
     def list_item(self, content, c_id, c_type) -> ListItem:
@@ -192,10 +196,14 @@ class Sidebar(Container, can_focus=True):
         if self.viewing_id > 1:
             self.handle_set_to_highlighted_or_normal(move_direction="up", editor=editor)
 
-    def mount_input(self, create_type: str) -> None:
-        sidebar_input = SidebarInput(create_type=create_type)
+    def mount_input(self, highlighted_content: DirectoryContentText) -> None:
+        self.highlighted_content = highlighted_content
+        sidebar_input = SidebarInput(highlighted_content=highlighted_content)
         self.mount(sidebar_input)
-        sidebar_input.scroll_visible()
+        sidebar_input.focus()
+
+    def delete_file_or_dir(self, c_type, c_name) -> None:
+        pass
 
     def on_mount(self, event: events.Mount) -> None:
         self.utils.set_sidebar_style()
@@ -210,3 +218,5 @@ class Sidebar(Container, can_focus=True):
         for content in self.query("DirectoryContentText"):
             if content.file_opened is False:
                 content.set_to_normal()
+        
+        if self.highlighted_content is not None: self.highlighted_content.set_to_highlighted()
