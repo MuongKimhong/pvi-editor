@@ -66,7 +66,8 @@ class Editor(Screen):
     def on_key(self, event: events.Key) -> None:
         if event.key == "ctrl+b": # toggle sidebar
             if self.store["editing_type"] == "dir":
-                if not self.sidebar_exists: self.mount_sidebar_to_screen()
+                if not self.sidebar_exists: 
+                    self.mount_sidebar_to_screen()
 
                 self.toggle_sidebar()    
 
@@ -106,6 +107,7 @@ class Editor(Screen):
                 sidebar = self.query_one(Sidebar)
                 highlighted_content = self.query("DirectoryContentText")[sidebar.viewing_id - 1]
                 sidebar.mount_input(highlighted_content=highlighted_content) 
+                self.typed_key = ""
 
         elif event.key == "enter":
             if self.focused_main_editor:
