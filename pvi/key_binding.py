@@ -145,11 +145,19 @@ class KeyBindingInNormalMode:
                     text_area.replace(self.main_editor.copied_text, start, end, maintain_selection_offset=False)
 
             case "left_curly_bracket": # move up 5 cell
-                target = tuple(map(sum, zip(text_area.get_cursor_up_location(), (0, 4))))
-                text_area.move_cursor(target, record_width=False, select=False)
+                if text_area.cursor_location[0] > 5: # row > 0
+                    new_location = (
+                        text_area.cursor_location[0] - 5, 
+                        text_area.cursor_location[1]
+                    )
+                    text_area.move_cursor(new_location)
             case "right_curly_bracket": # move down 5 cell
-                target = tuple(numpy.subtract(text_area.get_cursor_down_location(), (4, 4)))
-                text_area.move_cursor(target, record_width=False, select=False)
+                if text_area.cursor_location[0] < text_area.document.line_count - 1 - 5: # row < last_line - 5
+                    new_location = (
+                        text_area.cursor_location[0] + 5, 
+                        text_area.cursor_location[1]
+                    )
+                    text_area.move_cursor(new_location)
         
         ##### key <d> or <dd>
         if key_event.key == "d" and self.main_editor.typed_key == "":
