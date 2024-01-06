@@ -26,6 +26,7 @@ class SidebarInput(Input):
     def create_new_file(self) -> None:
         data_to_create: str = self.value
         type_to_create = "file" if "." in data_to_create else "dir"
+        sidebar = self.app.query_one("Sidebar")
 
         if self.highlighted_content.content_type == "file":
             new_data_path = os.path.dirname(self.highlighted_content.content_path) + "/" + data_to_create
@@ -38,8 +39,8 @@ class SidebarInput(Input):
         else:
             os.makedirs(new_data_path, exist_ok=True)
 
-        self.app.query_one("Sidebar").highlighted_content = None
-        self.app.query_one("Sidebar").focus()
+        sidebar.highlighted_content = None
+        sidebar.focus()
         self.remove()
 
     def on_mount(self, event: events.Mount) -> None:

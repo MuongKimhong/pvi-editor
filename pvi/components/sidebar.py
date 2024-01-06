@@ -96,48 +96,49 @@ class Sidebar(Container, can_focus=True):
             section_name="WorkingDirectory", 
             section_data=self.store
         )
-
         for (index, content) in enumerate(self.dir_tree):
             if content["id"] == selected_dir.content_id:
                 contents_above_selected_dir = self.dir_tree[:index + 1]
                 contents_below_selected_dir = self.dir_tree[index + 1:]
 
-        selected_dir_contents = os.listdir(self.store["editing_path"])
-        files_in_selected_dir_contents = []
-        directories_in_selected_dir_contents = []
+        selected_dir_contents = os.listdir(selected_dir.content_path)
 
-        layer = None
+        if len(selected_dir_contents) > 0:
+            files_in_selected_dir_contents = []
+            directories_in_selected_dir_contents = []
 
-        for content in selected_dir_contents:
-            layer = selected_dir.layer_level + 1
-            path = f"{self.store['editing_path']}/{content}"
+            layer = None
 
-            if os.path.isfile(path):
-                files_in_selected_dir_contents.append(
-                    self.utils.content_as_dict("file", content, layer, path)
-                )
-            elif os.path.isdir(path) and content != ".git":
-                directories_in_selected_dir_contents.append(
-                    self.utils.content_as_dict("dir", f"{content}/", layer, path)
-                )
+            for content in selected_dir_contents:
+                layer = selected_dir.layer_level + 1
+                path = f"{selected_dir.content_path}/{content}"
 
-        # increase sidebar width as number of layer increases
-        if layer > 3:
-            self.styles.width = self.styles.width.value + 1
-        elif layer > 5:
-            self.styles.width = self.styles.width.value + 2
+                if os.path.isfile(path):
+                    files_in_selected_dir_contents.append(
+                        self.utils.content_as_dict("file", content, layer, path)
+                    )
+                elif os.path.isdir(path) and content != ".git":
+                    directories_in_selected_dir_contents.append(
+                        self.utils.content_as_dict("dir", f"{content}/", layer, path)
+                    )
 
-        selected_dir_contents = [
-            *sorted(files_in_selected_dir_contents, key=lambda x: x["content"]),
-            *sorted(directories_in_selected_dir_contents, key=lambda x: x["content"])
-        ]
-        self.dir_tree = [
-            *contents_above_selected_dir, 
-            *selected_dir_contents, 
-            *contents_below_selected_dir
-        ]
-        self.utils.handle_re_mount_listview()
-        self.content_states[f"content_{selected_dir.content_id}"] = "open"
+            # increase sidebar width as number of layer increases
+            if layer > 3:
+                self.styles.width = self.styles.width.value + 1
+            elif layer > 5:
+                self.styles.width = self.styles.width.value + 2
+
+            selected_dir_contents = [
+                *sorted(files_in_selected_dir_contents, key=lambda x: x["content"]),
+                *sorted(directories_in_selected_dir_contents, key=lambda x: x["content"])
+            ]
+            self.dir_tree = [
+                *contents_above_selected_dir, 
+                *selected_dir_contents, 
+                *contents_below_selected_dir
+            ]
+            self.utils.handle_re_mount_listview()
+            self.content_states[f"content_{selected_dir.content_id}"] = "open"
 
     def close_directory(self, selected_dir: DirectoryContentText) -> None:
         content_to_remove = []
