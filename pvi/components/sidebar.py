@@ -203,9 +203,6 @@ class Sidebar(Container, can_focus=True):
         self.mount(sidebar_input)
         sidebar_input.focus()
 
-    def delete_file_or_dir(self, c_type, c_name) -> None:
-        pass
-
     def on_mount(self, event: events.Mount) -> None:
         self.utils.set_sidebar_style()
         
