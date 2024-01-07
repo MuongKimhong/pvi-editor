@@ -5,10 +5,12 @@ from textual.app import ComposeResult
 from textual.screen import Screen
 from textual import events, log
 
+from components.delete_dialog import DeleteDialog
 from components.main_editor import MainEditor
 from components.sidebar import Sidebar
 from utils import read_ini_file
 
+from pathlib import Path
 import time
 import os
 
@@ -95,11 +97,11 @@ class Editor(Screen):
                 sidebar.move_up(editor=self)
                 sidebar_listview.scroll_up()
 
+        #### block key <aa>
         elif event.key == "a" and self.typed_key == "":
             if self.focused_main_editor is False:
                 self.typed_key = "a"
                 self.typed_key_timer = time.time()
-
         elif event.key == "a" and self.typed_key == "a": # <aa> append file 
             if time.time() - self.typed_key_timer > 3:
                 self.reset_typed_key()
@@ -108,7 +110,60 @@ class Editor(Screen):
                 highlighted_content = self.query("DirectoryContentText")[sidebar.viewing_id - 1]
                 sidebar.mount_input(highlighted_content=highlighted_content) 
                 self.typed_key = ""
+        #### end block key <aa>
 
+        ### black key <dd>
+        elif event.key == "d" and self.typed_key == "":
+            if self.focused_main_editor is False:
+                self.typed_key = "d"
+                self.typed_key_timer = time.time()
+        elif event.key == "d" and self.typed_key == "d":
+            if time.time() - self.typed_key_timer > 3:
+                self.reset_typed_key()
+            else:
+                self.typed_key = ""
+                sidebar = self.query_one(Sidebar)
+                content_to_delete = self.query("DirectoryContentText")[sidebar.viewing_id - 1]  
+
+                def after_delete_action(selected_content=None, editor=self) -> None:
+                    if selected_content is not None:
+                        sidebar = editor.query_one("Sidebar")
+                        c_path = selected_content.content_path
+                        c_type = selected_content.content_type
+                        project_root = read_ini_file(file_name="stores.ini", section_name="WorkingDirectory")["project_root"]
+                        in_project_root = False
+
+                        if c_type == "file":
+                            if os.path.dirname(c_path) == project_root:
+                                in_project_root = True
+                        elif c_type == "dir":
+                            if str(Path(c_path).parent) == project_root:
+                                in_project_root = True
+
+                        # if it's in project root need to change dir_tree and remount listview
+                        if in_project_root:
+                            for (index, content) in enumerate(sidebar.dir_tree):
+                                if selected_content.content_id == index + 1:
+                                    # if it's a directory and state is open, close the directory first
+                                    if sidebar.content_states[f"content_{index+1}"] == "open":
+                                        sidebar.close_directory(
+                                            sidebar.query("DirectoryContentText")[sidebar.viewing_id - 1]
+                                        )
+
+                                    sidebar.dir_tree.remove(content)
+                                    sidebar.utils.handle_re_mount_listview()
+                                    break
+                        # if it's not in project root, close the parent dir and reopen it
+                        # close_directory and open_directory will handle updating dir_tree and remount listview
+                        else:
+                            for content in sidebar.query("DirectoryContentText"):
+                                if content.content_path == str(Path(c_path).parent):
+                                    sidebar.close_directory(content)
+                                    sidebar.open_directory(content)
+                                    break
+  
+                self.app.push_screen(DeleteDialog(content_to_delete=content_to_delete), after_delete_action)
+    
         elif event.key == "enter":
             if self.focused_main_editor:
                 pass
@@ -127,6 +182,9 @@ class Editor(Screen):
                     sidebar.select_directory(selected_dir=selected_content)
                     sidebar.focus()
                     self.focused_main_editor = False
+
+        elif event.key == "escape":
+            self.typed_key = ""
                         
     def on_mount(self, event: events.Mount) -> None:
         pass

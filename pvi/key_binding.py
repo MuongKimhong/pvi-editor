@@ -136,7 +136,8 @@ class KeyBindingInNormalMode:
             case "I": # upper i
                 text_area.action_cursor_line_start()
                 self.enter_insert_mode(text_area)
-
+            case "escape":
+                self.main_editor.typed_key = ""
             case "p": # paste
                 if self.main_editor.copied_text != "":
                     self.create_new_line(text_area)
