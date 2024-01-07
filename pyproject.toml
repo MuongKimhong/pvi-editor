@@ -11,6 +11,7 @@ textual = {extras = ["syntax"], version = "^0.45.1"}
 textual-dev = "^1.2.1"
 tree-sitter-languages = "^1.8.0"
 numpy = "^1.26.2"
+jedi = "^0.19.1"
 
 
 [build-system]

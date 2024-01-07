@@ -31,7 +31,7 @@ WelcomeText #happy-coding {
 
 DeleteDialog {
     align: center middle;
-    background: grey 50%;
+    background: #181717 50%;
 } 
 #dialog {
     grid-size: 2;
