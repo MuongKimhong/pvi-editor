@@ -3,7 +3,8 @@ from textual import events, log
 
 
 class PviTextArea(TextArea):
-    autocomplete_symbol = ['"', '{', '[', '(', '`', "'"]
+    autocomplete_symbol = ['{', '[', '(']
+    after_symbol = ['}', ']', ')']
 
     DEFAULT_CSS = """
     PviTextArea {
@@ -34,8 +35,8 @@ class PviTextArea(TextArea):
 
         elif event.character in self.autocomplete_symbol:
             self.handle_autocomplete_symbol(character=event.character)
-
-        elif event.key == "s":
+         
+        # elif event.key == "s":
             # static = Static("Good evening", id="text")
             # # static.styles.layer = "above"
             # # static.styles.width = 50
