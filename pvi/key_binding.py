@@ -130,10 +130,7 @@ class KeyBindingInNormalMode:
                 text_area.action_cursor_word_right()
             case "a":
                 text_area.move_cursor(
-                    (
-                        text_area.cursor_location[0],
-                        text_area.cursor_location[1] + 1
-                    )
+                    (text_area.cursor_location[0], text_area.cursor_location[1] + 1)
                 )
                 self.enter_insert_mode(text_area)
 

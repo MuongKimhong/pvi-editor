@@ -36,7 +36,7 @@ class Footer(Input, can_focus=True):
         selected_content = self.app.query("DirectoryContentText")[selected_content_index]
 
         if selected_content.content_type == "file":
-            with open(f"{store['editing_path']}/{selected_content.content_name}", "w") as file:
+            with open(selected_content.content_path, "w") as file:
                 file.write(self.app.query_one("#pvi-text-area").text)
 
     # reset all main editor attributes, typed_key, copied_text, ..
