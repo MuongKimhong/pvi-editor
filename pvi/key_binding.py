@@ -112,7 +112,6 @@ class KeyBindingInNormalMode:
             case "j":
                 text_area.action_cursor_down()
             case "J":
-                start = time.time()
                 line_end = text_area.get_cursor_line_end_location()
                 line_text = text_area.document.get_line(text_area.cursor_location[0] + 1).lstrip()
 
@@ -125,7 +124,6 @@ class KeyBindingInNormalMode:
                 text_area.move_cursor((text_area.cursor_location[0] + 1, text_area.cursor_location[1]))
                 text_area.action_delete_line()
                 text_area.move_cursor(line_end)
-                log(f"Time {time.time() - start}")
             case "k":
                 text_area.action_cursor_up()
             case "l":
