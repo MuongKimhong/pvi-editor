@@ -4,7 +4,6 @@ from textual import events, log
 
 class PviTextArea(TextArea):
     autocomplete_symbol = ['{', '[', '(']
-    after_symbol = ['}', ']', ')']
 
     DEFAULT_CSS = """
     PviTextArea {
@@ -13,20 +12,29 @@ class PviTextArea(TextArea):
     """
 
     def handle_autocomplete_symbol(self, character) -> None:
-        if character == "{":
-            text = "}"            
-        elif character == "[":
-            text = "]"
-        elif character == "(":
-            text = ")"
-        else:
-            text = character
+        match character:
+            case "{":
+                text = "}"
+            case "[":
+                text = "]"
+            case "(":
+                text = ")"
+        
+        replacement_line = self.document.get_line(self.cursor_location[0])
+        replacement_text = replacement_line[self.cursor_location[1]:]
 
-        self.document.replace_range(
-            start=self.cursor_location,
-            end=(self.cursor_location[0], self.cursor_location[1] + 1),
-            text=text
-        )
+        if replacement_text == "":
+            self.replace(
+                insert=text,
+                start=self.cursor_location,
+                end=(self.cursor_location[0], self.cursor_location[1] + 1)
+            )
+        else:
+            self.replace(
+                insert=text + replacement_text, 
+                start=self.cursor_location,
+                end=self.get_cursor_line_end_location(),
+            )
 
     def on_key(self, event: events.Key) -> None:
         if event.key == "escape":
