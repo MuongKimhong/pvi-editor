@@ -1,9 +1,13 @@
 from textual.widgets import TextArea, Static
 from textual import events, log
 
+from autocomplete import AutoComplete
+import time
+
 
 class PviTextArea(TextArea):
     autocomplete_symbol = ['{', '[', '(']
+    autocomplete_engine = AutoComplete()
 
     DEFAULT_CSS = """
     PviTextArea {
@@ -43,6 +47,12 @@ class PviTextArea(TextArea):
 
         elif event.character in self.autocomplete_symbol:
             self.handle_autocomplete_symbol(character=event.character)
+
+        elif event.key == "s":
+            start = time.time()
+            all_suggestions = self.autocomplete_engine.python_autocomplete(self.document.text)        
+            # log(all_suggestions)
+            log(time.time() - start)
          
         # elif event.key == "s":
             # static = Static("Good evening", id="text")
