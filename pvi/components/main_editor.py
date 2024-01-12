@@ -67,6 +67,7 @@ class MainEditor(Container, can_focus=True):
             self.mount(text_area)
             text_area.scroll_visible()
             text_area.register_theme(theme) 
+            text_area.register_theme(syntax.my_theme_insert_mode())
             text_area.theme = "my_theme" 
             
         text_area.language = "python" # set language to python no matter what's file type
