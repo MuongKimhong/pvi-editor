@@ -1,4 +1,5 @@
 from textual.widgets import TextArea, Static, ListView, ListItem
+from textual.containers import Container
 from textual.css.query import NoMatches
 from textual.geometry import Offset
 from textual import events, log
@@ -11,10 +12,7 @@ class PviTextArea(TextArea):
     autocomplete_symbol = ['{', '[', '(']
     autocomplete_engine = None
     suggestion_words = []
-    suggestion_listview = ListView(*[], id="suggestion-listview")
 
-    # update the suggestion words every 10 new lines   
-    UPDATE_SUGGESTION_INTERVAL = 10
     change_occurs = 0 # increase 1 every changes
     change_updates = 0 # update to number of occurs every 10 changes
 
@@ -27,18 +25,20 @@ class PviTextArea(TextArea):
     } 
     """
 
-    def set_suggestion_listview_style(self) -> None:
-        self.suggestion_listview.styles.layer = "above"
-        self.suggestion_listview.styles.width = 40
-        self.suggestion_listview.styles.content_align = ("center", "middle")
-        self.suggestion_listview.styles.background = "grey"
-        self.suggestion_listview.styles.color = "white"
+    def set_suggestion_style(self, container: Container) -> Container:
+        container.styles.layer = "above"
+        container.styles.width = 40
+        container.styles.content_align = ("center", "middle")
+        container.styles.background = "grey"
+        container.styles.color = "white"
 
-    def update_suggestion_listview_offset(self, offset: Offset) -> None:
-        self.suggestion_listview.styles.offset = offset
+        return container
 
-    def update_suggestion_listview_height(self, height: int) -> None:
-        self.suggestion_listview.styles.height = height
+    def update_suggestion_offset(self, offset: Offset) -> None:
+        self.query_one(Container).styles.offset = offset
+
+    def update_suggestion_height(self, height: int) -> None:
+        self.query_one(Container).styles.height = height
 
     def handle_autocomplete_symbol(self, character) -> None:
         match character:
@@ -65,6 +65,12 @@ class PviTextArea(TextArea):
                 end=self.get_cursor_line_end_location(),
             )
 
+    def remove_suggestion_from_dom(self) -> None:
+        try:
+            self.query_one(Container).remove()
+        except NoMatches:
+            pass
+
     def on_focus(self, event: events.Focus) -> None:
         self.theme = "my_theme_insert_mode"
 
@@ -72,15 +78,9 @@ class PviTextArea(TextArea):
             self.autocomplete_engine = AutoComplete(language=self.language)
             self.suggestion_words = self.autocomplete_engine.get_suggestion(self.document.text)
 
-        self.set_suggestion_listview_style()
-
     def on_blur(self, event: events.Blur) -> None:
         self.theme = "my_theme"
-        
-        try:
-            self.query_one("#suggestion-listview").styles.visibility = "hidden"
-        except NoMatches:
-            pass
+        self.remove_suggestion_from_dom()
 
     # update the suggestion words every 10 changes
     def on_text_area_changed(self, event: TextArea.Changed) -> None:
@@ -91,7 +91,6 @@ class PviTextArea(TextArea):
                 event.text_area.document.text
             )
             self.change_updates = self.change_occurs
-            self.query_one("#suggestion-listview").remove()
 
     def on_key(self, event: events.Key) -> None:
         if event.key == "escape":
@@ -102,36 +101,30 @@ class PviTextArea(TextArea):
             self.handle_autocomplete_symbol(character=event.character)
         
         else:
-            if event.is_printable or event.key == "backspace":
+            if event.is_printable:
+                self.typing_word = self.typing_word + event.character
+            elif (event.key == "backspace") and (self.typing_word != ""):
+                self.typing_word = self.typing_word[:-1] 
 
-                if event.is_printable:
-                    self.typing_word = self.typing_word + event.character
+            matched_words = []
 
-                if event.key == "backspace":
-                    self.typing_word = self.typing_word[:-1]
-                    self.query_one("#suggestion-listview").styles.visibility = "visible"
+            for word in self.suggestion_words:
+                if (len(self.typing_word) > 0) and (self.typing_word.lower() in word.lower()):
+                    matched_words.append(word)
 
-                matched_words = [word for word in self.suggestion_words if self.typing_word in word]
+            self.remove_suggestion_from_dom()
 
-                if len(matched_words) > 0:
-                    try:
-                        self.query_one("#suggestion-listview")
-                    except NoMatches:
-                        self.mount(self.suggestion_listview)
-                        self.suggestion_listview.scroll_visible()
-                    
-                    self.update_suggestion_listview_height(len(matched_words))
-                    self.update_suggestion_listview_offset(
-                        (self.cursor_location[1] + 5, self.cursor_location[0] + 1)
+            if len(matched_words) > 0:
+                container = Container(ListView(*[]), id="suggestion-container")
+                container = self.set_suggestion_style(container)
+                self.mount(container)
+                container.scroll_visible()
+
+                self.update_suggestion_height(len(matched_words))
+                self.update_suggestion_offset(
+                    (self.cursor_location[1] + 4, self.cursor_location[0] + 1)
+                )
+                for word in matched_words:
+                    self.query_one(Container).query_one(ListView).append(
+                        ListItem(Static(word))
                     )
-
-                    for word in matched_words:
-                        self.suggestion_listview.append(ListItem(Static(word)))
-                else:
-                    try:
-                        self.query_one("#suggestion-listview").styles.visibility = "hidden"
-                    except NoMatches:
-                        pass
-
-            # elif event.key == "backspace":
-            #     pass
