@@ -8,6 +8,31 @@ from autocomplete import AutoComplete
 import time
 
 
+class SuggestionPanel(Container):
+    DEFAULT_CSS = """
+    SuggestionPanel {
+        layer: above;
+        width: 35;
+        content-align: center middle;
+        background: grey;
+        color: white
+    }
+    """
+
+    def __init__(self, listview: ListView) -> None:
+        self.listview = listview
+        super().__init__()
+
+    def compose(self):
+        yield self.listview
+
+    def update_height(self, height: int) -> None:
+        self.styles.height = height
+
+    def update_offset(self, offset: Offset) -> None:
+        self.styles.offset = offset
+
+
 class PviTextArea(TextArea):
     autocomplete_symbol = ['{', '[', '(']
     autocomplete_engine = None
@@ -24,21 +49,6 @@ class PviTextArea(TextArea):
         layers: above;
     } 
     """
-
-    def set_suggestion_style(self, container: Container) -> Container:
-        container.styles.layer = "above"
-        container.styles.width = 40
-        container.styles.content_align = ("center", "middle")
-        container.styles.background = "grey"
-        container.styles.color = "white"
-
-        return container
-
-    def update_suggestion_offset(self, offset: Offset) -> None:
-        self.query_one(Container).styles.offset = offset
-
-    def update_suggestion_height(self, height: int) -> None:
-        self.query_one(Container).styles.height = height
 
     def handle_autocomplete_symbol(self, character) -> None:
         match character:
@@ -67,7 +77,7 @@ class PviTextArea(TextArea):
 
     def remove_suggestion_from_dom(self) -> None:
         try:
-            self.query_one(Container).remove()
+            self.query_one(SuggestionPanel).remove()
         except NoMatches:
             pass
 
@@ -101,10 +111,12 @@ class PviTextArea(TextArea):
             self.handle_autocomplete_symbol(character=event.character)
         
         else:
-            if event.is_printable:
+            if (event.is_printable) and (event.key != "space"):
                 self.typing_word = self.typing_word + event.character
             elif (event.key == "backspace") and (self.typing_word != ""):
                 self.typing_word = self.typing_word[:-1] 
+            elif event.key == "space":
+                self.typing_word = "" 
 
             matched_words = []
 
@@ -115,16 +127,14 @@ class PviTextArea(TextArea):
             self.remove_suggestion_from_dom()
 
             if len(matched_words) > 0:
-                container = Container(ListView(*[]), id="suggestion-container")
-                container = self.set_suggestion_style(container)
-                self.mount(container)
-                container.scroll_visible()
+                suggestion_panel = SuggestionPanel(listview=ListView(*[]))
+                self.mount(suggestion_panel)
+                suggestion_panel.scroll_visible()
 
-                self.update_suggestion_height(len(matched_words))
-                self.update_suggestion_offset(
-                    (self.cursor_location[1] + 4, self.cursor_location[0] + 1)
+                suggestion_panel = self.query_one(SuggestionPanel) 
+                suggestion_panel.update_height(height=len(matched_words))
+                suggestion_panel.update_offset(
+                    offset=(self.cursor_location[1] + 4, self.cursor_location[0] + 1)
                 )
                 for word in matched_words:
-                    self.query_one(Container).query_one(ListView).append(
-                        ListItem(Static(word))
-                    )
+                    suggestion_panel.listview.append(ListItem(Static(word)))
