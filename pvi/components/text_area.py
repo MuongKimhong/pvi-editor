@@ -1,4 +1,6 @@
 from textual.widgets import TextArea, Static, ListView, ListItem
+from textual.css.query import NoMatches
+from textual.geometry import Offset
 from textual import events, log
 
 from autocomplete import AutoComplete
@@ -9,17 +11,34 @@ class PviTextArea(TextArea):
     autocomplete_symbol = ['{', '[', '(']
     autocomplete_engine = None
     suggestion_words = []
+    suggestion_listview = ListView(*[], id="suggestion-listview")
 
-    
     # update the suggestion words every 10 new lines   
     UPDATE_SUGGESTION_INTERVAL = 10
-    start_interval_line_index = 0
+    change_occurs = 0 # increase 1 every changes
+    change_updates = 0 # update to number of occurs every 10 changes
+
+    # combination of keypress. return to empty string whenever user press space key
+    typing_word = ""
 
     DEFAULT_CSS = """
     PviTextArea {
         layers: above;
     } 
     """
+
+    def set_suggestion_listview_style(self) -> None:
+        self.suggestion_listview.styles.layer = "above"
+        self.suggestion_listview.styles.width = 40
+        self.suggestion_listview.styles.content_align = ("center", "middle")
+        self.suggestion_listview.styles.background = "grey"
+        self.suggestion_listview.styles.color = "white"
+
+    def update_suggestion_listview_offset(self, offset: Offset) -> None:
+        self.suggestion_listview.styles.offset = offset
+
+    def update_suggestion_listview_height(self, height: int) -> None:
+        self.suggestion_listview.styles.height = height
 
     def handle_autocomplete_symbol(self, character) -> None:
         match character:
@@ -48,12 +67,31 @@ class PviTextArea(TextArea):
 
     def on_focus(self, event: events.Focus) -> None:
         self.theme = "my_theme_insert_mode"
-        self.autocomplete_engine = AutoComplete(language=self.language)
-        self.suggestion_words = self.autocomplete_engine.get_suggestion(self.document.text)
-        self.start_interval_line_index = 0
+
+        if self.autocomplete_engine is None:
+            self.autocomplete_engine = AutoComplete(language=self.language)
+            self.suggestion_words = self.autocomplete_engine.get_suggestion(self.document.text)
+
+        self.set_suggestion_listview_style()
 
     def on_blur(self, event: events.Blur) -> None:
         self.theme = "my_theme"
+        
+        try:
+            self.query_one("#suggestion-listview").styles.visibility = "hidden"
+        except NoMatches:
+            pass
+
+    # update the suggestion words every 10 changes
+    def on_text_area_changed(self, event: TextArea.Changed) -> None:
+        self.change_occurs = self.change_occurs + 1
+
+        if (self.change_occurs - self.change_updates) >= 10:
+            self.suggestion_words = self.autocomplete_engine.get_suggestion(
+                event.text_area.document.text
+            )
+            self.change_updates = self.change_occurs
+            self.query_one("#suggestion-listview").remove()
 
     def on_key(self, event: events.Key) -> None:
         if event.key == "escape":
@@ -61,28 +99,39 @@ class PviTextArea(TextArea):
             self.app.query_one("#footer").change_value(value="--normal--") 
 
         elif event.character in self.autocomplete_symbol:
-            self.handle_autocomplete_symbol(character=event.character) 
-
+            self.handle_autocomplete_symbol(character=event.character)
         
- 
-        elif event.key == "s":
-            listview = ListView(*[], id="suggestion-listview")
-            listview.styles.layer = "above"
-            listview.styles.width = 50
-            listview.styles.height = 10
-            listview.styles.content_align = ("center", "middle")
-            listview.styles.offset = (13, 6)
-            listview.styles.background = "yellow"
-            listview.styles.color = "white"
+        else:
+            if event.is_printable or event.key == "backspace":
 
-            for word in self.suggestion_words:
-                static = Static(word, id="text")
-                static.styles.width = 30
-                static.styles.height = 1
-                static.styles.content_align = ("center", "middle")
-                listview.append(
-                    ListItem(static)
-                )
-                
-            self.mount(listview)
-            listview.scroll_visible()
+                if event.is_printable:
+                    self.typing_word = self.typing_word + event.character
+
+                if event.key == "backspace":
+                    self.typing_word = self.typing_word[:-1]
+                    self.query_one("#suggestion-listview").styles.visibility = "visible"
+
+                matched_words = [word for word in self.suggestion_words if self.typing_word in word]
+
+                if len(matched_words) > 0:
+                    try:
+                        self.query_one("#suggestion-listview")
+                    except NoMatches:
+                        self.mount(self.suggestion_listview)
+                        self.suggestion_listview.scroll_visible()
+                    
+                    self.update_suggestion_listview_height(len(matched_words))
+                    self.update_suggestion_listview_offset(
+                        (self.cursor_location[1] + 5, self.cursor_location[0] + 1)
+                    )
+
+                    for word in matched_words:
+                        self.suggestion_listview.append(ListItem(Static(word)))
+                else:
+                    try:
+                        self.query_one("#suggestion-listview").styles.visibility = "hidden"
+                    except NoMatches:
+                        pass
+
+            # elif event.key == "backspace":
+            #     pass
