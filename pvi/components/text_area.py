@@ -8,7 +8,7 @@ from autocomplete import AutoComplete
 import time
 
 
-class SuggestionPanel(Container):
+class SuggestionPanel(Container, can_focus=True):
     DEFAULT_CSS = """
     SuggestionPanel {
         layer: above;
@@ -43,6 +43,7 @@ class PviTextArea(TextArea):
 
     # combination of keypress. return to empty string whenever user press space key
     typing_word = ""
+    suggestion_panel_focused = False
 
     DEFAULT_CSS = """
     PviTextArea {
@@ -78,6 +79,7 @@ class PviTextArea(TextArea):
     def remove_suggestion_from_dom(self) -> None:
         try:
             self.query_one(SuggestionPanel).remove()
+            self.suggestion_panel_focused = False
         except NoMatches:
             pass
 
@@ -101,6 +103,38 @@ class PviTextArea(TextArea):
                 event.text_area.document.text
             )
             self.change_updates = self.change_occurs
+        
+    def on_list_view_selected(self, event: ListView.Selected) -> None:
+        selected_word = str(event.item._nodes[0].renderable)
+        replacement_line = self.document.get_line(self.cursor_location[0])
+        replacement_text = replacement_line[self.cursor_location[1]:]
+         
+        if replacement_text == "":
+            self.replace(
+                insert=selected_word,
+                start=(self.cursor_location[0], self.cursor_location[1] - len(self.typing_word)),
+                end=(self.cursor_location[0], self.cursor_location[1] + len(selected_word))
+            )    
+            self.move_cursor(
+                (
+                    self.cursor_location[0], 
+                    self.cursor_location[1] + len(selected_word)
+                )
+            )
+        else:
+            self.replace(
+                insert=selected_word + replacement_text,
+                start=(self.cursor_location[0], self.cursor_location[1] - len(self.typing_word)),
+                end=self.get_cursor_line_end_location()
+            )
+            self.move_cursor(
+                (
+                    self.cursor_location[0], 
+                    self.cursor_location[1] + len(selected_word) - len(self.typing_word)
+                )
+            ) 
+        self.typing_word = ""
+        self.remove_suggestion_from_dom()
 
     def on_key(self, event: events.Key) -> None:
         if event.key == "escape":
@@ -113,28 +147,52 @@ class PviTextArea(TextArea):
         else:
             if (event.is_printable) and (event.key != "space"):
                 self.typing_word = self.typing_word + event.character
+                self.suggestion_panel_focused = False
             elif (event.key == "backspace") and (self.typing_word != ""):
                 self.typing_word = self.typing_word[:-1] 
+                self.suggestion_panel_focused = False
             elif event.key == "space":
                 self.typing_word = "" 
+                self.suggestion_panel_focused = False
+            elif (event.key == "enter") and (self.suggestion_panel_focused is False):
+                self.typing_word = "" 
+            elif event.key == "down":
+                try:
+                    self.query_one(SuggestionPanel).listview.action_cursor_down()
+                    self.action_cursor_up()
+                    self.suggestion_panel_focused = True
+                except NoMatches:
+                    pass
+            elif event.key == "up":
+                try:
+                    self.query_one(SuggestionPanel).listview.action_cursor_up()
+                    self.action_cursor_down()
+                    self.suggestion_panel_focused = True
+                except NoMatches:
+                    pass
+            elif (event.key == "enter") and (self.suggestion_panel_focused is True):
+                event.prevent_default()
+                self.query_one(SuggestionPanel).listview.action_select_cursor()
 
-            matched_words = []
+            if self.suggestion_panel_focused is False:
+                matched_words = []
 
-            for word in self.suggestion_words:
-                if (len(self.typing_word) > 0) and (self.typing_word.lower() in word.lower()):
-                    matched_words.append(word)
+                for word in self.suggestion_words:
+                    if (len(self.typing_word) > 0) and (self.typing_word.lower() in word.lower()):
+                        matched_words.append(word)
 
-            self.remove_suggestion_from_dom()
+                self.remove_suggestion_from_dom()
 
-            if len(matched_words) > 0:
-                suggestion_panel = SuggestionPanel(listview=ListView(*[]))
-                self.mount(suggestion_panel)
-                suggestion_panel.scroll_visible()
+                if len(matched_words) > 0:
+                    suggestion_panel = SuggestionPanel(listview=ListView(*[]))
+                    self.mount(suggestion_panel)
+                    suggestion_panel.scroll_visible()
+                    self.suggestion_panel_focused = True
 
-                suggestion_panel = self.query_one(SuggestionPanel) 
-                suggestion_panel.update_height(height=len(matched_words))
-                suggestion_panel.update_offset(
-                    offset=(self.cursor_location[1] + 4, self.cursor_location[0] + 1)
-                )
-                for word in matched_words:
-                    suggestion_panel.listview.append(ListItem(Static(word)))
+                    suggestion_panel = self.query_one(SuggestionPanel) 
+                    suggestion_panel.update_height(height=len(matched_words))
+                    suggestion_panel.update_offset(
+                        offset=(self.cursor_location[1] + 4, self.cursor_location[0] + 1)
+                    )
+                    for word in matched_words:
+                        suggestion_panel.listview.append(ListItem(Static(word)))
