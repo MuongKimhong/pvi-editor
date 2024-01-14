@@ -53,20 +53,23 @@ class SearchFileDialog(ModalScreen):
         except NoMatches:
             pass
 
-        self.query_one("#search-dialog").styles.height = 10
+        search_dialog = self.query_one("#search-dialog")
+        search_dialog.styles.height = 10
 
         result_paths = []
 
         for content in self.sidebar_contents:
-            if ((event.value in content.split("/")[-1]) and (event.value != "") and (content.split("/")[-1].startswith(event.value))):           
+            if ((event.value in content.split("/")[-1]) and 
+                (event.value != "") and 
+                (content.split("/")[-1].startswith(event.value))):           
                 result_paths.append(content)
             
         if len(result_paths) > 0:
             if len(result_paths) > 3:
-                self.query_one(Container).styles.height = self.query_one(Container).styles.height.value + len(result_paths)
+                search_dialog.styles.height = search_dialog.styles.height.value + len(result_paths)
 
             container = SearchResultContainer(listview=ListView(*[])) 
-            self.query_one(Container).mount(container)
+            search_dialog.mount(container)
             container.scroll_visible()
 
             for result in result_paths:
