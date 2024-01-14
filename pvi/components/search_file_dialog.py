@@ -39,6 +39,7 @@ class SearchResultContainer(Container, can_focus=True):
 class SearchFileDialog(ModalScreen):
     def __init__(self, sidebar_contents: list) -> None:
         self.sidebar_contents = sidebar_contents
+        self.search_result_paths = []
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -56,22 +57,37 @@ class SearchFileDialog(ModalScreen):
         search_dialog = self.query_one("#search-dialog")
         search_dialog.styles.height = 10
 
-        result_paths = []
+        self.search_result_paths = []
 
         for content in self.sidebar_contents:
             if ((event.value in content.split("/")[-1]) and 
                 (event.value != "") and 
                 (content.split("/")[-1].startswith(event.value))):           
-                result_paths.append(content)
+                self.search_result_paths.append(content)
             
-        if len(result_paths) > 0:
-            if len(result_paths) > 3:
-                search_dialog.styles.height = search_dialog.styles.height.value + len(result_paths)
+        if len(self.search_result_paths) > 0:
+            if len(self.search_result_paths) > 3:
+                search_dialog.styles.height = search_dialog.styles.height.value + len(self.search_result_paths)
 
             container = SearchResultContainer(listview=ListView(*[])) 
             search_dialog.mount(container)
             container.scroll_visible()
 
-            for result in result_paths:
+            for result in self.search_result_paths:
                 list_item = ListItem(Static(result))
+                # list_item.styles.background = "#2E2929"
                 self.query_one(SearchResultContainer).listview.append(list_item)
+
+    def on_key(self, event: events.Key) -> None:
+        try:
+            result_container = self.query_one(SearchResultContainer)
+            
+            if len(self.search_result_paths) > 1:
+                if event.key == "down":
+                    result_container.listview.action_cursor_down()
+                elif event.key == "up":
+                    result_container.listview.action_cursor_up()
+                elif event.key == "enter":
+                    pass
+        except NoMatches:
+            pass
