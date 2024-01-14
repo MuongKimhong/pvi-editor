@@ -1,7 +1,13 @@
+from textual.widgets import ListItem
 from textual.widgets.text_area import Selection
 from textual import log
 import numpy
 import time
+import os
+
+from components.directory_content_text import DirectoryContentText
+from components.search_file_dialog import SearchFileDialog
+from utils import read_ini_file, SidebarUtils
 
 
 class KeyBindingInSelectionMode:
@@ -194,7 +200,7 @@ class KeyBindingInNormalMode:
                 text_area.action_delete_line()
                 self.main_editor.typed_key = ""
 
-        #### key <sa> and <sl>
+        #### key <sa> and <sl> and <ss>
         elif key_event.key == "s" and self.main_editor.typed_key == "":
             self.main_editor.typed_key = "s"
             self.main_editor.typed_key_timer = time.time()
@@ -212,7 +218,7 @@ class KeyBindingInNormalMode:
 
         elif key_event.key == "l" and self.main_editor.typed_key == "s": # <sl> select entire line
             if time.time() - self.main_editor.typed_key_timer > 3:
-                    self.main_editor.reset_typed_key()
+                self.main_editor.reset_typed_key()
             else:
                 self.main_editor.typed_key = ""
                 self.main_editor.editing_mode = "selection"
@@ -224,7 +230,37 @@ class KeyBindingInNormalMode:
                 text_area.selection = Selection(
                     start=self.main_editor.selection_start, end=text_area.cursor_location
                 )
+        
+        elif key_event.key == "s" and self.main_editor.typed_key == "s": # <ss> open search file dialog
+            if time.time() - self.main_editor.typed_key_timer > 3:
+                self.main_editor.reset_typed_key()
+            else:
+                self.main_editor.typed_key = ""
+                store = read_ini_file(file_name="stores.ini", section_name="WorkingDirectory")
+                sidebar = self.main_editor.app.query_one("Sidebar")
+                sidebar_utils = SidebarUtils(sidebar=sidebar)
 
+                # during search files operation, algorithm will not search through these folders
+                COMMON_EXCLUDE_DIRS = [
+                    ".git", ".svn", ".vscode", "venv", "node_modules", "dist", "__pycache__",
+                    "vendor", ".bundle", "env"
+                ]
+                # search through only directory than contains less ban 30 files
+                MAX_FILES_PER_DIR = 30
+
+                content_paths = []
+
+                for root, dirs, files in os.walk(store["project_root"]):
+                    dirs[:] = [d for d in dirs if not any(d.startswith(p) for p in COMMON_EXCLUDE_DIRS)]
+
+                    if len(files) <= MAX_FILES_PER_DIR:
+                        for file in files:
+                            content_paths.append(os.path.join(root, file))
+                
+                self.main_editor.app.push_screen(
+                    SearchFileDialog(sidebar_contents=content_paths)
+                )
+            
         #### key <yy>
         elif key_event.key == "y" and self.main_editor.typed_key == "":
             self.main_editor.typed_key = "y"
