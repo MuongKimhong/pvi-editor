@@ -258,7 +258,11 @@ class KeyBindingInNormalMode:
                             content_paths.append(os.path.join(root, file))
                 
                 self.main_editor.app.push_screen(
-                    SearchFileDialog(sidebar_contents=content_paths)
+                    SearchFileDialog(
+                        sidebar_contents=content_paths, 
+                        directory_content_texts=list(sidebar.query("DirectoryContentText")),
+                        sidebar=sidebar
+                    )
                 )
             
         #### key <yy>

@@ -15,6 +15,7 @@ from textual import events, log
 import shutil
 import os
 
+from utils import read_ini_file
 
 
 class SearchResultContainer(Container, can_focus=True):
@@ -37,9 +38,12 @@ class SearchResultContainer(Container, can_focus=True):
 
 
 class SearchFileDialog(ModalScreen):
-    def __init__(self, sidebar_contents: list) -> None:
+    def __init__(self, sidebar_contents: list, directory_content_texts: list, sidebar) -> None:
         self.sidebar_contents = sidebar_contents
+        self.directory_content_texts = directory_content_texts
+        self.sidebar = sidebar
         self.search_result_paths = []
+        self.selected_path = ""
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -47,6 +51,44 @@ class SearchFileDialog(ModalScreen):
             Input(placeholder="Search files", id="search-file-input"),
             id="search-dialog"
         )
+
+    def load_file_content(self) -> None:
+        store = read_ini_file(file_name="stores.ini", section_name="WorkingDirectory") 
+        project_root = store["project_root"]
+        path_without_root = self.selected_path[len(project_root):].split("/")[1:]
+
+        '''
+        current_path define <project_root + path> in loop  
+        or <current_path + path> in loop 
+        '''
+        current_path = ""
+
+        log(path_without_root)
+        log(self.sidebar)
+        log(self.directory_content_texts)
+
+        for path in path_without_root:
+            log("run 1")
+            if current_path == "":
+                current_path = project_root + path
+            else:
+                current_path = current_path + path
+
+            for content in self.directory_content_texts:
+                log("run2")
+                log(content.content_path)
+                log(current_path)
+                if content.content_path == current_path:
+                    if self.sidebar.content_states.get(f"content_{content.content_id}") is None:
+                        self.sidebar.content_states[f"content_{content.content_id}"] = "close"
+
+                    if self.sidebar.content_states[f"content_{content.content_id}"] == "close":
+                        self.sidebar.open_directory(selected_dir=content, remount_listview=False) 
+                        break
+
+    def on_list_view_selected(self, event: ListView.Selected) -> None:
+        self.selected_path = str(event.item._nodes[0].renderable)
+        self.load_file_content()
 
     def on_input_changed(self, event: Input.Changed) -> None:
         try:
@@ -88,6 +130,6 @@ class SearchFileDialog(ModalScreen):
                 elif event.key == "up":
                     result_container.listview.action_cursor_up()
                 elif event.key == "enter":
-                    pass
+                    result_container.listview.action_select_cursor()
         except NoMatches:
             pass

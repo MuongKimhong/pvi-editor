@@ -88,7 +88,7 @@ class Sidebar(Container, can_focus=True):
         self.init_dir_tree()
         yield Container(self.init_dir_tree_listview(), id="sidebar-container") 
 
-    def open_directory(self, selected_dir: DirectoryContentText) -> None:
+    def open_directory(self, selected_dir: DirectoryContentText, remount_listview=True) -> None:
         self.store["editing_path"] = selected_dir.content_path
 
         update_ini_file(
@@ -137,7 +137,9 @@ class Sidebar(Container, can_focus=True):
                 *selected_dir_contents, 
                 *contents_below_selected_dir
             ]
-            self.utils.handle_re_mount_listview()
+            if remount_listview:
+                self.utils.handle_re_mount_listview()
+
             self.content_states[f"content_{selected_dir.content_id}"] = "open"
 
     def close_directory(self, selected_dir: DirectoryContentText) -> None:
