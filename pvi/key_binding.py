@@ -256,13 +256,22 @@ class KeyBindingInNormalMode:
                     if len(files) <= MAX_FILES_PER_DIR:
                         for file in files:
                             content_paths.append(os.path.join(root, file))
+
+                def after_select_file(file_path: str, main_editor=self.main_editor, sidebar_utils=sidebar_utils):
+                    sidebar_utils.handle_re_mount_listview()
+
+                    for content in main_editor.app.query("DirectoryContentText"):
+                        if content.content_path == file_path:
+                            self.main_editor.app.query_one("Sidebar").select_file(content)
                 
                 self.main_editor.app.push_screen(
                     SearchFileDialog(
                         sidebar_contents=content_paths, 
                         directory_content_texts=list(sidebar.query("DirectoryContentText")),
+                        sidebar_utils=sidebar_utils,
                         sidebar=sidebar
-                    )
+                    ),
+                    after_select_file
                 )
             
         #### key <yy>

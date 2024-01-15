@@ -38,9 +38,10 @@ class SearchResultContainer(Container, can_focus=True):
 
 
 class SearchFileDialog(ModalScreen):
-    def __init__(self, sidebar_contents: list, directory_content_texts: list, sidebar) -> None:
+    def __init__(self, sidebar_contents: list, directory_content_texts: list, sidebar, sidebar_utils) -> None:
         self.sidebar_contents = sidebar_contents
         self.directory_content_texts = directory_content_texts
+        self.sidebar_utils = sidebar_utils
         self.sidebar = sidebar
         self.search_result_paths = []
         self.selected_path = ""
@@ -55,36 +56,69 @@ class SearchFileDialog(ModalScreen):
     def load_file_content(self) -> None:
         store = read_ini_file(file_name="stores.ini", section_name="WorkingDirectory") 
         project_root = store["project_root"]
-        path_without_root = self.selected_path[len(project_root):].split("/")[1:]
+        path_without_root = self.selected_path[len(project_root):].split("/")[1:-1]
 
-        '''
-        current_path define <project_root + path> in loop  
-        or <current_path + path> in loop 
-        '''
-        current_path = ""
-
-        log(path_without_root)
-        log(self.sidebar)
-        log(self.directory_content_texts)
+        current_path = project_root
 
         for path in path_without_root:
-            log("run 1")
-            if current_path == "":
-                current_path = project_root + path
-            else:
-                current_path = current_path + path
+            current_path = current_path + "/" + path
 
-            for content in self.directory_content_texts:
-                log("run2")
-                log(content.content_path)
-                log(current_path)
-                if content.content_path == current_path:
-                    if self.sidebar.content_states.get(f"content_{content.content_id}") is None:
-                        self.sidebar.content_states[f"content_{content.content_id}"] = "close"
+            for (index, content) in enumerate(self.sidebar.dir_tree):
+                if content["path"] == current_path:
+                    contents_above_current_path = self.sidebar.dir_tree[:index + 1]
+                    contents_below_current_path = self.sidebar.dir_tree[index + 1:]
 
-                    if self.sidebar.content_states[f"content_{content.content_id}"] == "close":
-                        self.sidebar.open_directory(selected_dir=content, remount_listview=False) 
-                        break
+                    current_path_contents = os.listdir(current_path)
+
+                    if len(current_path_contents) > 0:
+                        files_in_current_path = []
+                        directories_in_current_path = []
+
+                        for current_path_content in current_path_contents:
+                            c_layer = content["layer_level"] + 1
+                            c_path = content["path"] + "/" + current_path_content
+
+                            if os.path.isfile(c_path):
+                                files_in_current_path.append(
+                                    self.sidebar_utils.content_as_dict(
+                                        "file", current_path_content, c_layer, c_path
+                                    )
+                                )
+                            elif os.path.isdir(c_path) and current_path_content != ".git":
+                                directories_in_current_path.append(
+                                    self.sidebar_utils.content_as_dict(
+                                        "dir", current_path_content + "/", c_layer, c_path
+                                    )
+                                )
+                            
+                            current_path_contents = [
+                                *sorted(files_in_current_path, key=lambda x: x["content"]),
+                                *sorted(directories_in_current_path, key=lambda x: x["content"])
+                            ]
+                            self.sidebar.dir_tree = [
+                                *contents_above_current_path,
+                                *current_path_contents,
+                                *contents_below_current_path
+                            ]
+                            self.sidebar.content_states[f"content_{index + 1}"] = "open"
+
+        self.dismiss(self.selected_path)
+
+
+        # for path in path_without_root:
+        #     current_path = current_path + "/" + path
+
+        #     for content in self.directory_content_texts:
+        #         if content.content_path == current_path:
+        #             if self.sidebar.content_states.get(f"content_{content.content_id}") is None:
+        #                 self.sidebar.content_states[f"content_{content.content_id}"] = "close"
+
+        #             if self.sidebar.content_states[f"content_{content.content_id}"] == "close":
+        #                 self.sidebar.open_directory(selected_dir=content, remount_listview=True) 
+        #                 break
+
+        # log("dir tree")
+        # log(self.sidebar.dir_tree)
 
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         self.selected_path = str(event.item._nodes[0].renderable)
@@ -129,7 +163,8 @@ class SearchFileDialog(ModalScreen):
                     result_container.listview.action_cursor_down()
                 elif event.key == "up":
                     result_container.listview.action_cursor_up()
-                elif event.key == "enter":
+            elif len(self.search_result_paths) == 1:
+                if event.key == "enter":
                     result_container.listview.action_select_cursor()
         except NoMatches:
             pass
