@@ -183,6 +183,12 @@ class KeyBindingInNormalMode:
                         text_area.cursor_location[1]
                     )
                     text_area.move_cursor(new_location)
+            case "u": # undo
+                if len(text_area.undo_states) > 1:
+                    del text_area.undo_states[0]
+
+                    text_area.load_text(text=text_area.undo_states[0]["text"])
+                    text_area.move_cursor(text_area.undo_states[0]["cursor"])
         
         ##### key <d> or <dd>
         if key_event.key == "d" and self.main_editor.typed_key == "":

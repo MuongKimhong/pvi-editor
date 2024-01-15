@@ -45,6 +45,11 @@ class PviTextArea(TextArea):
     typing_word = ""
     suggestion_panel_focused = False
 
+    # track document, cursor before undo operation
+    old_document = ""
+    old_cursor_location = None
+    undo_states = []
+
     DEFAULT_CSS = """
     PviTextArea {
         layers: above;
@@ -103,6 +108,12 @@ class PviTextArea(TextArea):
                 event.text_area.document.text
             )
             self.change_updates = self.change_occurs
+
+        # every 5 document length differrent, update the undo states
+        if len(event.text_area.document.text) - len(self.old_document) >= 5:
+            if len(self.undo_states) >= 1:
+                self.undo_states.insert(0, {"text": event.text_area.document.text, "cursor": self.cursor_location})
+                self.old_document = event.text_area.document.text
         
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         selected_word = str(event.item._nodes[0].renderable)

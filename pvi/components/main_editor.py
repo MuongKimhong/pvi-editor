@@ -79,6 +79,10 @@ class MainEditor(Container, can_focus=True):
                 text_area.register_language(tree_sitter_language, hl_query)
 
             text_area.language = language
+        
+        # this is the last thing user can undo 
+        text_area.old_document = text_area.document.text 
+        text_area.undo_states.append({"text": text_area.document.text, "cursor": text_area.cursor_location})
 
     def handle_load_content_to_textarea(self, file_content: str, file_name: str) -> None:
         self.content_loaded = True
