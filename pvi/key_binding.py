@@ -257,12 +257,15 @@ class KeyBindingInNormalMode:
                         for file in files:
                             content_paths.append(os.path.join(root, file))
 
-                def after_select_file(file_path: str, main_editor=self.main_editor, sidebar_utils=sidebar_utils):
+                # function will be invoked after come back from SearchFileDialog Screen
+                def after_select_file(file_path: str, main_editor=self.main_editor):
                     sidebar_utils.handle_re_mount_listview()
 
                     for content in main_editor.app.query("DirectoryContentText"):
-                        if content.content_path == file_path:
-                            self.main_editor.app.query_one("Sidebar").select_file(content)
+                        if content.content_path == store["project_root"] + "/" + file_path:
+                            sidebar.select_file(content)
+                            sidebar.viewing_id = content.content_id 
+                            sidebar_utils.set_to_highlighted_or_normal()
                 
                 self.main_editor.app.push_screen(
                     SearchFileDialog(

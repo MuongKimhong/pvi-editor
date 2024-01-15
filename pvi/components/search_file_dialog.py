@@ -45,6 +45,8 @@ class SearchFileDialog(ModalScreen):
         self.sidebar = sidebar
         self.search_result_paths = []
         self.selected_path = ""
+
+        self.project_root = read_ini_file("stores.ini", "WorkingDirectory")["project_root"]
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -54,13 +56,10 @@ class SearchFileDialog(ModalScreen):
         )
 
     def load_file_content(self) -> None:
-        store = read_ini_file(file_name="stores.ini", section_name="WorkingDirectory") 
-        project_root = store["project_root"]
-        path_without_root = self.selected_path[len(project_root):].split("/")[1:-1]
+        path_split = self.selected_path.split("/")[:-1]
+        current_path = self.project_root
 
-        current_path = project_root
-
-        for path in path_without_root:
+        for path in path_split:
             current_path = current_path + "/" + path
 
             for (index, content) in enumerate(self.sidebar.dir_tree):
@@ -104,22 +103,6 @@ class SearchFileDialog(ModalScreen):
 
         self.dismiss(self.selected_path)
 
-
-        # for path in path_without_root:
-        #     current_path = current_path + "/" + path
-
-        #     for content in self.directory_content_texts:
-        #         if content.content_path == current_path:
-        #             if self.sidebar.content_states.get(f"content_{content.content_id}") is None:
-        #                 self.sidebar.content_states[f"content_{content.content_id}"] = "close"
-
-        #             if self.sidebar.content_states[f"content_{content.content_id}"] == "close":
-        #                 self.sidebar.open_directory(selected_dir=content, remount_listview=True) 
-        #                 break
-
-        # log("dir tree")
-        # log(self.sidebar.dir_tree)
-
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         self.selected_path = str(event.item._nodes[0].renderable)
         self.load_file_content()
@@ -139,7 +122,11 @@ class SearchFileDialog(ModalScreen):
             if ((event.value in content.split("/")[-1]) and 
                 (event.value != "") and 
                 (content.split("/")[-1].startswith(event.value))):           
-                self.search_result_paths.append(content)
+
+                # remove project_root from content before append
+                self.search_result_paths.append(
+                    content[len(self.project_root) + 1:]
+                )
             
         if len(self.search_result_paths) > 0:
             if len(self.search_result_paths) > 3:
@@ -151,20 +138,19 @@ class SearchFileDialog(ModalScreen):
 
             for result in self.search_result_paths:
                 list_item = ListItem(Static(result))
-                # list_item.styles.background = "#2E2929"
                 self.query_one(SearchResultContainer).listview.append(list_item)
 
     def on_key(self, event: events.Key) -> None:
         try:
             result_container = self.query_one(SearchResultContainer)
-            
-            if len(self.search_result_paths) > 1:
-                if event.key == "down":
-                    result_container.listview.action_cursor_down()
-                elif event.key == "up":
-                    result_container.listview.action_cursor_up()
-            elif len(self.search_result_paths) == 1:
-                if event.key == "enter":
-                    result_container.listview.action_select_cursor()
+            search_result_len = len(self.search_result_paths)            
+
+            if event.key == "down":
+                result_container.listview.action_cursor_down()
+            elif event.key == "up":
+                result_container.listview.action_cursor_up()
+            elif event.key == "enter":
+                event.prevent_default()
+                result_container.listview.action_select_cursor()
         except NoMatches:
             pass
