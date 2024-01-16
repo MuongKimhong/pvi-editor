@@ -2,6 +2,8 @@
 
 #### A vim like editor, built on top of [Textual](https://github.com/textualize/textual/) with all nescessary features and key bindings.
 
+![Screenshot](screenshot.png)
+
 ## Installation
 
 #### There are some new key bindings to make things easier while coding, for example:
