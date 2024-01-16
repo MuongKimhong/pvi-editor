@@ -249,7 +249,7 @@ class KeyBindingInNormalMode:
                 # during search files operation, algorithm will not search through these folders
                 COMMON_EXCLUDE_DIRS = [
                     ".git", ".svn", ".vscode", "venv", "node_modules", "dist", "__pycache__",
-                    "vendor", ".bundle", "env"
+                    "vendor", ".bundle", "env", "virtual_environment", ".idea"
                 ]
                 # search through only directory than contains less ban 30 files
                 MAX_FILES_PER_DIR = 30
