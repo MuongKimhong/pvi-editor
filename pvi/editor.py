@@ -66,14 +66,14 @@ class Editor(Screen):
         self.typed_key_timer = None
 
     def on_key(self, event: events.Key) -> None:
-        if event.key == "ctrl+b": # toggle sidebar
+        if event.key == "ctrl+b" and self.store["argument_parser_type"] == "dir": # toggle sidebar
             if self.store["editing_type"] == "dir":
                 if not self.sidebar_exists: 
                     self.mount_sidebar_to_screen()
 
                 self.toggle_sidebar()    
 
-        elif event.key == "ctrl+q":
+        elif event.key == "ctrl+q" and self.store["argument_parser_type"] == "dir":
             if self.query_one(MainEditor).editing_mode == "normal":
                 self.handle_switching_focus()
 
@@ -102,7 +102,9 @@ class Editor(Screen):
             if self.focused_main_editor is False:
                 self.typed_key = "a"
                 self.typed_key_timer = time.time()
-        elif event.key == "a" and self.typed_key == "a": # <aa> append file 
+        
+        # <aa> append file
+        elif event.key == "a" and self.typed_key == "a" and self.store["argument_parser_type"] == "dir": 
             if time.time() - self.typed_key_timer > 3:
                 self.reset_typed_key()
             else:
@@ -117,7 +119,7 @@ class Editor(Screen):
             if self.focused_main_editor is False:
                 self.typed_key = "d"
                 self.typed_key_timer = time.time()
-        elif event.key == "d" and self.typed_key == "d":
+        elif event.key == "d" and self.typed_key == "d" and self.store["argument_parser_type"] == "dir":
             if time.time() - self.typed_key_timer > 3:
                 self.reset_typed_key()
             else:

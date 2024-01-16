@@ -41,10 +41,18 @@ class MainEditor(Container, can_focus=True):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        if read_ini_file(file_name="stores.ini", section_name="WorkingDirectory")["editing_type"] == "dir":
+        store = read_ini_file(file_name="stores.ini", section_name="WorkingDirectory")
+
+        if store["argument_parser_type"] == "dir":
             yield WelcomeText(id="welcome-text")
-        
-        yield Header(id="header")
+            yield Header(id="header")
+        elif store["argument_parser_type"] == "file":
+            with open(store["editing_path"], "r") as file:
+                self.handle_load_content_to_textarea(
+                    file_content=file.read(),
+                    file_name=store["editing_path"].split("/")[-1]
+                )
+
         yield Footer(id="footer")
     
     def remove_welcome_text(self) -> None:

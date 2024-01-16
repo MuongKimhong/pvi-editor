@@ -32,11 +32,16 @@ class Footer(Input, can_focus=True):
 
     def save_file_content(self) -> None:
         store = read_ini_file(file_name="stores.ini", section_name="WorkingDirectory")
-        selected_content_index = self.app.query_one("Sidebar").viewing_id - 1
-        selected_content = self.app.query("DirectoryContentText")[selected_content_index]
 
-        if selected_content.content_type == "file":
-            with open(selected_content.content_path, "w") as file:
+        if store["argument_parser_type"] == "dir":
+            selected_content_index = self.app.query_one("Sidebar").viewing_id - 1
+            selected_content = self.app.query("DirectoryContentText")[selected_content_index]
+
+            if selected_content.content_type == "file":
+                with open(selected_content.content_path, "w") as file:
+                    file.write(self.app.query_one("#pvi-text-area").text)
+        else:
+            with open(store["editing_path"], "w") as file:
                 file.write(self.app.query_one("#pvi-text-area").text)
 
     # reset all main editor attributes, typed_key, copied_text, ..

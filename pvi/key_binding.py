@@ -94,6 +94,7 @@ class KeyBindingInSelectionMode:
 class KeyBindingInNormalMode:
     def __init__(self, main_editor):
         self.main_editor = main_editor
+        self.store = read_ini_file("stores.ini", "WorkingDirectory")
 
     def enter_insert_mode(self, text_area) -> None:
         self.main_editor.editing_mode = "insert"
@@ -236,13 +237,16 @@ class KeyBindingInNormalMode:
                 text_area.selection = Selection(
                     start=self.main_editor.selection_start, end=text_area.cursor_location
                 )
-        
-        elif key_event.key == "s" and self.main_editor.typed_key == "s": # <ss> open search file dialog
+
+        # <ss> open search file dialog 
+        elif ((key_event.key == "s") and 
+              (self.main_editor.typed_key == "s") and 
+              (self.store["argument_parser_type"] == "dir")):
+              
             if time.time() - self.main_editor.typed_key_timer > 3:
                 self.main_editor.reset_typed_key()
             else:
                 self.main_editor.typed_key = ""
-                store = read_ini_file(file_name="stores.ini", section_name="WorkingDirectory")
                 sidebar = self.main_editor.app.query_one("Sidebar")
                 sidebar_utils = SidebarUtils(sidebar=sidebar)
 
@@ -256,7 +260,7 @@ class KeyBindingInNormalMode:
 
                 content_paths = []
 
-                for root, dirs, files in os.walk(store["project_root"]):
+                for root, dirs, files in os.walk(self.store["project_root"]):
                     dirs[:] = [d for d in dirs if not any(d.startswith(p) for p in COMMON_EXCLUDE_DIRS)]
 
                     if len(files) <= MAX_FILES_PER_DIR:
@@ -264,7 +268,7 @@ class KeyBindingInNormalMode:
                             content_paths.append(os.path.join(root, file))
 
                 # function will be invoked after come back from SearchFileDialog Screen
-                def after_select_file(file_path: str, main_editor=self.main_editor):
+                def after_select_file(file_path: str, main_editor=self.main_editor, store=self.store):
                     sidebar_utils.handle_re_mount_listview()
 
                     for content in main_editor.app.query("DirectoryContentText"):
