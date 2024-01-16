@@ -166,19 +166,26 @@ class Sidebar(Container, can_focus=True):
             self.close_directory(selected_dir=selected_dir)
 
     def select_file(self, selected_content: DirectoryContentText) -> None:
-        for content in self.query("DirectoryContentText"):
-            if content.content_id == selected_content.content_id:
-                content.file_opened = True
-                content.set_to_highlighted_after_selected_file()
-            else:
-                content_file_opened = False
+        not_spp_extension = [
+            "png", "jpeg", "jpg", "JPEG", "JPG", "mp4", "mp3", "mov",
+            "avi", "gif", "tiff", "bmp", "wmv", "flv", "mkv", "ogg",
+            "wav", "wma", "flac", "aac", "docx", "doc", "xls", "xlsx"
+        ]
 
-        with open(selected_content.content_path, "r") as file:
-            self.app.query_one("MainEditor").handle_load_content_to_textarea(
-                file_content=file.read(),
-                file_name=selected_content.content_name
-            )
-            self.app.query_one("#header-text").update(selected_content.content_path)
+        if selected_content.content_name.split(".")[-1] not in not_spp_extension:
+            for content in self.query("DirectoryContentText"):
+                if content.content_id == selected_content.content_id:
+                    content.file_opened = True
+                    content.set_to_highlighted_after_selected_file()
+                else:
+                    content_file_opened = False
+
+            with open(selected_content.content_path, "r") as file:
+                self.app.query_one("MainEditor").handle_load_content_to_textarea(
+                    file_content=file.read(),
+                    file_name=selected_content.content_name
+                )
+                self.app.query_one("#header-text").update(selected_content.content_path)
 
     def hide_sidebar(self) -> None:
         self.styles.width = 0
