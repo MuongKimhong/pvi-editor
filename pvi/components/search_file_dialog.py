@@ -91,8 +91,8 @@ class SearchFileDialog(ModalScreen):
                                 )
                             
                             current_path_contents = [
-                                *sorted(files_in_current_path, key=lambda x: x["content"]),
-                                *sorted(directories_in_current_path, key=lambda x: x["content"])
+                                *sorted(directories_in_current_path, key=lambda x: x["content"]),
+                                *sorted(files_in_current_path, key=lambda x: x["content"])
                             ]
                             self.sidebar.dir_tree = [
                                 *contents_above_current_path,

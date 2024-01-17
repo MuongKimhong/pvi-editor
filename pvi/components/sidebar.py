@@ -129,8 +129,8 @@ class Sidebar(Container, can_focus=True):
                 self.styles.width = self.styles.width.value + 2
 
             selected_dir_contents = [
-                *sorted(files_in_selected_dir_contents, key=lambda x: x["content"]),
-                *sorted(directories_in_selected_dir_contents, key=lambda x: x["content"])
+                *sorted(directories_in_selected_dir_contents, key=lambda x: x["content"]),
+                *sorted(files_in_selected_dir_contents, key=lambda x: x["content"])
             ]
             self.dir_tree = [
                 *contents_above_selected_dir, 
