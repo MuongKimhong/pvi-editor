@@ -28,7 +28,7 @@ def update_ini_file(file_name: str, section_name: str, section_data: dict) -> No
 
 
 class SidebarUtils:
-    def __init__(self, sidebar) -> None:
+    def __init__(self, sidebar: "Sidebar") -> None:
         self.sidebar = sidebar
 
     def set_sidebar_style(self) -> None:

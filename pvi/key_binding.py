@@ -11,7 +11,7 @@ from utils import read_ini_file, SidebarUtils
 
 
 class KeyBindingInSelectionMode:
-    def __init__(self, main_editor):
+    def __init__(self, main_editor: "MainEditor"):
         self.main_editor = main_editor
 
     def cancel_selection(self, text_area, old_cursor_location=None) -> None:
