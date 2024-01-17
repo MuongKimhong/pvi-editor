@@ -83,6 +83,3 @@ class SidebarInput(Input):
 
         elif event.key == "enter":
             self.create_new_file_or_dir() 
- 
-    def on_focus(self, event: events.Focus) -> None:
-        pass

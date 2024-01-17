@@ -1,6 +1,6 @@
 from textual.app import ComposeResult
 from textual.widgets import Input
-from textual import events, log
+from textual import events
 
 from utils import read_ini_file
 

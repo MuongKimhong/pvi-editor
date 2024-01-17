@@ -22,7 +22,7 @@ class Main(App):
             "argument_parser_type": None
         }
 
-        '''testing'''
+        # pvi -d some_directory
         if self.cli_argument["directory"]:
             if os.path.exists(self.cli_argument["directory"]) and os.path.isdir(self.cli_argument["directory"]):
                 section_data["editing_path"] = f"{os.getcwd()}/{self.cli_argument['directory']}"

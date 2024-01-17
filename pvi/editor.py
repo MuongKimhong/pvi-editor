@@ -187,12 +187,3 @@ class Editor(Screen):
 
         elif event.key == "escape":
             self.typed_key = ""
-                        
-    def on_mount(self, event: events.Mount) -> None:
-        pass
-
-    def on_screen_resume(self, event: events.ScreenResume) -> None:
-        pass
-
-    def on_screen_suspend(self, event: events.ScreenSuspend) -> None:
-        pass

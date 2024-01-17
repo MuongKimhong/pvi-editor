@@ -56,7 +56,7 @@ class SidebarUtils:
             else:
                 content.set_to_normal()
 
-    # re_mount the listview in sidebar whenever user open a directory
+    # re_mount the listview in sidebar
     def handle_re_mount_listview(self):
         dir_tree_listview = self.sidebar.init_dir_tree_listview() 
         self.sidebar.query_one(ListView).remove()

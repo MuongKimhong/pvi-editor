@@ -156,8 +156,6 @@ class Sidebar(Container, can_focus=True):
         self.utils.handle_re_mount_listview()
         self.content_states[f"content_{selected_dir.content_id}"] = "close"
 
-    # get selected directory from store.ini
-    # as it's already updated via update_store_ini_file function
     def select_directory(self, selected_dir: DirectoryContentText) -> None:
         if self.content_states[f"content_{selected_dir.content_id}"] == "close":
             self.open_directory(selected_dir=selected_dir)

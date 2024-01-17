@@ -1,7 +1,7 @@
 from textual.containers import Container
 from textual.app import ComposeResult
 from textual.widgets import Static
-from textual import events, log
+from textual import events
 from rich.style import Style
 
 
@@ -13,11 +13,11 @@ class DirectoryContentText(Container):
                 layer_level: int,
                 content_path: str) -> None:
 
-        self.content_name: str = content_name
-        self.content_type: str = content_type
-        self.content_id: int = content_id
-        self.content_path: str = content_path
-        self.layer_level: int = layer_level + 1 if layer_level > 0 else 0
+        self.content_name = content_name
+        self.content_type = content_type
+        self.content_id = content_id
+        self.content_path = content_path
+        self.layer_level = layer_level + 1 if layer_level > 0 else 0
         self.file_opened = False
         super().__init__()
 

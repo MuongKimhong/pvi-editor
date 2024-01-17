@@ -9,13 +9,15 @@ from textual.widgets import Button, Static, Label
 from textual.screen import ModalScreen
 from textual.app import ComposeResult
 from textual.containers import Grid
-from textual import events, log
+from textual import events
 import shutil
 import os
 
+from components.directory_content_text import DirectoryContentText
+
 
 class DeleteDialog(ModalScreen):
-    def __init__(self, content_to_delete) -> None:
+    def __init__(self, content_to_delete: DirectoryContentText) -> None:
         self.content_to_delete = content_to_delete
         super().__init__()
 

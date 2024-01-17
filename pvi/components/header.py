@@ -1,7 +1,7 @@
 from textual.containers import Container
 from textual.app import ComposeResult
 from textual.widgets import Static
-from textual import log, events
+from textual import events
 
 from utils import read_ini_file
 
@@ -29,11 +29,4 @@ class Header(Container):
         yield Static("PVI Editor", id="header-text")
 
     def on_mount(self, event: events.Mount) -> None:
-        self.set_style()
-
-    def on_focus(self, event: events.Focus) -> None:
-        pass
-
-    def on_blur(self, event: events.Blur) -> None:
-        pass
-  
+        self.set_style() 
