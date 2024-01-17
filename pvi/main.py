@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 from textual.widgets import TextArea, Static
 from textual.app import App, ComposeResult
 from textual import events, log
