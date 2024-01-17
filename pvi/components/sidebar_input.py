@@ -9,6 +9,7 @@ from textual.app import ComposeResult
 from textual.widgets import Input
 from textual import events, log
 
+from components.directory_content_text import DirectoryContentText
 from utils import read_ini_file
 
 from pathlib import Path
@@ -17,7 +18,7 @@ import os
 
 
 class SidebarInput(Input):
-    def __init__(self, highlighted_content) -> None:
+    def __init__(self, highlighted_content: DirectoryContentText) -> None:
         self.highlighted_content = highlighted_content
         self.store = read_ini_file(file_name="stores.ini", section_name="WorkingDirectory")
         super().__init__()

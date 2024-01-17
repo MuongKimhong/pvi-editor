@@ -92,7 +92,7 @@ class KeyBindingInSelectionMode:
 
 
 class KeyBindingInNormalMode:
-    def __init__(self, main_editor):
+    def __init__(self, main_editor: "MainEditor"):
         self.main_editor = main_editor
         self.store = read_ini_file("stores.ini", "WorkingDirectory")
 

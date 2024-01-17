@@ -56,7 +56,7 @@ class PviTextArea(TextArea):
     } 
     """
 
-    def handle_autocomplete_symbol(self, character) -> None:
+    def handle_autocomplete_symbol(self, character: str) -> None:
         match character:
             case "{":
                 text = "}"
