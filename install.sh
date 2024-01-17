@@ -9,7 +9,9 @@ git clone https://github.com/MuongKimhong/pvi-editor.git
 
 cd pvi-editor
 
-poetry install --user
+poetry install
+
+pip install .
 
 echo -e "\e[1;32m[INFO] Creating pvi command"
 sudo ln -s "$(pwd)/pvi/main.py" /usr/local/bin/pvi
