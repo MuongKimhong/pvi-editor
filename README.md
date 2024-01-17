@@ -20,8 +20,7 @@ See key bindings for more details.
 - `<j>` move down in sidebar if sidebar is focused
 - `<k>` move up in sidebar if sidebar is focused
 - `<dd>` delete file or directory in sidebar if sidebar is focused
-- `<af>` create new file in sidebar if sidebar is focused
-- `<ad>` create new directory in sidebar if sidebar is focused
+- `<aa>` create new file or directory in sidebar if sidebar is focused
 #### Editor
 - `<j>` move down
 - `<k>` move up
