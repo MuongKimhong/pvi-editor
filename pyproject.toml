@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "pvi"
 version = "0.1.0"
-description = ""
+description = "A Vim like editor built with python"
 authors = ["MuongKimhong <muongkimhong086@gmail.com>"]
 readme = "README.md"
 
@@ -13,6 +13,8 @@ tree-sitter-languages = "^1.8.0"
 numpy = "^1.26.2"
 jedi = "^0.19.1"
 
+[tool.poetry.scripts]
+pvi = "pvi.pvi.main:main"
 
 [build-system]
 requires = ["poetry-core"]
