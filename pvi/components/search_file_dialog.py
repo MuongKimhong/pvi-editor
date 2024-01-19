@@ -141,6 +141,8 @@ class SearchFileDialog(ModalScreen):
                 self.query_one(SearchResultContainer).listview.append(list_item)
 
     def on_key(self, event: events.Key) -> None:
+        if event.key == "escape": self.dismiss()
+
         try:
             result_container = self.query_one(SearchResultContainer)
             search_result_len = len(self.search_result_paths)            
