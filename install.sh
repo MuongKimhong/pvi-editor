@@ -1,17 +1,19 @@
 #!/bin/bash
 
 # install poetry
+echo -e "\e[1;32m\n[INFO] Installing Poetry for Python3\n"
 curl -sSL https://install.python-poetry.org | python3 -
 
 # Clone your GitHub repository
-echo -e "\e[1;32m[INFO] Cloning pvi-editor"
-git clone https://github.com/MuongKimhong/pvi-editor.git
+echo -e "\e[1;32m\n[INFO] Cloning pvi-editor\n"
+repository_url="https://github.com/MuongKimhong/pvi-editor.git"
+git clone "$repository_url" "$HOME/pvi-editor"
 
-cd pvi-editor
+cd "$HOME/pvi-editor"
 
 poetry install
 
-pip install .
+
 
 echo -e "\e[1;32m[INFO] Creating pvi command"
 sudo ln -s "$(pwd)/pvi/main.py" /usr/local/bin/pvi
