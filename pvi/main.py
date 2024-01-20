@@ -22,7 +22,6 @@ class Main(App):
             "project_root": None, 
             "argument_parser_type": None
         }
-
         # pvi -d some_directory
         if self.cli_argument["directory"]:
             if os.path.exists(self.cli_argument["directory"]) and os.path.isdir(self.cli_argument["directory"]):
@@ -30,6 +29,10 @@ class Main(App):
                 section_data["project_root"] = f"{os.getcwd()}/{self.cli_argument['directory']}"
                 section_data["editing_type"] = "dir"
                 section_data["argument_parser_type"] = "dir"
+            else:
+                raise Exception(f'''
+                \n[Error] No directory found. "{self.cli_argument['file_or_current_directory']}".\n 
+                ''')
         
         elif self.cli_argument["file_or_current_directory"]:
             # pvi .  : open current directory
@@ -38,20 +41,24 @@ class Main(App):
                 section_data["project_root"] = os.getcwd()
                 section_data["editing_type"] = "dir"
                 section_data["argument_parser_type"] = "dir"
-            
-            # pvi somefile.py : open somefile.py
-            elif os.path.exists(self.cli_argument["file_or_current_directory"]):
-                if os.path.isfile(self.cli_argument["file_or_current_directory"]):
-                    section_data["editing_path"] = f"{os.getcwd()}/{self.cli_argument['file_or_current_directory']}"
-                    section_data["project_root"] = os.getcwd()
-                    section_data["editing_type"] = "file"
-                    section_data["argument_parser_type"] = "file"
+
+            else: 
+                # pvi somefile.py : open somefile.py
+                if os.path.exists(self.cli_argument["file_or_current_directory"]):
+                    if os.path.isfile(self.cli_argument["file_or_current_directory"]):
+                        section_data["editing_path"] = f"{os.getcwd()}/{self.cli_argument['file_or_current_directory']}"
+                        section_data["project_root"] = os.getcwd()
+                        section_data["editing_type"] = "file"
+                        section_data["argument_parser_type"] = "file"
+                else:
+                    raise Exception(f'''
+                    \n[Error] No such file "{self.cli_argument['file_or_current_directory']}".\n 
+                    ''')
         
         else:
             raise Exception('''
             \n[Error] The provided argument is not supported! Please check the documentation for more detail.\n
             ''')
-
         update_ini_file(file_name="stores.ini", section_name="WorkingDirectory", section_data=section_data)
 
         self.install_screen(Editor, "editor")
