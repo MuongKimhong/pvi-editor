@@ -12,7 +12,7 @@ git clone "$repository_url" "$HOME/pvi-editor"
 # Download pvi.sh
 sudo curl -o /usr/local/bin/pvi "https://raw.githubusercontent.com/MuongKimhong/pvi-editor/master/pvi.sh"
 
-chmod +x /usr/local/bin/pvi
+sudo chmod +x /usr/local/bin/pvi
 
 cd "$HOME/pvi-editor"
 
