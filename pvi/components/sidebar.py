@@ -167,7 +167,8 @@ class Sidebar(Container, can_focus=True):
         not_spp_extension = [
             "png", "jpeg", "jpg", "JPEG", "JPG", "mp4", "mp3", "mov",
             "avi", "gif", "tiff", "bmp", "wmv", "flv", "mkv", "ogg",
-            "wav", "wma", "flac", "aac", "docx", "doc", "xls", "xlsx"
+            "wav", "wma", "flac", "aac", "docx", "doc", "xls", "xlsx",
+            "pdf"
         ]
 
         if selected_content.content_name.split(".")[-1] not in not_spp_extension:
@@ -184,6 +185,13 @@ class Sidebar(Container, can_focus=True):
                     file_name=selected_content.content_name
                 )
                 self.app.query_one("#header-text").update(selected_content.content_path)
+
+                self.store["editing_path"] = selected_content.content_path
+                update_ini_file(
+                    file_name="stores.ini", 
+                    section_name="WorkingDirectory", 
+                    section_data=self.store
+                )
 
     def hide_sidebar(self) -> None:
         self.styles.width = 0
