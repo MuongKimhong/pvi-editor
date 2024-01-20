@@ -2,7 +2,7 @@ from textual.widgets import TextArea, Static, ListView, ListItem
 from textual.containers import Container
 from textual.css.query import NoMatches
 from textual.geometry import Offset
-from textual import events, log
+from textual import events
 
 from autocomplete import AutoComplete
 import time
@@ -99,10 +99,10 @@ class PviTextArea(TextArea):
         self.theme = "my_theme"
         self.remove_suggestion_from_dom()
 
-    # update the suggestion words every 10 changes
     def on_text_area_changed(self, event: TextArea.Changed) -> None:
         self.change_occurs = self.change_occurs + 1
 
+        # update the suggestion words every 10 changes
         if (self.change_occurs - self.change_updates) >= 10:
             self.suggestion_words = self.autocomplete_engine.get_suggestion(
                 event.text_area.document.text
@@ -110,7 +110,9 @@ class PviTextArea(TextArea):
             self.change_updates = self.change_occurs
 
         # every 5 document length differrent, update the undo states
-        if len(event.text_area.document.text) - len(self.old_document) >= 5:
+        if ((len(event.text_area.document.text) - len(self.old_document) >= 5) or
+            (len(self.old_document) - len(event.text_area.document.text) >= 5)):
+
             if len(self.undo_states) >= 1:
                 self.undo_states.insert(0, {"text": event.text_area.document.text, "cursor": self.cursor_location})
                 self.old_document = event.text_area.document.text
@@ -121,29 +123,23 @@ class PviTextArea(TextArea):
         replacement_text = replacement_line[self.cursor_location[1]:]
          
         if replacement_text == "":
-            self.replace(
-                insert=selected_word,
-                start=(self.cursor_location[0], self.cursor_location[1] - len(self.typing_word)),
-                end=(self.cursor_location[0], self.cursor_location[1] + len(selected_word))
-            )    
-            self.move_cursor(
-                (
-                    self.cursor_location[0], 
-                    self.cursor_location[1] + len(selected_word)
-                )
+            insert_word = selected_word
+            start = (self.cursor_location[0], self.cursor_location[1] - len(self.typing_word))
+            end = (self.cursor_location[0], self.cursor_location[1] + len(selected_word))
+            cursor_location = (
+                self.cursor_location[0], 
+                self.cursor_location[1] + len(selected_word)
             )
         else:
-            self.replace(
-                insert=selected_word + replacement_text,
-                start=(self.cursor_location[0], self.cursor_location[1] - len(self.typing_word)),
-                end=self.get_cursor_line_end_location()
+            insert_word = selected_word + replacement_text
+            start = (self.cursor_location[0], self.cursor_location[1] - len(self.typing_word))
+            end = self.get_cursor_line_end_location()
+            cursor_location = (
+                self.cursor_location[0], 
+                self.cursor_location[1] + len(selected_word) - len(self.typing_word)
             )
-            self.move_cursor(
-                (
-                    self.cursor_location[0], 
-                    self.cursor_location[1] + len(selected_word) - len(self.typing_word)
-                )
-            ) 
+        self.replace(insert=insert_word, start=start, end=end)
+        self.move_cursor(cursor_location)
         self.typing_word = ""
         self.remove_suggestion_from_dom()
 

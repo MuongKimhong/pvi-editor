@@ -38,8 +38,8 @@ class SidebarUtils:
         self.sidebar.styles.border_right = (style["border_right_style"], f"#{style['border_right_color']}")
         self.sidebar.styles.width = int(style["max_width"])
 
-    # used to represent each file and directory in sidebar
-    # before changed to DirectoryContentText widget
+    # used to represent each file and directory in sidebar for dir_tree
+    # before changed to DirectoryContentText widget for dir_tree_listview
     def content_as_dict(self, c_type: str, content: str, layer_level: int, c_path: str) -> dict:
         return {
             "type": c_type,

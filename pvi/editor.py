@@ -3,7 +3,7 @@ from textual.containers import Container
 from textual.css.query import NoMatches
 from textual.app import ComposeResult
 from textual.screen import Screen
-from textual import events, log
+from textual import events
 
 from components.delete_dialog import DeleteDialog
 from components.main_editor import MainEditor

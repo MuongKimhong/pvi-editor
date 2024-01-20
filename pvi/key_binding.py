@@ -1,6 +1,5 @@
-from textual.widgets import ListItem
 from textual.widgets.text_area import Selection
-from textual import log
+from textual.widgets import ListItem
 import numpy
 import time
 import os
@@ -80,7 +79,6 @@ class KeyBindingInSelectionMode:
 
             case "d": # delete selected text
                 if text_area.selected_text != "":
-                    log("d in selection pressed")
                     old_cursor_location = text_area.cursor_location
                     text_area.delete(
                         start=self.main_editor.selection_start, end=text_area.cursor_location
