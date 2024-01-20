@@ -13,11 +13,9 @@ from textual import events
 import shutil
 import os
 
-from components.directory_content_text import DirectoryContentText
-
 
 class DeleteDialog(ModalScreen):
-    def __init__(self, content_to_delete: DirectoryContentText) -> None:
+    def __init__(self, content_to_delete: "DirectoryContentText") -> None:
         self.content_to_delete = content_to_delete
         super().__init__()
 

@@ -45,6 +45,3 @@ class DirectoryContentText(Container):
 
     def on_mount(self, event: events.Mount) -> None:
         self.query_one(Static).styles.padding = (0, 0, 0, self.layer_level)
-
-    def __str__(self):
-        return f"{self.content_name} - {self.content_id}"

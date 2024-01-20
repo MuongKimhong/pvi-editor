@@ -7,13 +7,12 @@
 
 from textual.app import ComposeResult
 from textual.widgets import Input
-from textual import events, log
+from textual import events
 
 from components.directory_content_text import DirectoryContentText
 from utils import read_ini_file
 
 from pathlib import Path
-import time
 import os
 
 
@@ -37,9 +36,7 @@ class SidebarInput(Input):
         if self.highlighted_content.content_type == "file":
             parent_path = os.path.dirname(self.highlighted_content.content_path)
             new_data_path = parent_path + "/" + data_to_create
-
-            if parent_path == self.store["project_root"]:
-                in_project_root = True
+            in_project_root = True if parent_path == self.store["project_root"] else False
         else:
             new_data_path = self.highlighted_content.content_path + "/" + data_to_create
 

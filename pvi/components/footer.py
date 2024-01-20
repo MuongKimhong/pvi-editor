@@ -1,3 +1,4 @@
+from textual.css.query import NoMatches
 from textual.app import ComposeResult
 from textual.widgets import Input
 from textual import events
@@ -31,18 +32,14 @@ class Footer(Input, can_focus=True):
         self.app.query_one("MainEditor").focus()
 
     def save_file_content(self) -> None:
-        store = read_ini_file(file_name="stores.ini", section_name="WorkingDirectory")
+        try:
+            text_area = self.app.query_one("#pvi-text-area")
+            store = read_ini_file(file_name="stores.ini", section_name="WorkingDirectory")
 
-        if store["argument_parser_type"] == "dir":
-            selected_content_index = self.app.query_one("Sidebar").viewing_id - 1
-            selected_content = self.app.query("DirectoryContentText")[selected_content_index]
-
-            if selected_content.content_type == "file":
-                with open(selected_content.content_path, "w") as file:
-                    file.write(self.app.query_one("#pvi-text-area").text)
-        else:
             with open(store["editing_path"], "w") as file:
-                file.write(self.app.query_one("#pvi-text-area").text)
+                file.write(text_area.text)
+        except NoMatches:
+            pass
 
     # reset all main editor attributes, typed_key, copied_text, ..
     def reinit_main_editor_attribute(self) -> None:
