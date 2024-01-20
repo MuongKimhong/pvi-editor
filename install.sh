@@ -10,7 +10,7 @@ repository_url="https://github.com/MuongKimhong/pvi-editor.git"
 git clone "$repository_url" "$HOME/pvi-editor"
 
 # Download pvi.sh
-curl -o /usr/local/bin/pvi "https://raw.githubusercontent.com/MuongKimhong/pvi-editor/master/pvi.sh"
+sudo curl -o /usr/local/bin/pvi "https://raw.githubusercontent.com/MuongKimhong/pvi-editor/master/pvi.sh"
 
 chmod +x /usr/local/bin/pvi
 
