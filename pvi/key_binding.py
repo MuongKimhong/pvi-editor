@@ -16,7 +16,7 @@ class KeyBindingInSelectionMode:
     def cancel_selection(self, text_area, old_cursor_location=None) -> None:
         self.main_editor.selection_start = None
         self.main_editor.editing_mode = "normal"
-        self.main_editor.app.query_one("#footer").change_value(value="--normal--")
+        self.main_editor.app.query_one("#footer").change_value(value="-- NORMAL --")
 
         if old_cursor_location is not None:
             text_area.selection = Selection(
@@ -96,12 +96,12 @@ class KeyBindingInNormalMode:
 
     def enter_insert_mode(self, text_area) -> None:
         self.main_editor.editing_mode = "insert"
-        self.main_editor.app.query_one("#footer").change_value(value="--insert--")
+        self.main_editor.app.query_one("#footer").change_value(value="-- INSERT --")
         text_area.focus()
 
     def enter_selection_mode(self, text_area) -> None:
         self.main_editor.editing_mode = "selection"
-        self.main_editor.app.query_one("#footer").change_value(value="--selection--")
+        self.main_editor.app.query_one("#footer").change_value(value="-- SELECTION --")
         self.main_editor.selection_start = text_area.cursor_location
         text_area.selection = Selection(start=text_area.cursor_location, end=text_area.cursor_location)
 
@@ -216,7 +216,7 @@ class KeyBindingInNormalMode:
             else:
                 self.main_editor.typed_key = ""
                 self.main_editor.editing_mode = "selection"
-                self.main_editor.app.query_one("#footer").change_value(value="--selection--")
+                self.main_editor.app.query_one("#footer").change_value(value="-- SELECTION --")
                 self.main_editor.selection_start = (0, 0)
                 text_area.move_cursor((0, 0)) # move to first line 
                 text_area.action_select_all()
@@ -227,7 +227,7 @@ class KeyBindingInNormalMode:
             else:
                 self.main_editor.typed_key = ""
                 self.main_editor.editing_mode = "selection"
-                self.main_editor.app.query_one("#footer").change_value(value="--selection--")
+                self.main_editor.app.query_one("#footer").change_value(value="-- SELECTION --")
 
                 text_area.action_cursor_line_start()
                 self.main_editor.selection_start = text_area.cursor_location

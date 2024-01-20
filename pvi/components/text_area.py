@@ -146,7 +146,7 @@ class PviTextArea(TextArea):
     def on_key(self, event: events.Key) -> None:
         if event.key == "escape":
             self.blur()
-            self.app.query_one("#footer").change_value(value="--normal--") 
+            self.app.query_one("#footer").change_value(value="-- NORMAL --") 
 
         elif event.character in self.autocomplete_symbol:
             self.handle_autocomplete_symbol(character=event.character)
