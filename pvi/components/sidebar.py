@@ -37,7 +37,7 @@ class Sidebar(Container, can_focus=True):
         super().__init__()
 
     def list_item(self, content: dict, c_id: int) -> ListItem:
-        class_name = "filelistitem" if c_type == "file" else "dirlistitem"
+        class_name = "filelistitem" if content["type"] == "file" else "dirlistitem"
 
         dc = DirectoryContentText(
             content["content"], 

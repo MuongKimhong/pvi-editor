@@ -114,7 +114,7 @@ class Editor(Screen):
                 self.typed_key = ""
         #### end block key <aa>
 
-        ### black key <dd>
+        ### block key <dd>
         elif event.key == "d" and self.typed_key == "":
             if self.focused_main_editor is False:
                 self.typed_key = "d"
@@ -165,6 +165,7 @@ class Editor(Screen):
                                     break
   
                 self.app.push_screen(DeleteDialog(content_to_delete=content_to_delete), after_delete_action)
+        ### end block key <dd>
     
         elif event.key == "enter":
             if self.focused_main_editor:

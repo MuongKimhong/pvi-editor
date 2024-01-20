@@ -28,13 +28,17 @@ class SidebarInput(Input):
     def create_new_file_or_dir(self) -> None:
         type_to_create = "file" if "." in self.value else "dir"
         sidebar = self.app.query_one("Sidebar")
-        in_project_root = False
+        in_project_root = False        
 
         # check path to create
         if self.highlighted_content.content_type == "file":
             parent_path = os.path.dirname(self.highlighted_content.content_path)
+
+            if parent_path == self.store["project_root"]:
+                in_project_root = True
+
+            # path for file or directory that is about to create
             new_data_path = parent_path + "/" + self.value
-            in_project_root = True if parent_path == self.store["project_root"] else False
         else:
             new_data_path = self.highlighted_content.content_path + "/" + self.value
 
@@ -62,8 +66,11 @@ class SidebarInput(Input):
             sidebar.dir_tree = [*sidebar.all_directories, *sidebar.all_files]
             sidebar.utils.handle_re_mount_listview()
         else:
-            sidebar.close_directory(selected_dir=self.highlighted_content)
-            sidebar.open_directory(selected_dir=self.highlighted_content)
+            for content in sidebar.query("DirectoryContentText"):
+                if content.content_path == str(Path(self.highlighted_content.content_path).parent):
+                    sidebar.close_directory(content)
+                    sidebar.open_directory(content)
+                    break
 
         sidebar.highlighted_content = None
         sidebar.focus()
