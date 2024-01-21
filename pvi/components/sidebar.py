@@ -9,6 +9,7 @@ from utils import SidebarUtils
 
 from components.directory_content_text import DirectoryContentText
 from components.sidebar_input import SidebarInput
+from textual.color import Color
 
 import time
 import os
@@ -17,7 +18,7 @@ import os
 class Sidebar(Container, can_focus=True):
     DEFAULT_CSS = """
     Sidebar #listview {
-        background: #181717;
+        background: #131212;
     }
     """
     def __init__(self, dir_tree: list):

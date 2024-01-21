@@ -23,6 +23,7 @@ class SidebarInput(Input):
 
     def set_style(self) -> None:
         self.styles.border = ("solid", "white")
+        self.styles.background = "#131212"
 
     # highlighted_content in sidebar when create_new_file is called
     def create_new_file_or_dir(self) -> None:
