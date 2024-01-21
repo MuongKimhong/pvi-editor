@@ -1,13 +1,13 @@
 Screen {
     layout: grid;
     grid-size: 1;
-    background: #181717;
+    background: #131212;
 }
 
 Sidebar {
     dock: left;
     height: 100%;
-    border: round #181717;
+    border: round #131212;
     border-right: round grey;
     border-top: round grey;
     padding-top: 0;
@@ -16,7 +16,7 @@ Sidebar {
 
 #editor {
     height: 100%;
-    background: #181717;
+    background: #131212;
 }
 
 WelcomeText {
@@ -31,7 +31,7 @@ WelcomeText #happy-coding {
 
 DeleteDialog {
     align: center middle;
-    background: #181717 50%;
+    background: #131212 50%;
 } 
 #dialog {
     grid-size: 2;
@@ -55,7 +55,7 @@ Button {
 
 SearchFileDialog {
     align: center top;
-    background: #181717 50%;
+    background: #131212 50%;
     height: 0;
 } 
 #search-dialog {

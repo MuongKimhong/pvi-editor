@@ -1,11 +1,16 @@
 #!/bin/bash
 
+RED='\033[0;31m'
+CYAN='\033[0;36m'
+GREEN='\033[0;32m]'
+NC='\033[0m' # No Color
+
 # install poetry
-echo -e "\e[1;32m\n[INFO] Installing Poetry for Python3\n"
+echo -e "${GREEN}[INFO] Installing Poetry for Python3\n${NC}"
 curl -sSL https://install.python-poetry.org | python3 -
 
 # Clone pvi GitHub repository
-echo -e "\e[1;32m\n[INFO] Cloning pvi-editor\n"
+echo -e "${GREEN}[INFO] Cloning pvi-editor\n${NC}"
 repository_url="https://github.com/MuongKimhong/pvi-editor.git"
 git clone "$repository_url" "$HOME/pvi-editor"
 
@@ -18,9 +23,9 @@ cd "$HOME/pvi-editor"
 
 poetry install
 
-echo -e "\e[1;32m\n[INFO] Installation completed\n"
-echo -e "\e[1;36m- run: pvi file.py to open file.py and edit"
-echo -e "\e[1;36m- run: pvi . to open current directory"
-echo -e "\e[1;36m- run: pvi -d somedirectory to open somedirectory"
+echo -e "${CYAN}[INFO] Installation completed\n"
+echo -e "${CYAN}- run: pvi file.py to open file.py and edit"
+echo -e "${CYAN}- run: pvi . to open current directory"
+echo -e "${CYAN}- run: pvi -d somedirectory to open somedirectory"
 
-echo -e "\e[1;36m\nVist https://github.com/MuongKimhong/pvi-editor for more info.\n"
+echo -e "${CYAN}\nVist https://github.com/MuongKimhong/pvi-editor for more info.\n"

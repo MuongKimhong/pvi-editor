@@ -2,13 +2,14 @@ from textual.widgets import Static, ListView, ListItem
 from textual.containers import Container
 from textual.app import ComposeResult
 from textual.widget import Widget
-from textual import log, events
+from textual import events
 
 from utils import read_ini_file, update_ini_file
 from utils import SidebarUtils
 
 from components.directory_content_text import DirectoryContentText
 from components.sidebar_input import SidebarInput
+from textual.color import Color
 
 import time
 import os
@@ -17,7 +18,7 @@ import os
 class Sidebar(Container, can_focus=True):
     DEFAULT_CSS = """
     Sidebar #listview {
-        background: #181717;
+        background: #131212;
     }
     """
     def __init__(self, dir_tree: list):
@@ -36,12 +37,12 @@ class Sidebar(Container, can_focus=True):
         self.highlighted_content: DirectoryContentText | None = None
         super().__init__()
 
-    def list_item(self, content, c_id, c_type) -> ListItem:
-        class_name = "filelistitem" if c_type == "file" else "dirlistitem"
+    def list_item(self, content: dict, c_id: int) -> ListItem:
+        class_name = "filelistitem" if content["type"] == "file" else "dirlistitem"
 
         dc = DirectoryContentText(
             content["content"], 
-            c_type, 
+            content["type"], 
             c_id, 
             content["layer_level"], 
             content["path"]
@@ -60,10 +61,9 @@ class Sidebar(Container, can_focus=True):
                 self.all_directories.append(
                     self.utils.content_as_dict("dir", f"{content}/", 0, path)
                 )
-
         self.all_files = sorted(self.all_files, key=lambda x: x["content"])
         self.all_directories = sorted(self.all_directories, key=lambda x: x["content"])
-        self.dir_tree = self.all_directories + self.all_files 
+        self.dir_tree = [*self.all_directories, *self.all_files]
 
     def init_dir_tree_listview(self) -> ListView:
         dir_tree_listview = ListView(*[], id="listview")
@@ -74,14 +74,7 @@ class Sidebar(Container, can_focus=True):
             if self.content_states.get(f"content_{_id}") is None:
                 self.content_states[f"content_{_id}"] = "close"
 
-            if content["type"] == "dir":
-                dir_tree_listview.append(
-                    self.list_item(content, _id, "dir")
-                ) 
-            else:
-                dir_tree_listview.append(
-                    self.list_item(content, _id, "file")
-                )
+            dir_tree_listview.append(self.list_item(content, _id))
         return dir_tree_listview
 
     def compose(self) -> ComposeResult:
@@ -90,7 +83,6 @@ class Sidebar(Container, can_focus=True):
 
     def open_directory(self, selected_dir: DirectoryContentText, remount_listview=True) -> None:
         self.store["editing_path"] = selected_dir.content_path
-
         update_ini_file(
             file_name="stores.ini", 
             section_name="WorkingDirectory", 
@@ -147,29 +139,30 @@ class Sidebar(Container, can_focus=True):
 
         for (index, content) in enumerate(self.dir_tree):
             dct = self.utils.get_directory_content_text(index + 1)
+
             if ((dct.layer_level > selected_dir.layer_level) and
                 (selected_dir.content_path in content["path"])):
                 content_to_remove.append(content)
 
         self.dir_tree = [content for content in self.dir_tree if content not in content_to_remove]
-
         self.utils.handle_re_mount_listview()
         self.content_states[f"content_{selected_dir.content_id}"] = "close"
 
     def select_directory(self, selected_dir: DirectoryContentText) -> None:
-        if self.content_states[f"content_{selected_dir.content_id}"] == "close":
-            self.open_directory(selected_dir=selected_dir)
+        state = self.content_states[f"content_{selected_dir.content_id}"]
 
-        elif self.content_states[f"content_{selected_dir.content_id}"] == "open":
+        if state == "close":
+            self.open_directory(selected_dir=selected_dir)
+        else:
             self.close_directory(selected_dir=selected_dir)
 
     def select_file(self, selected_content: DirectoryContentText) -> None:
         not_spp_extension = [
             "png", "jpeg", "jpg", "JPEG", "JPG", "mp4", "mp3", "mov",
             "avi", "gif", "tiff", "bmp", "wmv", "flv", "mkv", "ogg",
-            "wav", "wma", "flac", "aac", "docx", "doc", "xls", "xlsx"
+            "wav", "wma", "flac", "aac", "docx", "doc", "xls", "xlsx",
+            "pdf"
         ]
-
         if selected_content.content_name.split(".")[-1] not in not_spp_extension:
             for content in self.query("DirectoryContentText"):
                 if content.content_id == selected_content.content_id:
@@ -184,6 +177,13 @@ class Sidebar(Container, can_focus=True):
                     file_name=selected_content.content_name
                 )
                 self.app.query_one("#header-text").update(selected_content.content_path)
+
+                self.store["editing_path"] = selected_content.content_path
+                update_ini_file(
+                    file_name="stores.ini", 
+                    section_name="WorkingDirectory", 
+                    section_data=self.store
+                )
 
     def hide_sidebar(self) -> None:
         self.styles.width = 0

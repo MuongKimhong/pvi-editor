@@ -11,7 +11,7 @@ from textual.containers import Container
 from textual.css.query import NoMatches
 from textual.app import ComposeResult
 from textual.containers import Grid
-from textual import events, log
+from textual import events
 import shutil
 import os
 
@@ -38,14 +38,17 @@ class SearchResultContainer(Container, can_focus=True):
 
 
 class SearchFileDialog(ModalScreen):
-    def __init__(self, sidebar_contents: list, directory_content_texts: list, sidebar, sidebar_utils) -> None:
+    def __init__(self, 
+                sidebar_contents: list, 
+                directory_content_texts: list, 
+                sidebar: "Sidebar", 
+                sidebar_utils: "SidebarUtils") -> None:
         self.sidebar_contents = sidebar_contents
         self.directory_content_texts = directory_content_texts
         self.sidebar_utils = sidebar_utils
         self.sidebar = sidebar
         self.search_result_paths = []
         self.selected_path = ""
-
         self.project_root = read_ini_file("stores.ini", "WorkingDirectory")["project_root"]
         super().__init__()
 
@@ -89,7 +92,6 @@ class SearchFileDialog(ModalScreen):
                                         "dir", current_path_content + "/", c_layer, c_path
                                     )
                                 )
-                            
                             current_path_contents = [
                                 *sorted(directories_in_current_path, key=lambda x: x["content"]),
                                 *sorted(files_in_current_path, key=lambda x: x["content"])

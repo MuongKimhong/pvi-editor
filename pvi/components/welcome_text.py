@@ -1,6 +1,6 @@
-from textual.widgets import Static, Label
 from textual.containers import Container
 from textual.app import ComposeResult
+from textual.widgets import Static
 
 
 class WelcomeText(Container):

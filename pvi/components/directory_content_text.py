@@ -35,7 +35,7 @@ class DirectoryContentText(Container):
         self.styles.color = "white"
 
     def set_to_normal(self) -> None:
-        self.styles.background = "#181717"
+        self.styles.background = "#131212"
         if self.content_type == "dir":
             self.styles.color = "cyan"
             self.styles.text_style = Style(bold=True)
@@ -45,6 +45,3 @@ class DirectoryContentText(Container):
 
     def on_mount(self, event: events.Mount) -> None:
         self.query_one(Static).styles.padding = (0, 0, 0, self.layer_level)
-
-    def __str__(self):
-        return f"{self.content_name} - {self.content_id}"

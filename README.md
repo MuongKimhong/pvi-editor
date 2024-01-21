@@ -5,6 +5,14 @@
 ![Screenshot](screenshot.png)
 
 ## Installation
+```bash
+curl -sSL https://raw.githubusercontent.com/MuongKimhong/pvi-editor/master/install.sh | bash
+```
+
+## Usage
+- `pvi .` open current directory
+- `pvi mydirectory` open mydirectory
+- `pvi myfile.txt` open myfile.txt
 
 #### There are some new key bindings to make things easier while coding, for example:
 - to go to top of the file, instead of using `<gg>`, use `<gt>` (Go Top)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 '''
-Entry point for production mode
+Entry Point for development mode
 '''
 from textual.widgets import TextArea, Static
 from textual.app import App, ComposeResult
@@ -29,20 +29,19 @@ class Main(App):
         argument = self.cli_argument["argument"]
         argument_split = self.cli_argument["argument"].split("/")[1:]
 
-        if argument_split[-1] == ".":
-            section_data["editing_path"] = argument[:-2] # remove /. from arguemnt
-            section_data["project_root"] = argument[:-2]
+        if argument == ".":
+            section_data["editing_path"] = os.getcwd()
+            section_data["project_root"] = os.getcwd()
             section_data["editing_type"] = "dir"
             section_data["argument_parser_type"] = "dir"
         elif os.path.isdir(argument):
-            # remove / from the end of argument if any
-            section_data["editing_path"] = argument[:-1] if argument[-1] == "/" else argument
-            section_data["project_root"] = argument[:-1] if argument[-1] == "/" else argument
+            section_data["editing_path"] = os.getcwd() + "/" + argument
+            section_data["project_root"] = os.getcwd() + "/" + argument
             section_data["editing_type"] = "dir"
             section_data["argument_parser_type"] = "dir"
         elif os.path.isfile(argument):
-            section_data["editing_path"] = argument
-            section_data["project_root"] = "/" + "/".join(argument_split[:-1])
+            section_data["editing_path"] = os.getcwd() + "/" + argument
+            section_data["project_root"] = os.getcwd()
             section_data["editing_type"] = "file"
             section_data["argument_parser_type"] = "file"
 
@@ -53,7 +52,7 @@ class Main(App):
 
 if __name__ == "__main__":
     arg = argparse.ArgumentParser()
-    arg.add_argument("argument", nargs="?", help="a file or directory or current directory")
+    arg.add_argument("argument", nargs="?", help="a file or directory or current directory") 
     arguments = vars(arg.parse_args())
     app = Main(cli_argument=arguments)
     app.run()
