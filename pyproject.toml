@@ -13,9 +13,6 @@ tree-sitter-languages = "^1.8.0"
 numpy = "^1.26.2"
 jedi = "^0.19.1"
 
-[tool.poetry.scripts]
-pvi = "pvi.pvi.main:main"
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
