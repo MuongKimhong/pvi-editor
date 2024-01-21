@@ -1,6 +1,5 @@
 from textual.widgets.text_area import Selection
 from textual.widgets import ListItem
-import numpy
 import time
 import os
 
