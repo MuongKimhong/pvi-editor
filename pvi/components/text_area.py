@@ -99,6 +99,9 @@ class PviTextArea(TextArea):
         self.theme = "my_theme"
         self.remove_suggestion_from_dom()
 
+    def on_mount(self, event: events.Mount) -> None:
+        self.app.query_one("Footer").update_total_line(self.document.line_count)
+
     def on_text_area_changed(self, event: TextArea.Changed) -> None:
         self.change_occurs = self.change_occurs + 1
 
@@ -116,6 +119,10 @@ class PviTextArea(TextArea):
             if len(self.undo_states) >= 1:
                 self.undo_states.insert(0, {"text": event.text_area.document.text, "cursor": self.cursor_location})
                 self.old_document = event.text_area.document.text
+
+        footer = self.app.query_one("Footer")
+        footer.update_current_line(self.cursor_location[0] + 1)        
+        footer.update_total_line(self.document.line_count)
         
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         selected_word = str(event.item._nodes[0].renderable)
@@ -144,9 +151,11 @@ class PviTextArea(TextArea):
         self.remove_suggestion_from_dom()
 
     def on_key(self, event: events.Key) -> None:
+        footer = self.app.query_one("Footer")
+
         if event.key == "escape":
             self.blur()
-            self.app.query_one("#footer").change_value(value="-- NORMAL --") 
+            self.app.query_one("Footer").update_input(value="-- NORMAL --") 
 
         elif event.character in self.autocomplete_symbol:
             self.handle_autocomplete_symbol(character=event.character)

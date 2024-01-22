@@ -70,6 +70,7 @@ class MainEditor(Container, can_focus=True):
         try:
             text_area = self.app.query_one("#pvi-text-area")
             text_area.load_text(file_content)
+            self.app.query_one("Footer").update_total_line(text_area.document.line_count)
         except NoMatches:
             text_area = PviTextArea(file_content, id="pvi-text-area")
             self.mount(text_area)
@@ -107,7 +108,7 @@ class MainEditor(Container, can_focus=True):
     def on_key(self, event: events.Key) -> None:
         if self.editing_mode == "normal":
             if event.character == ":": # give focus to footer and handle command execution
-                self.app.query_one("#footer").focus()
+                self.app.query_one("#footer").query_one("#command-input").focus()
             
             if self.content_loaded:
                 self.normal_mode_keybinding.handle_key_binding(key_event=event)

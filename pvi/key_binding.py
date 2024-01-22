@@ -16,7 +16,7 @@ class KeyBindingInSelectionMode:
     def cancel_selection(self, text_area, old_cursor_location=None) -> None:
         self.main_editor.selection_start = None
         self.main_editor.editing_mode = "normal"
-        self.main_editor.app.query_one("#footer").change_value(value="-- NORMAL --")
+        self.main_editor.app.query_one("Footer").update_input(value="-- NORMAL --")
 
         if old_cursor_location is not None:
             text_area.selection = Selection(
@@ -31,6 +31,7 @@ class KeyBindingInSelectionMode:
 
     def handle_key_binding(self, key_event) -> None:
         text_area = self.main_editor.query_one("#pvi-text-area")  
+        footer = self.main_editor.query_one("Footer")
 
         match key_event.key:
             case "j":
@@ -38,11 +39,13 @@ class KeyBindingInSelectionMode:
                 text_area.selection = Selection(
                     start=self.main_editor.selection_start, end=text_area.cursor_location
                 )
+                footer.update_current_line(text_area.cursor_location[0] + 1)
             case "k":
                 text_area.action_cursor_up()
                 text_area.selection = Selection(
                     start=self.main_editor.selection_start, end=text_area.cursor_location
                 )                
+                footer.update_current_line(text_area.cursor_location[0] + 1)
             case "l":
                 text_area.action_cursor_right()
                 text_area.selection = Selection(
@@ -96,12 +99,12 @@ class KeyBindingInNormalMode:
 
     def enter_insert_mode(self, text_area) -> None:
         self.main_editor.editing_mode = "insert"
-        self.main_editor.app.query_one("#footer").change_value(value="-- INSERT --")
+        self.main_editor.app.query_one("Footer").update_input("-- INSERT --")
         text_area.focus()
 
     def enter_selection_mode(self, text_area) -> None:
         self.main_editor.editing_mode = "selection"
-        self.main_editor.app.query_one("#footer").change_value(value="-- SELECTION --")
+        self.main_editor.app.query_one("Footer").update_input("-- SELECTION --")
         self.main_editor.selection_start = text_area.cursor_location
         text_area.selection = Selection(start=text_area.cursor_location, end=text_area.cursor_location)
 
@@ -112,10 +115,12 @@ class KeyBindingInNormalMode:
 
     def handle_key_binding(self, key_event) -> None:
         text_area = self.main_editor.query_one("#pvi-text-area")
+        footer = self.main_editor.query_one("Footer")
 
         match key_event.key:
             case "j":
                 text_area.action_cursor_down()
+                footer.update_current_line(text_area.cursor_location[0] + 1)
             case "J":
                 line_end = text_area.get_cursor_line_end_location()
                 line_text = text_area.document.get_line(text_area.cursor_location[0] + 1).lstrip()
@@ -131,6 +136,7 @@ class KeyBindingInNormalMode:
                 text_area.move_cursor(line_end)
             case "k":
                 text_area.action_cursor_up()
+                footer.update_current_line(text_area.cursor_location[0] + 1)
             case "l":
                 text_area.action_cursor_right()
             case "h":
@@ -216,7 +222,7 @@ class KeyBindingInNormalMode:
             else:
                 self.main_editor.typed_key = ""
                 self.main_editor.editing_mode = "selection"
-                self.main_editor.app.query_one("#footer").change_value(value="-- SELECTION --")
+                self.main_editor.app.query_one("#footer").update_input(value="-- SELECTION --")
                 self.main_editor.selection_start = (0, 0)
                 text_area.move_cursor((0, 0)) # move to first line 
                 text_area.action_select_all()
@@ -227,7 +233,7 @@ class KeyBindingInNormalMode:
             else:
                 self.main_editor.typed_key = ""
                 self.main_editor.editing_mode = "selection"
-                self.main_editor.app.query_one("#footer").change_value(value="-- SELECTION --")
+                self.main_editor.app.query_one("#footer").update_input(value="-- SELECTION --")
 
                 text_area.action_cursor_line_start()
                 self.main_editor.selection_start = text_area.cursor_location

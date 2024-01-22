@@ -1,0 +1,28 @@
+Footer {
+    height: 1;
+    layout: horizontal;
+    background: #131212;
+    width: 100%;
+    dock: bottom;
+} 
+Footer #command-input {
+    height: 1;
+    width: 70%;
+    background: #131212;
+    border: hidden grey;
+    color: white;
+}
+Footer #total-line {
+    height: 1;
+    width: 15%;
+    background: #131212;
+    border: hidden grey;
+    color: white;
+}
+Footer #current-line {
+    height: 1;
+    width: 15%;
+    background: #131212;
+    border: hidden grey;
+    color: white;
+}
