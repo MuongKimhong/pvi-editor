@@ -22,7 +22,9 @@ class DirectoryContentText(Container):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        yield Static(self.content_name)
+        # yield Static(self.content_name)
+        left_a = "\u2764"
+        yield Static(f"{left_a} {self.content_name}")
 
     def set_to_highlighted(self) -> None:
         self.styles.background = "grey"
