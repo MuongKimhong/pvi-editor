@@ -1,0 +1,11 @@
+WelcomeText {
+    align: center middle; 
+}
+WelcomeText #welcome {
+    text-align: center;
+    text-style: bold;
+}
+WelcomeText #happy-coding {
+    text-align: center;
+    text-style: bold;
+}

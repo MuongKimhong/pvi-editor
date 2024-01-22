@@ -19,16 +19,6 @@ Sidebar {
     background: #131212;
 }
 
-WelcomeText {
-    align: center middle; 
-}
-WelcomeText #welcome {
-    text-align: center;
-}
-WelcomeText #happy-coding {
-    text-align: center;
-}
-
 DeleteDialog {
     align: center middle;
     background: #131212 50%;
