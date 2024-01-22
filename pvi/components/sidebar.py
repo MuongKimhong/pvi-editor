@@ -21,7 +21,8 @@ class Sidebar(Container, can_focus=True):
         background: #131212;
     }
     """
-    def __init__(self, dir_tree: list):
+
+    def __init__(self, dir_tree: list, id=None, classes=None):
         self.all_files = []
         self.all_directories = []
 
@@ -35,7 +36,7 @@ class Sidebar(Container, can_focus=True):
         # use this to make content stay highlighting when append new data 
         # with <aa> key binding
         self.highlighted_content: DirectoryContentText | None = None
-        super().__init__()
+        super().__init__(id=id, classes=classes)
 
     def list_item(self, content: dict, c_id: int) -> ListItem:
         class_name = "filelistitem" if content["type"] == "file" else "dirlistitem"

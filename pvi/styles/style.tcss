@@ -4,16 +4,6 @@ Screen {
     background: #131212;
 }
 
-Sidebar {
-    dock: left;
-    height: 100%;
-    border: round #131212;
-    border-right: round grey;
-    border-top: round grey;
-    padding-top: 0;
-    margin: 0;
-}
-
 #editor {
     height: 100%;
     background: #131212;

@@ -39,7 +39,7 @@ class Editor(Screen):
         else: sidebar.show_sidebar()
 
     def mount_sidebar_to_screen(self) -> None:
-        sidebar = Sidebar(dir_tree=os.listdir(self.store["editing_path"]))
+        sidebar = Sidebar(dir_tree=os.listdir(self.store["editing_path"]), id="sidebar", classes="show-sidebar")
         self.mount(sidebar)
         sidebar.scroll_visible()
 
