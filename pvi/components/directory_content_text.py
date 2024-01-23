@@ -4,6 +4,8 @@ from textual.widgets import Static
 from textual import events
 from rich.style import Style
 
+from icon import Icon
+
 
 class DirectoryContentText(Container):
     def __init__(self, 
@@ -22,28 +24,31 @@ class DirectoryContentText(Container):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        # yield Static(self.content_name)
-        left_a = "\u2764"
-        yield Static(f"{left_a} {self.content_name}")
+        state = self.app.query_one("Sidebar").content_states[f"content_{self.content_id}"]
+
+        if self.content_type == "dir" and state == "open":
+            display = f"{Icon.DOWN_ARROW} {Icon.OPENED_FOLDER} {self.content_name}"
+        elif self.content_type == "dir" and state == "close":
+            display = f"{Icon.RIGHT_ARROW} {Icon.CLOSED_FOLDER} {self.content_name}"
+        else:
+            display = " " + f" {Icon.FILE} {self.content_name}"
+
+        yield Static(display)
 
     def set_to_highlighted(self) -> None:
-        self.styles.background = "grey"
+        self.styles.background = "#44475A"
         self.styles.text_style = Style(bold=True)
-        self.styles.color = "cyan" if self.content_type == "dir" else "white"
+        self.styles.color = "white"
 
     def set_to_highlighted_after_selected_file(self) -> None:
-        self.styles.background = "#424141"
+        self.styles.background = "#44475A"
         self.styles.text_style = Style(bold=True)
         self.styles.color = "white"
 
     def set_to_normal(self) -> None:
         self.styles.background = "#131212"
-        if self.content_type == "dir":
-            self.styles.color = "cyan"
-            self.styles.text_style = Style(bold=True)
-        else:
-            self.styles.color = "white"
-            self.styles.text_style = Style(bold=False)
+        self.styles.color = "white"
+        self.styles.text_style = Style(bold=True) if self.content_type == "dir" else Style(bold=False)
 
     def on_mount(self, event: events.Mount) -> None:
         self.query_one(Static).styles.padding = (0, 0, 0, self.layer_level)
