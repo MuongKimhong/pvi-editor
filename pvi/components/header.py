@@ -3,30 +3,13 @@ from textual.app import ComposeResult
 from textual.widgets import Static
 from textual import events
 
-from utils import read_ini_file
+from utils import read_ini_file, get_pvi_root
 
 
 class Header(Container):
-    DEFAULT_CSS = """
-    Header {
-        align: center top; 
-    }
-    Header #header-text {
-        text-align: center;
-    }
-    """
-
-    def set_style(self) -> None:
-        style = read_ini_file(file_name="settings.ini", section_name="Header")
-        self.styles.dock = "top" #  can't be changed
-        self.styles.width = "100%" # can't be changed
-        self.styles.height = int(style["height"])
-        self.styles.background = f"#{style['background_color']}"
-        self.styles.color = style["text_color"]
-        self.styles.border = ("hidden", "grey")
+    with open(f"{get_pvi_root()}/pvi/styles/header_style.tcss", "r") as file:
+        DEFAULT_CSS = file.read()
 
     def compose(self) -> ComposeResult:
         yield Static("PVI Editor", id="header-text")
 
-    def on_mount(self, event: events.Mount) -> None:
-        self.set_style() 

@@ -1,0 +1,12 @@
+Header {
+    align: center top; 
+    dock: top;
+    width: 100%;
+    height: 1;
+    background: #44475A;
+    color: white;
+    border: hidden grey;
+}
+Header #header-text {
+    text-align: center;
+}
