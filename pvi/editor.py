@@ -8,6 +8,7 @@ from textual import events
 from components.delete_dialog import DeleteDialog
 from components.main_editor import MainEditor
 from components.sidebar import Sidebar
+from components.header import Header
 from utils import read_ini_file
 
 from pathlib import Path
@@ -29,7 +30,9 @@ class Editor(Screen):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        yield MainEditor()
+        yield Header()
+        # yield MainEditor()
+        yield Container(MainEditor(), id="editor-container")
 
     def toggle_sidebar(self) -> None:
         sidebar = self.query_one(Sidebar)
@@ -40,7 +43,8 @@ class Editor(Screen):
 
     def mount_sidebar_to_screen(self) -> None:
         sidebar = Sidebar(dir_tree=os.listdir(self.store["editing_path"]), id="sidebar", classes="show-sidebar")
-        self.mount(sidebar)
+        # self.mount(sidebar)
+        self.query_one("#editor-container").mount(sidebar)
         sidebar.scroll_visible()
 
     @property

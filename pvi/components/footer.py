@@ -57,7 +57,7 @@ class Footer(Container, can_focus= True):
 
     def compose(self) -> ComposeResult:
         yield CommandInput("-- NORMAL --", id="command-input")
-        yield Static("", id="total-line")
+        yield Static("total: 1", id="total-line")
         yield Static("current: 1", id="current-line")
 
     def update_input(self, value: str) -> None:

@@ -42,13 +42,13 @@ class MainEditor(Container, can_focus=True):
         super().__init__()
 
     def compose(self) -> ComposeResult:
+        yield Footer(id="footer")                      
+
+    def on_mount(self, event: events.Mount) -> None:
         if self.store["argument_parser_type"] == "dir":
-            yield WelcomeText(id="welcome-text")
-            yield Header(id="header")
+            self.mount(WelcomeText(id="welcome-text"))
         else:
-            self.open_file_edit()
-                
-        yield Footer(id="footer")
+            self.open_file_edit()  
 
     # open file to edit when user uses <pvi somefile.txt>
     def open_file_edit(self) -> None:
