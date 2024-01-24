@@ -34,6 +34,11 @@ class Sidebar(Container, can_focus=True):
         # use this to make content stay highlighting when append new data 
         # with <aa> key binding
         self.highlighted_content: DirectoryContentText | None = None
+
+        self.min_width = 25
+        # - max width = length of longest content in sidebar + layer_level + 8
+        # - default is 0, update max_width in on_mount(), open_directory(), close_directory()
+        self.max_width = 0
         super().__init__()
 
     def list_item(self, content: dict, c_id: int) -> ListItem:
@@ -113,12 +118,6 @@ class Sidebar(Container, can_focus=True):
                         self.utils.content_as_dict("dir", f"{content}/", layer, path)
                     )
 
-            # increase sidebar width as number of layer increases
-            if layer > 3:
-                self.styles.width = self.styles.width.value + 1
-            elif layer > 5:
-                self.styles.width = self.styles.width.value + 2
-
             selected_dir_contents = [
                 *sorted(directories_in_selected_dir_contents, key=lambda x: x["content"]),
                 *sorted(files_in_selected_dir_contents, key=lambda x: x["content"])
@@ -130,6 +129,8 @@ class Sidebar(Container, can_focus=True):
             ]
             if remount_listview:
                 self.utils.handle_re_mount_listview()
+
+            self.set_sidebar_width(layer_level=layer)
 
             self.content_states[f"content_{selected_dir.content_id}"] = "open"
 
@@ -146,6 +147,7 @@ class Sidebar(Container, can_focus=True):
         self.dir_tree = [content for content in self.dir_tree if content not in content_to_remove]
         self.utils.handle_re_mount_listview()
         self.content_states[f"content_{selected_dir.content_id}"] = "close"
+        self.set_sidebar_width(layer_level=selected_dir.layer_level)
 
     def select_directory(self, selected_dir: DirectoryContentText) -> None:
         state = self.content_states[f"content_{selected_dir.content_id}"]
@@ -184,13 +186,26 @@ class Sidebar(Container, can_focus=True):
                     section_data=self.store
                 )
 
+    def set_sidebar_width(self, layer_level=0) -> None:
+        max_length = 0
+        for content in self.dir_tree:
+            if len(content["content"]) > max_length:
+                max_length = len(content["content"])
+
+        if (max_length + 8 + layer_level) <= self.min_width:
+            self.styles.width = self.min_width
+        else:
+            self.styles.width = max_length + 8 + layer_level
+
+        self.max_width = int(self.styles.width.value)
+
     def hide_sidebar(self) -> None:
         self.styles.width = 0
         self.styles.border = ("hidden", "grey")
         self.is_opened = False
 
     def show_sidebar(self) -> None:
-        self.styles.width = 30
+        self.styles.width = self.max_width
         self.styles.border_top = ("round", "#979A9A")
         self.styles.border_right = ("round", "#979A9A")
         self.is_opened = True
@@ -213,7 +228,9 @@ class Sidebar(Container, can_focus=True):
         self.mount(sidebar_input)
         sidebar_input.focus()
 
-    def on_mount(self, event: events.Mount) -> None: 
+    def on_mount(self, event: events.Mount) -> None:
+        self.set_sidebar_width()
+
         for content in self.query("DirectoryContentText"):
             content.set_to_normal()
 

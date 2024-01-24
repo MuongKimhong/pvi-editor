@@ -1,7 +1,7 @@
 Sidebar {
     dock: left;
+    width: 25;
     height: 100%;
-    width: 30;
     background: #131212;
     border: round #131212;
     border-top: round #979A9A;
