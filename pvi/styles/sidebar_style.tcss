@@ -1,0 +1,14 @@
+Sidebar {
+    dock: left;
+    height: 100%;
+    width: 30;
+    background: #131212;
+    border: round #131212;
+    border-top: round #979A9A;
+    border-right: round #979A9A;
+    padding-top: 0;
+    margin: 0;
+}
+Sidebar #listview {
+    background: #131212;
+}

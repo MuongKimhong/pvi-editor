@@ -36,14 +36,14 @@ class Editor(Screen):
 
     def toggle_sidebar(self) -> None:
         sidebar = self.query_one(Sidebar)
-        width = sidebar.styles.width.value
 
-        if int(width) == int(self.sidebar_style["max_width"]): sidebar.hide_sidebar()
-        else: sidebar.show_sidebar()
+        if sidebar.is_opened: 
+            sidebar.hide_sidebar()
+        else: 
+            sidebar.show_sidebar()
 
     def mount_sidebar_to_screen(self) -> None:
-        sidebar = Sidebar(dir_tree=os.listdir(self.store["editing_path"]), id="sidebar", classes="show-sidebar")
-        # self.mount(sidebar)
+        sidebar = Sidebar(dir_tree=os.listdir(self.store["editing_path"]))
         self.query_one("#editor-container").mount(sidebar)
         sidebar.scroll_visible()
 

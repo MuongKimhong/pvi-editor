@@ -5,7 +5,7 @@ from textual.widget import Widget
 from textual import events
 
 from utils import read_ini_file, update_ini_file
-from utils import SidebarUtils
+from utils import SidebarUtils, get_pvi_root
 
 from components.directory_content_text import DirectoryContentText
 from components.sidebar_input import SidebarInput
@@ -16,19 +16,17 @@ import os
             
 
 class Sidebar(Container, can_focus=True):
-    DEFAULT_CSS = """
-    Sidebar #listview {
-        background: #131212;
-    }
-    """
+    with open(f"{get_pvi_root()}/pvi/styles/sidebar_style.tcss", "r") as file:
+        DEFAULT_CSS = file.read()
 
-    def __init__(self, dir_tree: list, id=None, classes=None):
+    def __init__(self, dir_tree: list):
         self.all_files = []
         self.all_directories = []
 
         self.dir_tree = dir_tree
         self.store = read_ini_file(file_name="stores.ini", section_name="WorkingDirectory")
         self.viewing_id = 1 # viewing index inside directory tree (sidebar)
+        self.is_opened = False # True if sidebar appears on screen
 
         self.content_states = {}
         self.utils = SidebarUtils(self)
@@ -36,7 +34,7 @@ class Sidebar(Container, can_focus=True):
         # use this to make content stay highlighting when append new data 
         # with <aa> key binding
         self.highlighted_content: DirectoryContentText | None = None
-        super().__init__(id=id, classes=classes)
+        super().__init__()
 
     def list_item(self, content: dict, c_id: int) -> ListItem:
         class_name = "filelistitem" if content["type"] == "file" else "dirlistitem"
@@ -189,9 +187,13 @@ class Sidebar(Container, can_focus=True):
     def hide_sidebar(self) -> None:
         self.styles.width = 0
         self.styles.border = ("hidden", "grey")
+        self.is_opened = False
 
     def show_sidebar(self) -> None:
-        self.utils.set_sidebar_style()
+        self.styles.width = 30
+        self.styles.border_top = ("round", "#979A9A")
+        self.styles.border_right = ("round", "#979A9A")
+        self.is_opened = True
 
     def handle_set_to_highlighted_or_normal(self, move_direction: str, editor) -> None:
         self.viewing_id = self.viewing_id - 1 if move_direction == "up" else self.viewing_id + 1
@@ -211,9 +213,7 @@ class Sidebar(Container, can_focus=True):
         self.mount(sidebar_input)
         sidebar_input.focus()
 
-    def on_mount(self, event: events.Mount) -> None:
-        self.utils.set_sidebar_style()
-        
+    def on_mount(self, event: events.Mount) -> None: 
         for content in self.query("DirectoryContentText"):
             content.set_to_normal()
 

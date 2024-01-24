@@ -31,13 +31,6 @@ class SidebarUtils:
     def __init__(self, sidebar: "Sidebar") -> None:
         self.sidebar = sidebar
 
-    def set_sidebar_style(self) -> None:
-        style = read_ini_file(file_name="settings.ini", section_name="Sidebar")
-        self.sidebar.styles.border = (style["border_style"], f"#{style['border_color']}")
-        self.sidebar.styles.border_top = (style["border_top_style"], f"#{style['border_top_color']}")
-        self.sidebar.styles.border_right = (style["border_right_style"], f"#{style['border_right_color']}")
-        self.sidebar.styles.width = int(style["max_width"])
-
     # used to represent each file and directory in sidebar for dir_tree
     # before changed to DirectoryContentText widget for dir_tree_listview
     def content_as_dict(self, c_type: str, content: str, layer_level: int, c_path: str) -> dict:
