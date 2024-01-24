@@ -38,22 +38,25 @@ class MainEditor(Container, can_focus=True):
         '''
         self.typed_key = ""  
         self.typed_key_timer: float | None = None # time when typed_key is assigned
+        self.store: dict = read_ini_file("stores.ini", "WorkingDirectory")
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        store = read_ini_file(file_name="stores.ini", section_name="WorkingDirectory")
-
-        if store["argument_parser_type"] == "dir":
+        if self.store["argument_parser_type"] == "dir":
             yield WelcomeText(id="welcome-text")
             yield Header(id="header")
         else:
-            with open(store["editing_path"], "r") as file:
-                self.handle_load_content_to_textarea(
-                    file_content=file.read(),
-                    file_name=store["editing_path"].split("/")[-1]
-                )
+            self.open_file_edit()
                 
         yield Footer(id="footer")
+
+    # open file to edit when user uses <pvi somefile.txt>
+    def open_file_edit(self) -> None:
+        with open(self.store["editing_path"], "r") as file:
+            self.handle_load_content_to_textarea(
+                file_content=file.read(),
+                file_name=self.store["editing_path"].split("/")[-1]
+            )
     
     def remove_welcome_text(self) -> None:
         try:
