@@ -50,21 +50,26 @@ class SidebarInput(Input):
         else:
             os.makedirs(new_data_path, exist_ok=True)
 
+        from textual import log 
+        log(f"check all files and all dirs")
+        log(sidebar.all_files)
+        log(sidebar.all_directories)
+
         if in_project_root:
             if type_to_create == "file":
                 content_as_dict = sidebar.utils.content_as_dict(
                     "file", self.value, 0, new_data_path
                 )
+                sidebar.dir_tree = sidebar.dir_tree[:-len(sidebar.all_files)]
                 sidebar.all_files.append(content_as_dict)
                 sidebar.all_files = sorted(sidebar.all_files, key=lambda x: x["content"])
+                sidebar.dir_tree = [*sidebar.dir_tree, *sidebar.all_files]
             else:
                 content_as_dict = sidebar.utils.content_as_dict(
                     "dir", self.value + "/", 0, new_data_path
                 )
-                sidebar.all_directories.append(content_as_dict)
-                sidebar.all_directories = sorted(sidebar.all_directories, key=lambda x: x["content"]) 
-            
-            sidebar.dir_tree = [*sidebar.all_directories, *sidebar.all_files]
+                sidebar.dir_tree.insert(0, content_as_dict)
+
             sidebar.utils.handle_re_mount_listview()
         else:
             for content in sidebar.query("DirectoryContentText"):
