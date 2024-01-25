@@ -50,11 +50,6 @@ class SidebarInput(Input):
         else:
             os.makedirs(new_data_path, exist_ok=True)
 
-        from textual import log 
-        log(f"check all files and all dirs")
-        log(sidebar.all_files)
-        log(sidebar.all_directories)
-
         if in_project_root:
             if type_to_create == "file":
                 content_as_dict = sidebar.utils.content_as_dict(
