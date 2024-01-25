@@ -99,7 +99,10 @@ class Sidebar(Container, can_focus=True):
 
         selected_dir_contents = os.listdir(selected_dir.content_path)
 
-        if len(selected_dir_contents) > 0:
+        if len(selected_dir_contents) == 0:
+            self.content_states[f"content_{selected_dir.content_id}"] = "open"
+            self.utils.handle_re_mount_listview()
+        else:
             files_in_selected_dir_contents = []
             directories_in_selected_dir_contents = []
 
