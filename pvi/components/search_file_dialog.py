@@ -67,41 +67,42 @@ class SearchFileDialog(ModalScreen):
 
             for (index, content) in enumerate(self.sidebar.dir_tree):
                 if content["path"] == current_path:
-                    contents_above_current_path = self.sidebar.dir_tree[:index + 1]
-                    contents_below_current_path = self.sidebar.dir_tree[index + 1:]
+                    if self.sidebar.content_states[f"content_{index + 1}"] == "close":
+                        contents_above_current_path = self.sidebar.dir_tree[:index + 1]
+                        contents_below_current_path = self.sidebar.dir_tree[index + 1:]
 
-                    current_path_contents = os.listdir(current_path)
+                        current_path_contents = os.listdir(current_path)
 
-                    if len(current_path_contents) > 0:
-                        files_in_current_path = []
-                        directories_in_current_path = []
+                        if len(current_path_contents) > 0:
+                            files_in_current_path = []
+                            directories_in_current_path = []
 
-                        for current_path_content in current_path_contents:
-                            c_layer = content["layer_level"] + 1
-                            c_path = content["path"] + "/" + current_path_content
+                            for current_path_content in current_path_contents:
+                                c_layer = content["layer_level"] + 1
+                                c_path = content["path"] + "/" + current_path_content
 
-                            if os.path.isfile(c_path):
-                                files_in_current_path.append(
-                                    self.sidebar_utils.content_as_dict(
-                                        "file", current_path_content, c_layer, c_path
+                                if os.path.isfile(c_path):
+                                    files_in_current_path.append(
+                                        self.sidebar_utils.content_as_dict(
+                                            "file", current_path_content, c_layer, c_path
+                                        )
                                     )
-                                )
-                            elif os.path.isdir(c_path) and current_path_content != ".git":
-                                directories_in_current_path.append(
-                                    self.sidebar_utils.content_as_dict(
-                                        "dir", current_path_content + "/", c_layer, c_path
+                                elif os.path.isdir(c_path) and current_path_content != ".git":
+                                    directories_in_current_path.append(
+                                        self.sidebar_utils.content_as_dict(
+                                            "dir", current_path_content + "/", c_layer, c_path
+                                        )
                                     )
-                                )
-                            current_path_contents = [
-                                *sorted(directories_in_current_path, key=lambda x: x["content"]),
-                                *sorted(files_in_current_path, key=lambda x: x["content"])
-                            ]
-                            self.sidebar.dir_tree = [
-                                *contents_above_current_path,
-                                *current_path_contents,
-                                *contents_below_current_path
-                            ]
-                            self.sidebar.content_states[f"content_{index + 1}"] = "open"
+                                current_path_contents = [
+                                    *sorted(directories_in_current_path, key=lambda x: x["content"]),
+                                    *sorted(files_in_current_path, key=lambda x: x["content"])
+                                ]
+                                self.sidebar.dir_tree = [
+                                    *contents_above_current_path,
+                                    *current_path_contents,
+                                    *contents_below_current_path
+                                ]
+                                self.sidebar.content_states[f"content_{index + 1}"] = "open"
 
         self.dismiss(self.selected_path)
 

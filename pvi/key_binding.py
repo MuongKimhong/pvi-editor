@@ -258,7 +258,7 @@ class KeyBindingInNormalMode:
                     ".git", ".svn", ".vscode", "venv", "node_modules", "dist", "__pycache__",
                     "vendor", ".bundle", "env", "virtual_environment", ".idea"
                 ]
-                # search through only directory than contains less ban 30 files
+                # search through only directory than contains less than 30 files
                 MAX_FILES_PER_DIR = 30
 
                 content_paths = []
@@ -271,11 +271,12 @@ class KeyBindingInNormalMode:
                             content_paths.append(os.path.join(root, file))
 
                 # function will be invoked after come back from SearchFileDialog Screen
-                def after_select_file(file_path: str, main_editor=self.main_editor, store=self.store):
+                def after_select_file(file_path: str, main_editor=self.main_editor, store=self.store, sidebar=sidebar):
                     sidebar_utils.handle_re_mount_listview()
 
                     for content in main_editor.app.query("DirectoryContentText"):
                         if content.content_path == store["project_root"] + "/" + file_path:
+                            sidebar.set_sidebar_width(content.layer_level)
                             sidebar.select_file(content)
                             sidebar.viewing_id = content.content_id 
                             sidebar_utils.set_to_highlighted_or_normal()
