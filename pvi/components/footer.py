@@ -80,7 +80,11 @@ class CommandInput(Input, can_focus=True):
 
                     sh_path = f"{get_pvi_root()}/git_command.sh"
                     file_path = read_ini_file("stores.ini", "WorkingDirectory")["editing_path"]
-                    process = subprocess.Popen(["bash", sh_path, branch, message, file_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
+                    process = subprocess.Popen(
+                        ["bash", sh_path, branch, message, file_path], 
+                        stdout=subprocess.PIPE, 
+                        stderr=subprocess.PIPE
+                    ) 
                     process.wait()
 
                     if process.returncode == 0:
@@ -97,8 +101,8 @@ class Footer(Container, can_focus= True):
 
     def compose(self) -> ComposeResult:
         yield CommandInput("-- NORMAL --", id="command-input")
-        yield Static("total: 1", id="total-line")
-        yield Static("current: 1", id="current-line")
+        yield Static("total: 0", id="total-line")
+        yield Static("current: 0", id="current-line")
 
     def update_input(self, value: str) -> None:
         self.query_one("#command-input").value = value
