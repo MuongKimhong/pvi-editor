@@ -9,6 +9,8 @@ from utils import read_ini_file, get_pvi_root
 
 
 class CommandInput(Input, can_focus=True):
+    err_occur = False
+
     def focus_on_main_editor(self) -> None:
         self.value = "-- NORMAL --"
         self.blur()
@@ -37,18 +39,29 @@ class CommandInput(Input, can_focus=True):
     def on_key(self, event: events.Key) -> None:
         if event.key == "escape":
             self.focus_on_main_editor()
-        elif event.key == "enter": # execute command
-            if self.value == ":q" or self.value == ":exit":
-                self.app.exit()
+            self.styles.color = "white"
+            self.err_occur = False
 
-            elif self.value == ":w" or self.value == ":write":
-                self.save_file_content() 
-                self.reinit_main_editor_attribute()
-                self.focus_on_main_editor()
+        if self.err_occur:
+            event.prevent_default()
+        else:
+            if event.key == "enter": # execute command
+                if self.value == ":q" or self.value == ":exit":
+                    self.app.exit()
 
-            elif self.value == ":wq":
-                self.save_file_content()
-                self.app.exit()
+                elif self.value == ":w" or self.value == ":write":
+                    self.save_file_content() 
+                    self.reinit_main_editor_attribute()
+                    self.focus_on_main_editor()
+
+                elif self.value == ":wq":
+                    self.save_file_content()
+                    self.app.exit()
+                
+                else:
+                    self.err_occur = True
+                    self.value = "Unknow command"
+                    self.styles.color = "red"
 
 
 class Footer(Container, can_focus= True):
