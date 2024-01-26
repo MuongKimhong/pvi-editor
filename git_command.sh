@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# this script will be executed when user push code from footer
+# -> :git push origin branch "somemessage"
 
 # $1 is branch name
 # $2 is commit message
