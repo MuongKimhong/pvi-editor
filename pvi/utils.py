@@ -2,7 +2,6 @@ from textual.widgets.text_area import Selection
 from textual.containers import Container
 from textual.widgets import ListView
 from textual.messages import Message
-from textual import log
 
 from pathlib import Path
 import configparser
