@@ -2,7 +2,7 @@ from textual.widgets import TextArea, Static, ListView, ListItem
 from textual.containers import Container
 from textual.css.query import NoMatches
 from textual.geometry import Offset
-from textual import events
+from textual import events, log
 
 from autocomplete import AutoComplete
 import time
@@ -37,6 +37,11 @@ class PviTextArea(TextArea):
     autocomplete_symbol = ['{', '[', '(']
     autocomplete_engine = None
     suggestion_words = []
+
+    # auto indent when user presses key <enter> if user type symbol below
+    auto_indentation_symbol = ["{", "[", "(", ":"] 
+    auto_indent = False # auto indent whenever True
+    line_start_location_before_indent: tuple | None = None
 
     change_occurs = 0 # increase 1 every changes
     change_updates = 0 # update to number of occurs every 10 changes
@@ -103,6 +108,20 @@ class PviTextArea(TextArea):
         self.app.query_one("Footer").update_total_line(self.document.line_count)
 
     def on_text_area_changed(self, event: TextArea.Changed) -> None:
+        if (self.auto_indent) and (self.line_start_location_before_indent is not None):
+            event.text_area.move_cursor(self.line_start_location_before_indent)
+            event.text_area.action_cursor_line_end()
+            self.insert(
+                text="\n", 
+                location=(self.cursor_location[0], self.cursor_location[1] + 1)
+            )
+            self.insert(
+                text=" " * self._find_columns_to_next_tab_stop(),
+                location=self.cursor_location
+            ) 
+            self.auto_indent = False
+            self.line_start_location_before_indent = None
+
         self.change_occurs = self.change_occurs + 1
 
         # update the suggestion words every 10 changes
@@ -153,12 +172,18 @@ class PviTextArea(TextArea):
     def on_key(self, event: events.Key) -> None:
         footer = self.app.query_one("Footer")
 
+        if event.character in self.autocomplete_symbol:
+            self.handle_autocomplete_symbol(character=event.character)
+
+        if event.character in self.auto_indentation_symbol:
+            self.auto_indent = True
+        elif (event.key != "enter") and (event.character not in self.auto_indentation_symbol):
+            self.auto_indent = False 
+            self.line_start_location_before_indent = None
+
         if event.key == "escape":
             self.blur()
             self.app.query_one("Footer").update_input(value="-- NORMAL --") 
-
-        elif event.character in self.autocomplete_symbol:
-            self.handle_autocomplete_symbol(character=event.character)
         
         else:
             if (event.is_printable) and (event.key != "space"):
@@ -172,6 +197,8 @@ class PviTextArea(TextArea):
                 self.suggestion_panel_focused = False
             elif (event.key == "enter") and (self.suggestion_panel_focused is False):
                 self.typing_word = "" 
+                self.line_start_location_before_indent = self.get_cursor_line_start_location()
+
             elif event.key == "down":
                 try:
                     self.query_one(SuggestionPanel).listview.action_cursor_down()
