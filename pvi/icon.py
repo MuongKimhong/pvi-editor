@@ -1,5 +1,3 @@
-import os
-
 
 class Icon:
     RIGHT_ARROW = "\u003E"  
