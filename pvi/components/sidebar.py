@@ -4,7 +4,7 @@ from textual.app import ComposeResult
 from textual.widget import Widget
 from textual import events
 
-from utils import read_ini_file, update_ini_file
+from utils import read_ini_file, update_ini_file, check_git_diff
 from utils import SidebarUtils, get_pvi_root
 
 from components.directory_content_text import DirectoryContentText
@@ -137,6 +137,8 @@ class Sidebar(Container, can_focus=True):
 
             self.content_states[f"content_{selected_dir.content_id}"] = "open"
 
+        check_git_diff(self.app)
+
     def close_directory(self, selected_dir: DirectoryContentText) -> None:
         content_to_remove = []
 
@@ -151,6 +153,7 @@ class Sidebar(Container, can_focus=True):
         self.utils.handle_re_mount_listview()
         self.content_states[f"content_{selected_dir.content_id}"] = "close"
         self.set_sidebar_width(layer_level=selected_dir.layer_level)
+        check_git_diff(self.app)
 
     def select_directory(self, selected_dir: DirectoryContentText) -> None:
         state = self.content_states[f"content_{selected_dir.content_id}"]
@@ -236,6 +239,8 @@ class Sidebar(Container, can_focus=True):
 
         for content in self.query("DirectoryContentText"):
             content.set_to_normal()
+
+        check_git_diff(self.app)   
 
     def on_focus(self, event: events.Focus) -> None:
         self.utils.set_to_highlighted_or_normal()

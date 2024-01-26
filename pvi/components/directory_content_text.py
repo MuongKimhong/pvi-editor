@@ -38,17 +38,17 @@ class DirectoryContentText(Container):
     def set_to_highlighted(self) -> None:
         self.styles.background = "#44475A"
         self.styles.text_style = Style(bold=True)
-        self.styles.color = "white"
 
     def set_to_highlighted_after_selected_file(self) -> None:
         self.styles.background = "#44475A"
         self.styles.text_style = Style(bold=True)
-        self.styles.color = "white"
 
     def set_to_normal(self) -> None:
         self.styles.background = "#131212"
-        self.styles.color = "white"
         self.styles.text_style = Style(bold=True) if self.content_type == "dir" else Style(bold=False)
+
+    def set_to_git_changes_detected(self) -> None:
+        self.styles.color = "orange"
 
     def on_mount(self, event: events.Mount) -> None:
         self.query_one(Static).styles.padding = (0, 0, 0, self.layer_level)

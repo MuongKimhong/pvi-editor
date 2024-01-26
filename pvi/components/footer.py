@@ -3,9 +3,9 @@ from textual.containers import Container
 from textual.css.query import NoMatches
 from textual.app import ComposeResult
 from rich.style import Style
-from textual import events
+from textual import events, log
 
-from utils import read_ini_file, get_pvi_root
+from utils import read_ini_file, get_pvi_root, check_git_diff
 
 import subprocess
 import re
@@ -13,8 +13,7 @@ import re
 
 class CommandInput(Input, can_focus=True):
     err_occur = False
-    git_command_pattern = re.compile(r'^:git push origin (\S+) \"(.*?)\"')
-    
+    git_command_pattern = re.compile(r'^:git push origin (\S+) \"(.*?)\"')    
 
     def focus_on_main_editor(self) -> None:
         self.styles.color = "white"
@@ -30,8 +29,12 @@ class CommandInput(Input, can_focus=True):
         try:
             text_area = self.app.query_one("#pvi-text-area")
             store = read_ini_file("stores.ini", "WorkingDirectory")
+
             with open(store["editing_path"], "w") as file:
                 file.write(text_area.text)
+            
+            check_git_diff(main_app=self.app)
+            
         except NoMatches:
             pass
 

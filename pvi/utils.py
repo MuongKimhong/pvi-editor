@@ -5,6 +5,8 @@ from textual.messages import Message
 
 from pathlib import Path
 import configparser
+import git # poetry add gitpython
+import os
 
 
 def get_pvi_root() -> Path:
@@ -24,6 +26,25 @@ def update_ini_file(file_name: str, section_name: str, section_data: dict) -> No
 
     with open(f"{get_pvi_root()}/pvi/store/{file_name}", "w") as configfile:
         config.write(configfile)
+
+
+# check files that have changes
+# main_app is Main class from main.py
+def check_git_diff(main_app: "Main") -> None:
+    store = read_ini_file("stores.ini", "WorkingDirectory")
+    git_dir = os.path.join(store["project_root"], ".git")
+    
+    if os.path.exists(git_dir) is False:
+        return None
+
+    repo = git.Repo(store["project_root"])
+    changed_files = [f"{store['project_root']}/{item.a_path}" for item in repo.index.diff(None)]
+
+    for content in main_app.query("DirectoryContentText"):
+        if content.content_path in changed_files:
+            content.set_to_git_changes_detected()
+        else:
+            content.styles.color = "white"
 
 
 class SidebarUtils:
