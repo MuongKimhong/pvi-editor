@@ -1,4 +1,3 @@
-
 class Icon:
     RIGHT_ARROW = "\u003E"  
     DOWN_ARROW = "\u25BC"
