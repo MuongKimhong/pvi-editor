@@ -7,11 +7,18 @@ from textual import events
 
 from utils import read_ini_file, get_pvi_root
 
+import subprocess
+import re
+
 
 class CommandInput(Input, can_focus=True):
     err_occur = False
+    git_command_pattern = re.compile(r'^:git push origin (\S+) \"(.*?)\"')
+    
 
     def focus_on_main_editor(self) -> None:
+        self.styles.color = "white"
+        self.err_occur = False
         self.value = "-- NORMAL --"
         self.blur()
         self.app.query_one("MainEditor").focus()
@@ -22,12 +29,16 @@ class CommandInput(Input, can_focus=True):
     def save_file_content(self) -> None:
         try:
             text_area = self.app.query_one("#pvi-text-area")
-            store = read_ini_file(file_name="stores.ini", section_name="WorkingDirectory")
-
+            store = read_ini_file("stores.ini", "WorkingDirectory")
             with open(store["editing_path"], "w") as file:
                 file.write(text_area.text)
         except NoMatches:
             pass
+
+    def show_err_msg(self, msg: str) -> None:
+        self.err_occur = True
+        self.styles.color = "red"
+        self.value = msg
 
     # reset all main editor attributes, typed_key, copied_text, ..
     def reinit_main_editor_attribute(self) -> None:
@@ -39,13 +50,14 @@ class CommandInput(Input, can_focus=True):
     def on_key(self, event: events.Key) -> None:
         if event.key == "escape":
             self.focus_on_main_editor()
-            self.styles.color = "white"
-            self.err_occur = False
 
         if self.err_occur:
             event.prevent_default()
         else:
             if event.key == "enter": # execute command
+                # :git push origin branchname "message"
+                match_patterns = self.git_command_pattern.match(self.value)
+
                 if self.value == ":q" or self.value == ":exit":
                     self.app.exit()
 
@@ -58,10 +70,22 @@ class CommandInput(Input, can_focus=True):
                     self.save_file_content()
                     self.app.exit()
                 
+                # :git push origin branchname "message"
+                elif match_patterns:
+                    branch = match_patterns.group(1)
+                    message = match_patterns.group(2)
+
+                    sh_path = f"{get_pvi_root()}/git_command.sh"
+                    file_path = read_ini_file("stores.ini", "WorkingDirectory")["editing_path"]
+                    process = subprocess.Popen(["bash", sh_path, branch, message, file_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
+                    process.wait()
+
+                    if process.returncode == 0:
+                        self.focus_on_main_editor()
+                    else:
+                        self.show_err_msg(msg="error git command")
                 else:
-                    self.err_occur = True
-                    self.value = "Unknow command"
-                    self.styles.color = "red"
+                    self.show_err_msg(msg="unknow command")
 
 
 class Footer(Container, can_focus= True):
