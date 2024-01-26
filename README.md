@@ -29,6 +29,10 @@ See key bindings for more details.
 - `<k>` move up in sidebar if sidebar is focused
 - `<dd>` delete file or directory in sidebar if sidebar is focused
 - `<aa>` create new file or directory in sidebar if sidebar is focused
+
+#### Commit and push code from editor
+- `<:git push origin branch_name "commit message">` commit and push code to branch_name
+  
 #### Editor
 - `<j>` move down
 - `<k>` move up
@@ -50,3 +54,4 @@ See key bindings for more details.
 - `<:w>` save file content (Normal mode)
 - `<:wq>` save file content and quit PVI (Normal mode)
 - `<:q>` quit PVI (Normal mode)
+
