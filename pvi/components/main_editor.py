@@ -10,10 +10,13 @@ from textual import log, events
 from key_binding import KeyBindingInNormalMode, KeyBindingInSelectionMode
 from components.welcome_text import WelcomeText
 from components.text_area import PviTextArea
+from autocomplete import AutoComplete
 from syntax_highlighting import Syntax
 from components.footer import Footer
 from components.header import Header
 from utils import read_ini_file
+
+import os
 
 
 class MainEditor(Container, can_focus=True):
@@ -39,6 +42,14 @@ class MainEditor(Container, can_focus=True):
         self.typed_key = ""  
         self.typed_key_timer: float | None = None # time when typed_key is assigned
         self.store: dict = read_ini_file("stores.ini", "WorkingDirectory")
+
+        # during search file operation for SearchFileDialog and Autocomplete
+        # algorithm will not look thru these folders
+        self.common_exclude_dirs = [
+            ".git", ".svn", ".vscode", "venv", "node_modules", "dist", "__pycache__",
+            "vendor", ".bundle", "env", "virtual_environment", ".idea", ".venv", ".env"
+        ]
+        self.autocomplete_engine = AutoComplete()
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -57,6 +68,19 @@ class MainEditor(Container, can_focus=True):
                 file_content=file.read(),
                 file_name=self.store["editing_path"].split("/")[-1]
             )
+
+    # search through project root to get all file paths
+    def search_project_root(self, max_files_per_dir=30) -> list[str]:
+        content_paths = []
+
+        for root, dirs, files in os.walk(self.store["project_root"]):
+            dirs[:] = [d for d in dirs if not any(d.startswith(p) for p in self.common_exclude_dirs)]
+
+            if len(files) <= max_files_per_dir:
+                for file in files:
+                    content_paths.append(os.path.join(root, file))
+
+        return content_paths
     
     def remove_welcome_text(self) -> None:
         try:
@@ -74,6 +98,7 @@ class MainEditor(Container, can_focus=True):
             text_area = self.app.query_one("#pvi-text-area")
             text_area.load_text(file_content)
             self.app.query_one("Footer").update_total_line(text_area.document.line_count)
+            self.app.query_one("Footer").update_current_line(1)
         except NoMatches:
             text_area = PviTextArea(file_content, id="pvi-text-area")
             self.mount(text_area)

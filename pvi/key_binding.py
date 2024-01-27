@@ -5,7 +5,7 @@ import os
 
 from components.directory_content_text import DirectoryContentText
 from components.search_file_dialog import SearchFileDialog
-from utils import read_ini_file, SidebarUtils
+from utils import read_ini_file, SidebarUtils, check_git_diff
 
 
 class KeyBindingInSelectionMode:
@@ -252,23 +252,7 @@ class KeyBindingInNormalMode:
                 self.main_editor.typed_key = ""
                 sidebar = self.main_editor.app.query_one("Sidebar")
                 sidebar_utils = SidebarUtils(sidebar=sidebar)
-
-                # during search files operation, algorithm will not search through these folders
-                COMMON_EXCLUDE_DIRS = [
-                    ".git", ".svn", ".vscode", "venv", "node_modules", "dist", "__pycache__",
-                    "vendor", ".bundle", "env", "virtual_environment", ".idea"
-                ]
-                # search through only directory than contains less than 30 files
-                MAX_FILES_PER_DIR = 30
-
-                content_paths = []
-
-                for root, dirs, files in os.walk(self.store["project_root"]):
-                    dirs[:] = [d for d in dirs if not any(d.startswith(p) for p in COMMON_EXCLUDE_DIRS)]
-
-                    if len(files) <= MAX_FILES_PER_DIR:
-                        for file in files:
-                            content_paths.append(os.path.join(root, file))
+                content_paths = self.main_editor.search_project_root()
 
                 # function will be invoked after come back from SearchFileDialog Screen
                 def after_select_file(file_path: str, main_editor=self.main_editor, store=self.store, sidebar=sidebar):
@@ -280,6 +264,7 @@ class KeyBindingInNormalMode:
                             sidebar.select_file(content)
                             sidebar.viewing_id = content.content_id 
                             sidebar_utils.set_to_highlighted_or_normal()
+                    check_git_diff(main_editor.app)
                 
                 self.main_editor.app.push_screen(
                     SearchFileDialog(
