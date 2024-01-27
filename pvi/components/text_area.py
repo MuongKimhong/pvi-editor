@@ -133,7 +133,7 @@ class PviTextArea(TextArea):
 
         self.change_occurs = self.change_occurs + 1
 
-        # update the suggestion words every 20 changes
+        # update the suggestion words every 10 changes
         if (self.change_occurs - self.change_updates) >= 10:
             ext = self.language_pair[self.language]
 
