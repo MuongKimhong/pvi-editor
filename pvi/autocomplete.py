@@ -1,4 +1,5 @@
 import subprocess
+import json
 import os
 
 import re
@@ -6,8 +7,44 @@ import re
 
 class AutoComplete:
     def __init__(self, main_editor: "MainEditor") -> None:
-        self.language = None
-        self.suggestion = {}
+        self.main_editor = main_editor
+        self.support_ext = ["py", "js", "ts"]
+
+        # all file paths from search_project_root
+        self.all_file_paths = main_editor.search_project_root(max_files_per_dir=15)
+        self.suggestions = self.initialize_suggestions()
+
+    def check_cache_file(self) -> str:
+        home_dir = os.path.expanduser("~")
+        cache_file = os.path.join(home_dir, "pvi_autocomplete_cache.json")
+
+        if not os.path.exists(cache_file):
+            with open(cache_file, "w") as file:
+                json.dump({}, file)
+
+            # read and write permission
+            os.chmod(cache_file, 600)
+
+        return cache_file
+
+    def initialize_suggestions(self) -> dict:
+        data = {"py": [], "js": [], "ts": []}
+        cache_file = self.check_cache_file()
+
+        for path in self.all_file_paths:
+            ext = path.split("/")[-1].split(".")[-1]
+
+            if ext not in self.support_ext: continue
+
+            with open(path, "r") as _file:
+                for suggestion in self.get_suggestion(ext, _file.read()):
+                    if suggestion not in data[ext]:
+                        data[ext].append(suggestion)
+
+        with open(cache_file, "w") as cache_file:
+            cache_file.write(json.dumps(data, indent=4))
+
+        return data
     
     def filter_pattern(self, patterns: list) -> list:
         filtered_pattern = []
@@ -18,15 +55,13 @@ class AutoComplete:
 
         return filtered_pattern
 
-    def get_suggestion(self, code) -> list:
-        if self.language == "python":
+    def get_suggestion(self, ext: str, code: str) -> list:
+        if ext == "py":
             return self.python_autocomplete(code)
-        elif self.language == "javascript":
+        elif ext == "js":
             return self.javascript_autocomplete(code)
-        elif self.language == "typescript":
+        elif ext == "ts":
             return self.typescript_autocomplete(code)
-        elif self.language == "html":
-            return self.html_autocomplete(code)
     
     def python_autocomplete(self, code):
         patterns = re.compile(r'\b(?:def|class|from|import|([a-zA-Z_]\w*)\s*\(.*?\))')

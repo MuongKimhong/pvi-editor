@@ -49,7 +49,7 @@ class MainEditor(Container, can_focus=True):
             ".git", ".svn", ".vscode", "venv", "node_modules", "dist", "__pycache__",
             "vendor", ".bundle", "env", "virtual_environment", ".idea", ".venv", ".env"
         ]
-        self.autocomplete_engine = AutoComplete()
+        self.autocomplete_engine = AutoComplete(main_editor=self)
         super().__init__()
 
     def compose(self) -> ComposeResult:

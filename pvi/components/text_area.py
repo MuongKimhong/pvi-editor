@@ -4,7 +4,7 @@ from textual.css.query import NoMatches
 from textual.geometry import Offset
 from textual import events, log
 
-from autocomplete import AutoComplete
+# from autocomplete import AutoComplete
 import time
 
 
@@ -37,6 +37,11 @@ class PviTextArea(TextArea):
     autocomplete_symbol = ['{', '[', '(']
     autocomplete_engine = None
     suggestion_words = []
+    language_pair = {
+        "python": "py", 
+        "javascript": "js",
+        "typescript": "ts"
+    }
 
     # auto indent when user presses key <enter> if user type symbol below
     auto_indentation_symbol = ["{", "[", "(", ":"] 
@@ -95,10 +100,8 @@ class PviTextArea(TextArea):
 
     def on_focus(self, event: events.Focus) -> None:
         self.theme = "my_theme_insert_mode"
-
-        if self.autocomplete_engine is None:
-            self.autocomplete_engine = AutoComplete(language=self.language)
-            self.suggestion_words = self.autocomplete_engine.get_suggestion(self.document.text)
+        self.suggestion_words = self.app.query_one("MainEditor").autocomplete_engine.suggestions
+        self.suggestion_words = self.suggestion_words[self.language_pair[self.language]]
 
     def on_blur(self, event: events.Blur) -> None:
         self.theme = "my_theme"
@@ -124,12 +127,12 @@ class PviTextArea(TextArea):
 
         self.change_occurs = self.change_occurs + 1
 
-        # update the suggestion words every 10 changes
-        if (self.change_occurs - self.change_updates) >= 10:
-            self.suggestion_words = self.autocomplete_engine.get_suggestion(
-                event.text_area.document.text
-            )
-            self.change_updates = self.change_occurs
+        # update the suggestion words every 20 changes
+        # if (self.change_occurs - self.change_updates) >= 10:
+        #     self.suggestion_words = self.autocomplete_engine.get_suggestion(
+        #         event.text_area.document.text
+        #     )
+        #     self.change_updates = self.change_occurs
 
         # every 5 document length differrent, update the undo states
         if ((len(event.text_area.document.text) - len(self.old_document) >= 5) or
@@ -201,15 +204,15 @@ class PviTextArea(TextArea):
 
             elif event.key == "down":
                 try:
+                    event.prevent_default()
                     self.query_one(SuggestionPanel).listview.action_cursor_down()
-                    self.action_cursor_up()
                     self.suggestion_panel_focused = True
                 except NoMatches:
                     pass
             elif event.key == "up":
                 try:
+                    event.prevent_default()
                     self.query_one(SuggestionPanel).listview.action_cursor_up()
-                    self.action_cursor_down()
                     self.suggestion_panel_focused = True
                 except NoMatches:
                     pass
@@ -221,7 +224,9 @@ class PviTextArea(TextArea):
                 matched_words = []
 
                 for word in self.suggestion_words:
-                    if (len(self.typing_word) > 0) and (self.typing_word.lower() in word.lower()):
+                    if ((len(self.typing_word) > 0) and 
+                        (self.typing_word.lower() in word.lower()) and 
+                        (word.lower().startswith(self.typing_word.lower()))):
                         matched_words.append(word)
 
                 self.remove_suggestion_from_dom()
