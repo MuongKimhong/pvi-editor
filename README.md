@@ -31,7 +31,8 @@ See key bindings for more details.
 - `<aa>` create new file or directory in sidebar if sidebar is focused
 
 #### Commit and push code from editor
-- `<:git push origin branch_name "commit message">` commit and push code to branch_name
+- `<:git push origin branch_name "commit message">` commit current editing file and push code to branch_name
+- `<:push branch_name "commit message">` commit everything in project directory and push code to branch_name
   
 #### Editor
 - `<j>` move down
