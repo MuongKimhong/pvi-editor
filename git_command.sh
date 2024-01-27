@@ -7,6 +7,11 @@
 # $2 is commit message
 # $3 is commit file path
 
-git add $3
+if [ $# -eq 2 ]; then
+    git add .
+else
+    git add $3
+fi
+
 git commit -m "$2"
 git push origin $1

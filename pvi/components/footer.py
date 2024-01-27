@@ -14,6 +14,7 @@ import re
 class CommandInput(Input, can_focus=True):
     err_occur = False
     git_command_pattern = re.compile(r'^:git push origin (\S+) \"(.*?)\"')    
+    git_push_all_pattern = re.compile(r'^:push (\S+) \"(.*?)\"')
 
     def focus_on_main_editor(self) -> None:
         self.styles.color = "white"
@@ -50,6 +51,25 @@ class CommandInput(Input, can_focus=True):
         main_editor.copied_text = ""
         main_editor.typed_key = ""
 
+    def git_commit_and_push(self, patterns, push_all=True):
+        branch = patterns.group(1)
+        message = patterns.group(2)
+        sh_path = f"{get_pvi_root()}/git_command.sh"
+        file_path = read_ini_file("stores.ini", "WorkingDirectory")["editing_path"]
+        command = ["bash", sh_path, branch, message] if push_all else ["bash", sh_path, branch, message, file_path]
+
+        process = subprocess.Popen(
+            command, 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE
+        ) 
+        process.wait()
+
+        if process.returncode == 0:
+            self.focus_on_main_editor()
+        else:
+            self.show_err_msg(msg="error git command")
+
     def on_key(self, event: events.Key) -> None:
         if event.key == "escape":
             self.focus_on_main_editor()
@@ -60,6 +80,7 @@ class CommandInput(Input, can_focus=True):
             if event.key == "enter": # execute command
                 # :git push origin branchname "message"
                 match_patterns = self.git_command_pattern.match(self.value)
+                push_all_match_patterns = self.git_push_all_pattern.match(self.value)
 
                 if self.value == ":q" or self.value == ":exit":
                     self.app.exit()
@@ -72,25 +93,14 @@ class CommandInput(Input, can_focus=True):
                 elif self.value == ":wq":
                     self.save_file_content()
                     self.app.exit()
+
+                # :push branchname "message", push everthing
+                elif push_all_match_patterns:
+                    self.git_commit_and_push(patterns=push_all_match_patterns, push_all=True)
                 
-                # :git push origin branchname "message"
+                # :git push origin branchname "message", push only editing_path
                 elif match_patterns:
-                    branch = match_patterns.group(1)
-                    message = match_patterns.group(2)
-
-                    sh_path = f"{get_pvi_root()}/git_command.sh"
-                    file_path = read_ini_file("stores.ini", "WorkingDirectory")["editing_path"]
-                    process = subprocess.Popen(
-                        ["bash", sh_path, branch, message, file_path], 
-                        stdout=subprocess.PIPE, 
-                        stderr=subprocess.PIPE
-                    ) 
-                    process.wait()
-
-                    if process.returncode == 0:
-                        self.focus_on_main_editor()
-                    else:
-                        self.show_err_msg(msg="error git command")
+                    self.git_commit_and_push(patterns=match_patterns, push_all=False)
                 else:
                     self.show_err_msg(msg="unknow command")
 
