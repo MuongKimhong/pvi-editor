@@ -14,6 +14,15 @@ echo -e "${GREEN}[INFO] Cloning pvi-editor\n${NC}"
 repository_url="https://github.com/MuongKimhong/pvi-editor.git"
 git clone "$repository_url" "$HOME/pvi-editor"
 
+# create autocomplete cache file in home dir
+cache_file="$HOME/pvi_autocomplete_cache.json"
+
+if [ ! -e "$cache_file" ]; then
+    touch "$cache_file"
+    # read and write permission
+    sudo chmod 600 "$cache_file"
+fi
+
 # Download pvi.sh
 sudo curl -o /usr/local/bin/pvi "https://raw.githubusercontent.com/MuongKimhong/pvi-editor/master/pvi.sh"
 
