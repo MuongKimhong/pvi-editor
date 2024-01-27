@@ -3,6 +3,7 @@
 RED='\033[0;31m'
 CYAN='\033[0;36m'
 GREEN='\033[0;32m]'
+HEART_ICON='\u2665'
 NC='\033[0m' # No Color
 
 # install poetry
@@ -11,6 +12,11 @@ curl -sSL https://install.python-poetry.org | python3 -
 
 # Clone pvi GitHub repository
 echo -e "${GREEN}[INFO] Cloning pvi-editor\n${NC}"
+
+if [ -d "$HOME/pvi-editor" ]; then # if pvi-editor exists in home dir, remove
+    rm -rf "$HOME/pvi-editor"
+fi
+
 repository_url="https://github.com/MuongKimhong/pvi-editor.git"
 git clone "$repository_url" "$HOME/pvi-editor"
 
@@ -36,5 +42,7 @@ echo -e "${CYAN}[INFO] Installation completed\n"
 echo -e "${CYAN}- run: pvi file.py to open file.py and edit"
 echo -e "${CYAN}- run: pvi . to open current directory"
 echo -e "${CYAN}- run: pvi -d somedirectory to open somedirectory"
+
+echo -e "${CYAN}\n Code with Love ${HEART_ICON} \n"
 
 echo -e "${CYAN}\nVist https://github.com/MuongKimhong/pvi-editor for more info.\n"
