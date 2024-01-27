@@ -1,3 +1,4 @@
+from utils import get_pvi_root
 import subprocess
 import json
 import os
@@ -8,7 +9,7 @@ import re
 class AutoComplete:
     def __init__(self, main_editor: "MainEditor") -> None:
         self.main_editor = main_editor
-        self.support_ext = ["py", "js", "ts"]
+        self.support_ext = ["py", "js", "ts", "html"]
 
         # all file paths from search_project_root
         self.all_file_paths = main_editor.search_project_root(max_files_per_dir=15)
@@ -28,7 +29,7 @@ class AutoComplete:
         return cache_file
 
     def initialize_suggestions(self) -> dict:
-        data = {"py": [], "js": [], "ts": []}
+        data = {"py": [], "js": [], "ts": [], "html": []}
         cache_file = self.check_cache_file()
 
         for path in self.all_file_paths:
@@ -62,6 +63,8 @@ class AutoComplete:
             return self.javascript_autocomplete(code)
         elif ext == "ts":
             return self.typescript_autocomplete(code)
+        elif ext == "html":
+            return self.html_autocomplete(code)
     
     def python_autocomplete(self, code):
         patterns = re.compile(r'\b(?:def|class|from|import|([a-zA-Z_]\w*)\s*\(.*?\))')
@@ -93,15 +96,19 @@ class AutoComplete:
 
     #     return self.filter_pattern([*variables, *functions, *structs])
 
-    def html_autocomplete(self, code):
+    def html_autocomplete(self, code) -> list[str]:
         pre_defined_tags = [
             "<audio></audio>", "<canvas></canvas>", "<b></b>", "<body></body>", 
             "<dir></dir>", "<div></div>", "<dl></dl>", "<dt></dt>", "<form></form>",
             "<head></head>", "<legend></legend>", "<link></link>", "<hr>", "<i></i>",
             "<input>", "<html></html>", "<h1></h1>", "<h2></h2>", "<h3></h3>", "<h4></h4>",
-            "<h5></h5>", "<h6></h6>", "<p></p>", "<img>", "<script src=''></script>", "<ol></ol>"
+            "<h5></h5>", "<h6></h6>", "<p></p>", "<img>", '<script src=""></script>', "<ol></ol>"
         ]
         return pre_defined_tags
+
+    def html_boiler_plate(self) -> str:
+        with open(f"{get_pvi_root()}/boiler_plate.html", "r") as html:
+            return html.read()
 
     # def php_autocomplete(self, code):
     #     pattern_php = re.compile(r'\b(?:function\s+([a-zA-Z_]\w*)\s*\(|class\s+([a-zA-Z_]\w*)\s*[{])')

@@ -40,7 +40,8 @@ class PviTextArea(TextArea):
     language_pair = {
         "python": "py", 
         "javascript": "js",
-        "typescript": "ts"
+        "typescript": "ts",
+        "html": "html"
     }
 
     # auto indent when user presses key <enter> if user type symbol below
@@ -100,7 +101,12 @@ class PviTextArea(TextArea):
 
     def on_focus(self, event: events.Focus) -> None:
         self.theme = "my_theme_insert_mode"
-        self.suggestion_words = self.app.query_one("MainEditor").autocomplete_engine.suggestions
+        main_editor = self.app.query_one("MainEditor")
+
+        if self.autocomplete_engine is None:
+            self.autocomplete_engine = main_editor.autocomplete_engine
+
+        self.suggestion_words = main_editor.autocomplete_engine.suggestions
         self.suggestion_words = self.suggestion_words[self.language_pair[self.language]]
 
     def on_blur(self, event: events.Blur) -> None:
@@ -190,6 +196,13 @@ class PviTextArea(TextArea):
         
         else:
             if (event.is_printable) and (event.key != "space"):
+
+                # check for html boiler plate
+                if event.character == "!" and self.language == "html" and len(self.document.text) == 0:
+                    if self.autocomplete_engine is not None:
+                        event.prevent_default()
+                        self.load_text(self.autocomplete_engine.html_boiler_plate())
+
                 self.typing_word = self.typing_word + event.character
                 self.suggestion_panel_focused = False
             elif (event.key == "backspace") and (self.typing_word != ""):
