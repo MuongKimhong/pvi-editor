@@ -134,14 +134,14 @@ class PviTextArea(TextArea):
         self.change_occurs = self.change_occurs + 1
 
         # update the suggestion words every 10 changes
-        if (self.change_occurs - self.change_updates) >= 10:
-            ext = self.language_pair[self.language]
+        # if (self.change_occurs - self.change_updates) >= 10:
+        #     ext = self.language_pair[self.language]
 
-            for word in self.autocomplete_engine.get_suggestion(ext, self.document.text):
-                if word not in self.suggestion_words:
-                    self.suggestion_words.append(word)
+        #     for word in self.autocomplete_engine.get_suggestion(ext, self.document.text):
+        #         if word not in self.suggestion_words:
+        #             self.suggestion_words.append(word)
 
-            self.change_updates = self.change_occurs
+        #     self.change_updates = self.change_occurs
 
         # every 5 document length differrent, update the undo states
         if ((len(event.text_area.document.text) - len(self.old_document) >= 5) or
@@ -250,7 +250,6 @@ class PviTextArea(TextArea):
                 if len(matched_words) > 0:
                     suggestion_panel = SuggestionPanel(listview=ListView(*[]))
                     self.mount(suggestion_panel)
-                    suggestion_panel.scroll_visible()
                     self.suggestion_panel_focused = True
 
                     suggestion_panel = self.query_one(SuggestionPanel) 
