@@ -2,7 +2,9 @@
 
 #### A vim like editor, built on top of [Textual](https://github.com/textualize/textual/) with all nescessary features and key bindings.
 
-![Screenshot](pvi_screenshot.png)
+<p align="center">
+  <img src="pvi-demo.gif" width="920"></img>
+</p>
 
 ## Installation
 ```bash
