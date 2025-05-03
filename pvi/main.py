@@ -13,6 +13,12 @@ from editor import Editor
 import argparse
 import os
 
+print("Hello world")
+
+class TestClass:
+    def __init__(self):
+        print("Hello from TestClass")
+
 
 class Main(App):
     def __init__(self, cli_argument):
